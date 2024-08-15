@@ -1,0 +1,10 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+  font-family: 'Hanimation';
+  src: url('../js/Components/fonts/Hanimation_Arabic_Regular.otf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
