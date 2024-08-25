@@ -14,6 +14,7 @@ export default function index({ auth, datakinds, queryParams = null, success }) 
     } else {
       delete queryParams[name]
     }
+    queryParams.page = 1;
     router.get(route('datakind.index'), queryParams)
   }
 
@@ -33,6 +34,7 @@ export default function index({ auth, datakinds, queryParams = null, success }) 
       queryParams.sort_field = name;
       queryParams.sort_direction = 'asc';
     }
+    queryParams.page = 1;
     router.get(route('datakind.index'), queryParams)
   }
 
@@ -128,7 +130,7 @@ export default function index({ auth, datakinds, queryParams = null, success }) 
                   </tbody>
                 </table>
               </div>
-              <Pagination links={datakinds.meta.links} />
+              <Pagination links={datakinds.meta.links} queryParams={queryParams} />
             </div>
           </div>
         </div>

@@ -7,9 +7,8 @@ use App\Http\Requests\StoreDataKindRequest;
 use App\Http\Requests\UpdateDataKindRequest;
 use App\Http\Resources\DataKindResource;
 
-class DataKindCotroller extends Controller
+class DataKindController extends Controller
 {
-
   public function index()
   {
     $query = DataKind::query();
@@ -51,29 +50,25 @@ class DataKindCotroller extends Controller
 
   public function edit(DataKind $datakind)
   {
-    // dd($dataKind);
     return inertia("Admin/Dashboard/DataKind/Edit", [
       'dataKind' => new DataKindResource($datakind)
     ]);
   }
 
-  /**
-   * Update the specified resource in storage.
-   */
   public function update(UpdateDataKindRequest $request, DataKind $datakind)
   {
-    //
+    $data = $request->validated();
+    
+    $datakind->update($data);
+    return to_route('datakind.index')->with('success', "تم تعديل تصنيف \"$datakind->name\" بنجاح");
   }
 
-  /**
-   * Remove the specified resource from storage.
-   */
   public function destroy(DataKind $datakind)
   {
-    // التحقق إذا كان هناك مهام مرتبطة بالتصنيف
-    // if ($dataKind->products()->count() > 0) {
-    //   return to_route('dataKind.index')->with('success', "لايمكن حذف التصنيف  \"$dataKind->name\" لوجود منتجات مرتبطة به");
-    // }
+    //التحقق إذا كان هناك مهام مرتبطة بالتصنيف
+    if (($datakind->service1()->count() > 0) || ($datakind->service2()->count() > 0)) {
+      return to_route('datakind.index')->with('success', "لايمكن حذف بيانات الخدمة  \"$datakind->name\" لوجود منتجات مرتبطة به");
+    }
 
     $name = $datakind->name;
     $datakind->delete();

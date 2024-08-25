@@ -11,7 +11,7 @@ export default function Create({ auth }) {
   const { data, setData, post, errors, reset } = useForm({
     image: '',
     name: '',
-    status: '',
+    status: 'active',
     notes: '',
   })
 
@@ -91,7 +91,6 @@ export default function Create({ auth }) {
                   className="mt-1 block w-full"
                   onChange={e => setData('status', e.target.value)}
                 >
-                  <option value="">اختر الحالة</option>
                   <option value="active">فعال</option>
                   <option value="inactive">غير فعال</option>
                 </SelectInput>

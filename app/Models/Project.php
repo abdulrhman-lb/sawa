@@ -7,20 +7,21 @@ use Illuminate\Database\Eloquent\Model;
 
 class Project extends Model
 {
-    use HasFactory;
-    protected $fillable = ['name', 'description', 'image_path', 'status', 'due_date', 'created_by', 'updated_by'];
+  use HasFactory;
+  protected $fillable = ['name', 'description', 'image_path', 'status', 'due_date', 'created_by', 'updated_by'];
 
-    public function tasks(){
-      return $this->hasMany(Task::class);
-    }
+  public function tasks()
+  {
+    return $this->hasMany(Task::class);
+  }
 
-    public function createdBy()
-    {
-        return $this->belongsTo(User::class,'created_by');
-    }
+  public function createdBy()
+  {
+    return $this->belongsTo(User::class, 'created_by');
+  }
 
-    public function updatedBy()
-    {
-        return $this->belongsTo(User::class,'updated_by');
-    }
+  public function updatedBy()
+  {
+    return $this->belongsTo(User::class, 'updated_by');
+  }
 }

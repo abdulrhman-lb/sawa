@@ -6,32 +6,26 @@ use App\Models\Category;
 use App\Http\Requests\StoreCategoryRequest;
 use App\Http\Requests\UpdateCategoryRequest;
 use App\Http\Resources\CategoryResource;
+use App\Models\Order;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 
-class CategoryCotroller extends Controller
+class CategoryController extends Controller
 {
   public function index()
   {
-    $query = Category::query();
-
-    // Sorting
+    $query = Order::query();
     $sortField = request('sort_field', 'created_at');
     $sortDirection = request('sort_direction', 'desc');
-
-    // Search
-    if (request("name")) {
-      $query->where("name", "like", "%" . request("name") . "%");
+    if (request("data_kind_1")) {
+      $query->where("data_kind_1", "like", "%" . request("data_kind_1") . "%");
     }
     if (request("status")) {
       $query->where("status", request("status"));
     }
-
-    // Apply
     $categories = $query->orderBy($sortField, $sortDirection)->paginate(10)->onEachSide(1);
-
     return inertia("Admin/Dashboard/Category/Index", [
       "categories"  => CategoryResource::collection($categories),
       'queryParams' => request()->query() ?: null,
@@ -106,20 +100,10 @@ class CategoryCotroller extends Controller
   public function indexToHome()
   {
     $query = Category::query();
-
-    // Sorting
-    $sortField = request('sort_field', 'created_at');
-    $sortDirection = request('sort_direction', 'desc');
-
     $query->where("status", "active");
-
-    // Apply
-    $categories = $query->orderBy($sortField, $sortDirection)->paginate(10)->onEachSide(1);
-
+    $categories = $query->orderBy('id', 'asc')->paginate(10)->onEachSide(1);
     return inertia("Category/Index", [
       "categories"  => CategoryResource::collection($categories),
-      'queryParams' => request()->query() ?: null,
-      'success'     => session('success'),
     ]);
   }
 }

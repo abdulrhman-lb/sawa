@@ -14,6 +14,7 @@ return new class extends Migration
     Schema::create('services', function (Blueprint $table) {
       $table->id();
       $table->string('name');
+      $table->enum('kind', ['const', 'var']);
       $table->text('notes')->nullable();
       $table->enum('status', ['active', 'inactive']);
       $table->foreignId('product_id')->constrained('products');

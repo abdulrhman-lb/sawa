@@ -8,10 +8,11 @@ use App\Http\Requests\UpdateProductRequest;
 use App\Http\Resources\CategoryResource;
 use App\Http\Resources\ProductResource;
 use App\Models\Category;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
-class ProductCotroller extends Controller
+class ProductController extends Controller
 {
   public function index()
   {
@@ -113,5 +114,16 @@ class ProductCotroller extends Controller
     }
 
     return to_route('product.index')->with('success', "تم حذف المنتج  \"$name\" بنجاح");
+  }
+
+  public function indexToHome(Request $category)
+  {
+    $query = Product::query();
+    $query->where("status", "active");
+    $query->where("category_id", $category->id);
+    $products = $query->orderBy('id', 'asc')->get();
+    return inertia("Product/Index", [
+      "products"  => ProductResource::collection($products),
+    ]);
   }
 }

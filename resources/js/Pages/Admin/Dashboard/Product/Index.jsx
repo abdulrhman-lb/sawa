@@ -14,6 +14,7 @@ export default function index({ auth, products, categories, queryParams = null, 
     } else {
       delete queryParams[name]
     }
+    queryParams.page = 1;
     router.get(route('product.index'), queryParams)
   }
 
@@ -33,6 +34,7 @@ export default function index({ auth, products, categories, queryParams = null, 
       queryParams.sort_field = name;
       queryParams.sort_direction = 'asc';
     }
+    queryParams.page = 1;
     router.get(route('product.index'), queryParams)
   }
 
@@ -158,7 +160,7 @@ export default function index({ auth, products, categories, queryParams = null, 
                     {products.data.map((product) => (
                       <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700" key={product.id}>
                         <td className="px-3 py-2">{product.id}</td>
-                        <td className="px-3 py-2"><img src={product.image} className=" rounded-md" style={{ width: 60, height: 60}} /></td>
+                        <td className="px-3 py-2"><img src={product.image} className="rounded-md h-[60px] w-[60px] object-cover" style={{ width: 60, height: 60}} /></td>
                         <td className="px-3 py-2 text-nowrap text-gray-800 dark:text-gray-400">
                           <Link href={route("product.show", product.id)}>
                             {product.name}
@@ -186,7 +188,7 @@ export default function index({ auth, products, categories, queryParams = null, 
                   </tbody>
                 </table>
               </div>
-              <Pagination links={products.meta.links} />
+              <Pagination links={products.meta.links } queryParams={queryParams} />
             </div>
           </div>
         </div>

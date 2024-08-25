@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('image');
-            $table->integer('phone')->nullable();
+            $table->string('phone')->nullable();
             $table->text('notes')->nullable();
             $table->enum('status', ['active', 'inactive']);
             $table->foreignId('category_id')->constrained('categories');

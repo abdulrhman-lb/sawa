@@ -11,16 +11,18 @@ export default function Index({ auth, categories }) {
     >
       <Head title="الرئيسية" />
       <div className="bg-gray-100 dark:bg-gray-900 dark:text-white pt-6 mx-auto max-w-7xl">
-      
-          {/* Blogs Card */}
-          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 gap-10">
-            {
-              categories.data.map((member) => (
+
+        {/* Blogs Card */}
+        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 gap-10 ">
+          {
+            categories.data.map((member) => (
+              <>
                 <Content key={member.id} {...member} />
-              ))
-            }
-          </div>
-        
+              </>
+            ))
+          }
+        </div>
+
       </div>
 
     </AuthenticatedLayout>

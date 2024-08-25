@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Service extends Model
 {
     use HasFactory;
-    protected $fillable = ['name', 'notes', 'status', 'product_id', 'data_kind_id_1', 'data_kind_id_2'];
+    protected $fillable = ['name', 'notes', 'status', 'product_id', 'data_kind_id_1', 'data_kind_id_2', 'kind'];
 
     public function product(){
       return $this->belongsTo(Product::class);
@@ -20,5 +20,13 @@ class Service extends Model
 
     public function data_kind_2(){
       return $this->belongsTo(DataKind::class,'data_kind_id_2');
+    }
+
+    public function amountKins(){
+      return $this->hasMany(AmountKind::class, 'service_id');
+    }
+
+    public function orders(){
+      return $this->hasMany(Order::class, 'service_id');
     }
 }

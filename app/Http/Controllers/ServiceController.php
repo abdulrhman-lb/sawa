@@ -5,13 +5,20 @@ namespace App\Http\Controllers;
 use App\Models\Service;
 use App\Http\Requests\StoreServiceRequest;
 use App\Http\Requests\UpdateServiceRequest;
+use App\Http\Resources\AmountKindResource;
+use App\Http\Resources\ComissionResource;
+use App\Http\Resources\CustomerResource;
 use App\Http\Resources\DataKindResource;
 use App\Http\Resources\ProductResource;
 use App\Http\Resources\ServiceResource;
+use App\Models\AmountKind;
+use App\Models\Comission;
+use App\Models\Customer;
 use App\Models\DataKind;
 use App\Models\Product;
+use Illuminate\Http\Request;
 
-class ServiceCotroller extends Controller
+class ServiceController extends Controller
 {
 
   public function index()
@@ -52,7 +59,7 @@ class ServiceCotroller extends Controller
     $data_kinds = DataKind::orderBy('name', 'asc')->get();
     return inertia("Admin/Dashboard/Service/Create", [
       'products'  => ProductResource::collection($products),
-      'data_kinds'=> DataKindResource::collection($data_kinds)
+      'data_kinds' => DataKindResource::collection($data_kinds)
     ]);
   }
 
@@ -91,13 +98,31 @@ class ServiceCotroller extends Controller
   public function destroy(Service $service)
   {
     // التحقق إذا كان هناك مهام مرتبطة بالمنتج
-    // if ($service->serveice()->count() > 0) {
-    //   return to_route('service.index')->with('success', "لايمكن حذف المنتج  \"$service->name\" لوجود منتجات مرتبطة به");
-    // }
+    if ($service->amountKins()->count() > 0) {
+      return to_route('service.index')->with('success', "لايمكن الحذف لوجود سجلات مرتبطة ");
+    }
 
     $name = $service->name;
     $service->delete();
 
     return to_route('service.index')->with('success', "تم حذف الخدمة  \"$name\" بنجاح");
+  }
+  public function indexToHome(Request $request, $id)
+  {
+    $query = Service::query();
+    $query->where("status", "active");
+    $query->where("product_id", $id); // Use the passed ID
+    $services = $query->orderBy('id', 'asc')->get();
+    $customers = Customer::orderBy('name', 'asc')->get();
+    $amountKinds = AmountKind::get();
+    $comissions = Comission::get();
+
+    return inertia("Services/Index", [
+      "services"      => ServiceResource::collection($services),
+      'customers'     => CustomerResource::collection($customers),
+      'amountKinds'   => AmountKindResource::collection($amountKinds),
+      'comissions'    => ComissionResource::collection($comissions),
+      'success'       => session('success'),
+    ]);
   }
 }

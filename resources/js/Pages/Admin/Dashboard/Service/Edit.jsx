@@ -65,6 +65,7 @@ export default function Edit({ auth, service, products, data_kinds }) {
                   id="product_id"
                   name="product_id"
                   className="mt-1 block w-full"
+                  value={data.product_id}
                   onChange={e => setData('product_id', e.target.value)}
                 >
                   <option value="">اختر المنتج</option>
@@ -140,7 +141,6 @@ export default function Edit({ auth, service, products, data_kinds }) {
                   value={data.status}
                   onChange={e => setData('status', e.target.value)}
                 >
-                  <option value="">اختر الحالة</option>
                   <option value="active">فعال</option>
                   <option value="inactive">غير فعال</option>
                 </SelectInput>

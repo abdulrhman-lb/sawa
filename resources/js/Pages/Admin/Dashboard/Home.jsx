@@ -15,7 +15,7 @@ export default function Home({
     <AuthenticatedLayout
       user={auth.user}
       header={
-        <div className="flex justify-between items-center mt-14">
+        <div className="flex justify-between items-center">
           <h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
             لوحة التحكم - الصفحة الرئيسية
           </h2>

@@ -6,22 +6,24 @@ export default function TableHeading({
   sort_direction = null,
   sortable = true,
   children,
-  sortChanged = () => { } }) {
+  sortChanged = () => { }
+}) {
   return (
-    <th onClick={(e) => sortChanged(name)}>
-      <div className="text-sm px-3 py-3 flex items-center justify-between gap-1 cursor-pointer">
-        {children}
+    <th onClick={(e) => sortChanged(name)} className="text-center">
+      <div className="text-sm px-3 py-3 flex items-center justify-center gap-1 cursor-pointer">
         {sortable &&
-          <div>
+          <div className="flex flex-col items-center">
             <ChevronUpIcon className={
               "w-4 " +
               (sort_field === name && sort_direction === 'asc' ? 'text-white' : '')
             } />
             <ChevronDownIcon className={
-              "w-4 -mt-2 " +
+              "w-4 " +
               (sort_field === name && sort_direction === 'desc' ? 'text-white' : '')
             } />
           </div>}
+        {children}
+
       </div>
     </th>
   )

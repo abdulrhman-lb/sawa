@@ -7,7 +7,7 @@ use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UpdateUserRequest;
 use App\Http\Resources\UserCrudResource;
 
-class UserCotroller extends Controller
+class UserController extends Controller
 {
   public function index()
   {

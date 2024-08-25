@@ -10,7 +10,7 @@ import { Head, Link, useForm } from "@inertiajs/react";
 export default function Create({ auth, products, data_kinds }) {
   const { data, setData, post, errors, reset } = useForm({
     name: '',
-    status: '',
+    status: 'active',
     notes: '',
   })
 
@@ -132,7 +132,6 @@ export default function Create({ auth, products, data_kinds }) {
                   className="mt-1 block w-full"
                   onChange={e => setData('status', e.target.value)}
                 >
-                  <option value="">اختر الحالة</option>
                   <option value="active">فعال</option>
                   <option value="inactive">غير فعال</option>
                 </SelectInput>

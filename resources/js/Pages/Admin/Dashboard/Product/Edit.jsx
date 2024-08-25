@@ -133,7 +133,6 @@ export default function Edit({ auth, product, categories, users }) {
                   className="mt-1 block w-full"
                   onChange={e => setData('status', e.target.value)}
                 >
-                  <option value="">اختر الحالة</option>
                   <option value="active">فعال</option>
                   <option value="inactive">غير فعال</option>
                 </SelectInput>

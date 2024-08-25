@@ -14,6 +14,7 @@ export default function index({ auth, products, services, queryParams = null, su
     } else {
       delete queryParams[name]
     }
+    queryParams.page = 1;
     router.get(route('service.index'), queryParams)
   }
 
@@ -33,6 +34,7 @@ export default function index({ auth, products, services, queryParams = null, su
       queryParams.sort_field = name;
       queryParams.sort_direction = 'asc';
     }
+    queryParams.page = 1;
     router.get(route('service.index'), queryParams)
   }
 
@@ -178,7 +180,7 @@ export default function index({ auth, products, services, queryParams = null, su
                   </tbody>
                 </table>
               </div>
-              <Pagination links={services.meta.links} />
+              <Pagination links={services.meta.links} queryParams={queryParams} />
             </div>
           </div>
         </div>

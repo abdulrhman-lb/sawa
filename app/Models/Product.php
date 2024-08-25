@@ -17,4 +17,8 @@ class Product extends Model
     public function services(){
       return $this->hasMany(Service::class);
     }
+
+    public function productBalances(){
+      return $this->hasMany(ProductBalance::class, 'product_id');
+    }
 }
