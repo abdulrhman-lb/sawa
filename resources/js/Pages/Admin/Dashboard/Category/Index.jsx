@@ -5,6 +5,11 @@ import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { Head, Link, router } from "@inertiajs/react";
 import TableHeading from "@/Components/TableHeading";
 import { STATUS_CLASS_MAP, STATUS_TEXT_MAP } from "@/constants";
+import PrimaryButton from "@/Components/Buttons/PrimaryButton";
+import DeleteButton from "@/Components/Buttons/DeleteButton";
+import { MdOutlineAddCircleOutline } from "react-icons/md";
+import AddButton from "@/Components/Buttons/AddButton";
+
 
 export default function index({ auth, categories, queryParams = null, success }) {
   queryParams = queryParams || {}
@@ -43,21 +48,27 @@ export default function index({ auth, categories, queryParams = null, success })
     router.delete(route('category.destroy', category.id))
   }
 
+  const editCategory = (category) => {
+    router.get(route("category.edit", category))
+  }
+
+  const addCategory = () => {
+    router.get(route("category.create"))
+  }
+
   return (
     <AuthenticatedLayout
       user={auth.user}
       header={
         <div className="flex justify-between items-center">
           <h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            تصنيفات المنتجات
+            التصنيفات
           </h2>
-          <Link href={route('category.create')} className="bg-emerald-500 py-1 px-3 text-white rounded shadow transition-all hover:bg-emerald-600">
-            إضافة
-          </Link>
+          <AddButton onClick={e => addCategory()}>إضافة</AddButton>
         </div>
       }
     >
-      <Head title="تصنيفات المنتجات" />
+      <Head title="التصنيفات" />
       <div className="py-6">
         <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
           {success && (<div className="bg-emerald-500 py-2 px-4 text-white rounded mb-4">
@@ -66,17 +77,17 @@ export default function index({ auth, categories, queryParams = null, success })
           <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
             <div className="p-6 text-gray-900 dark:text-gray-100">
               <div className="overflow-auto">
-                <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
-                  <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400 border-b-2 border-gray-500">
+                <table className="w-full text-md font-semibold rtl:text-right text-gray-800 dark:text-gray-200">
+                  <thead className="text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400 border-b-2 border-gray-500">
                     <tr className="text-nowrap">
-                      <TableHeading
+                      {/* <TableHeading
                         name='id'
                         sort_field={queryParams.sort_field}
                         sort_direction={queryParams.sort_direction}
                         sortChanged={sortChanged}
                       >
                         ID
-                      </TableHeading>
+                      </TableHeading> */}
                       <TableHeading
                         name='image'
                         sortable={false}
@@ -108,7 +119,7 @@ export default function index({ auth, categories, queryParams = null, success })
                   </thead>
                   <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400 border-b-2 border-gray-500">
                     <tr className="text-nowrap">
-                      <th className="px-3 py-3"></th>
+                      {/* <th className="px-3 py-3"></th> */}
                       <th className="px-3 py-3"></th>
                       <th className="px-3 py-3">
                         <TextInput
@@ -134,31 +145,25 @@ export default function index({ auth, categories, queryParams = null, success })
                       <th className="px-3 py-3"></th>
                     </tr>
                   </thead>
-                  <tbody>
+                  <tbody className="text-center">
                     {categories.data.map((category) => (
                       <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700" key={category.id}>
-                        <td className="px-3 py-2">{category.id}</td>
-                        <td className="px-3 py-2"><img src={category.image} className=" rounded-md" style={{ width: 60 }} /></td>
+                        {/* <td className="px-3 py-2">{category.id}</td> */}
+                        <td className="px-3 py-2 flex justify-center items-center"><img src={category.image} className=" rounded-md h-[60px] w-[80px]" /></td>
                         <td className="px-3 py-2 text-nowrap text-gray-800 dark:text-gray-400">
                           <Link href={route("category.show", category.id)}>
                             {category.name}
                           </Link>
                         </td>
                         <td className="px-3 py-2 text-center">
-                          <span className={"px-2 py-0 cursor-pointer rounded text-white text-nowrap " +
+                          <span className={"px-2 py-0 cursor-pointer rounded text-white text-nowrap font-normal  " +
                             STATUS_CLASS_MAP[category.status]} >
                             {STATUS_TEXT_MAP[category.status]}
                           </span>
                         </td>
                         <td className="px-3 py-2 text-nowrap">
-                          <Link href={route("category.edit", category.id)} className="font-medium text-blue-600 dark:text-blue-500 hover:underline mx-1">
-                            تعديل
-                          </Link>
-                          <button
-                            onClick={e => deleteCategory(category)}
-                            className="font-medium text-red-600 dark:text-red-500 hover:underline mx-1">
-                            حذف
-                          </button>
+                          <PrimaryButton onClick={e => editCategory(category)}>تعديل</PrimaryButton>
+                          <DeleteButton onClick={e => deleteCategory(category)}>حذف</DeleteButton>
                         </td>
                       </tr>
                     ))}

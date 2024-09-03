@@ -12,11 +12,14 @@ use App\Http\Resources\DataKindResource;
 use App\Http\Resources\ProductResource;
 use App\Http\Resources\ServiceResource;
 use App\Models\AmountKind;
+use App\Models\Category;
 use App\Models\Comission;
 use App\Models\Customer;
 use App\Models\DataKind;
 use App\Models\Product;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class ServiceController extends Controller
 {
@@ -109,20 +112,51 @@ class ServiceController extends Controller
   }
   public function indexToHome(Request $request, $id)
   {
+    $center_balance = DB::table('center_balance_virtuals')
+      ->where('user_id', auth()->user()->id)
+      ->select(DB::raw('SUM(`add`) as total_add'), DB::raw('SUM(`reduce`) as total_reduce'))
+      ->first();
+    $remainingBalanceCenter = $center_balance->total_add - $center_balance->total_reduce;
+    $product = Product::where('id', $id)->first();
+    $products = Product::where('category_id', $product->category_id)->orderBy('id', 'asc')->get();
+    $center = User::where('id', auth()->user()->id)->first();
+    if ($remainingBalanceCenter <= 0) {
+      return inertia("Product/Index", [
+        "products"  => ProductResource::collection($products),
+        'success'   => "لايوجد رصيد لدى  \"$center->name\" لطلب الخدمات"
+      ]);
+    }
+
+    $product_balance = DB::table('product_balances')
+      ->where('product_id', $id)
+      ->select(DB::raw('SUM(`add`) as total_add'), DB::raw('SUM(`reduce`) as total_reduce'))
+      ->first();
+    $remainingBalanceProduct = $product_balance->total_add - $product_balance->total_reduce;
+    $product = Product::where('id', $id)->first();
+    $products = Product::where('category_id', $product->category_id)->orderBy('id', 'asc')->get();
+    if ($remainingBalanceProduct <= 0) {
+      return inertia("Product/Index", [
+        "products"  => ProductResource::collection($products),
+        'success'   => "لايوجد رصيد في  \"$product->name\" لطلب الخدمات"
+      ]);
+    }
+
     $query = Service::query();
     $query->where("status", "active");
-    $query->where("product_id", $id); // Use the passed ID
+    $query->where("product_id", $id);
     $services = $query->orderBy('id', 'asc')->get();
     $customers = Customer::orderBy('name', 'asc')->get();
     $amountKinds = AmountKind::get();
     $comissions = Comission::get();
 
     return inertia("Services/Index", [
-      "services"      => ServiceResource::collection($services),
-      'customers'     => CustomerResource::collection($customers),
-      'amountKinds'   => AmountKindResource::collection($amountKinds),
-      'comissions'    => ComissionResource::collection($comissions),
-      'success'       => session('success'),
+      "services"          => ServiceResource::collection($services),
+      'customers'         => CustomerResource::collection($customers),
+      'amountKinds'       => AmountKindResource::collection($amountKinds),
+      'comissions'        => ComissionResource::collection($comissions),
+      'remainingBalanceProduct'  => $remainingBalanceProduct,
+      'remainingBalanceCenter'  => $remainingBalanceCenter,
+      'success'           => session('success'),
     ]);
   }
 }

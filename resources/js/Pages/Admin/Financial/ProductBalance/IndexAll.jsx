@@ -6,6 +6,8 @@ import { useState } from "react";
 import SearchableDropdown from "@/Components/SearchableDropdown";
 import Modal from "@/Components/Modal";
 import TextInput from "@/Components/TextInput";
+import AddButton from "@/Components/Buttons/AddButton";
+import DetailsButton from "@/Components/Buttons/DetailsButton";
 
 export default function index({
   auth,
@@ -30,7 +32,7 @@ export default function index({
   }
 
   const openDetails = (product_balance) => {
-    router.get(route('product-balance.index'), product_balance.product);
+    router.get(route('product-balance.index', { product_id: product_balance.product.id }));
   }
 
   const handleAdd = () => {
@@ -90,24 +92,24 @@ export default function index({
 
       <Modal show={showAddModal} onClose={() => setShowAddModal(false)} maxWidth="md">
         <div className="p-6 dark:text-white text-gray-900">
-          <h2 className="text-lg font-medium">إضافة رصيد منتج</h2>
+          <h2 className="text-lg font-medium">إضافة رصيد منتج : {(selectedProduct && selectedProduct.product.category.name + " / " + selectedProduct.product.name)}</h2>
           <p className="mt-4">أدخل القيمة التي تريد شحن رصيد المنتج بها</p>
           <div>
-          <TextInput
-            type="number"
-            className="mt-4"
-            placeholder="المبلغ"
-            value={add}
-            onChange={(e) => setAdd(e.target.value)}
-          />
+            <TextInput
+              type="number"
+              className="mt-4"
+              placeholder="المبلغ"
+              value={add}
+              onChange={(e) => setAdd(e.target.value)}
+            />
           </div>
           <div>
-          <TextInput
-            className="mt-4"
-            placeholder="البيان"
-            value={statment}
-            onChange={(e) => setStatment(e.target.value)}
-          />
+            <TextInput
+              className="mt-4"
+              placeholder="البيان"
+              value={statment}
+              onChange={(e) => setStatment(e.target.value)}
+            />
           </div>
           <div className="mt-6 flex justify-end">
             <button onClick={handleAdd} className="bg-token1 dark:bg-token2 py-1 px-3 text-white rounded shadow transition-all hover:bg-emerald-600">موافق</button>
@@ -123,17 +125,17 @@ export default function index({
           <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
             <div className="p-6 text-gray-900 dark:text-gray-100">
               <div className="overflow-auto">
-                <table className="w-full text-sm justify-center text-right text-gray-500 dark:text-gray-400">
-                  <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400 border-b-2 border-gray-500 text-center">
+                <table className="w-full text-md font-semibold rtl:text-right text-gray-800 dark:text-gray-200">
+                  <thead className="text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400 border-b-2 border-gray-500">
                     <tr className="text-nowrap">
-                      <TableHeading
+                      {/* <TableHeading
                         name='id'
                         sort_field={queryParams.sort_field}
                         sort_direction={queryParams.sort_direction}
                         sortChanged={sortChanged}
                       >
                         ID
-                      </TableHeading>
+                      </TableHeading> */}
                       <TableHeading
                         name='category'
                         sort_field={queryParams.sort_field}
@@ -183,6 +185,14 @@ export default function index({
                         صافي الربح
                       </TableHeading>
                       <TableHeading
+                        name='profit'
+                        sort_field={queryParams.sort_field}
+                        sort_direction={queryParams.sort_direction}
+                        sortChanged={sortChanged}
+                      >
+                        الرصيد الكلي
+                      </TableHeading>
+                      <TableHeading
                         sortable={false}
                       >
                         التحكم
@@ -191,7 +201,7 @@ export default function index({
                   </thead>
                   <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400 border-b-2 border-gray-500">
                     <tr className="text-nowrap">
-                      <th className="px-3 py-3"></th>
+                      {/* <th className="px-3 py-3"></th> */}
                       <th className="px-3 py-3 relative">
                         <SearchableDropdown
                           items={categories.data}
@@ -217,33 +227,38 @@ export default function index({
                       <th className="px-3 py-3"></th>
                       <th className="px-3 py-3"></th>
                       <th className="px-3 py-3"></th>
+                      <th className="px-3 py-3"></th>
                     </tr>
                   </thead>
                   <tbody className="text-center">
                     {product_balances.data.map((product_balance) => (
                       <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700" key={product_balance.product.id}>
-                        <td className="px-3 py-2">{product_balance.product.id}</td>
+                        {/* <td className="px-3 py-2">{product_balance.product.id}</td> */}
                         <td className="px-3 py-2">{product_balance.product.category.name}</td>
                         <td className="px-3 py-2">{product_balance.product.name}</td>
                         <td className="px-3 py-2">{product_balance.total_add}</td>
                         <td className="px-3 py-2">{product_balance.total_reduce}</td>
                         <td className="px-3 py-2">{product_balance.final_balance}</td>
                         <td className="px-3 py-2">{product_balance.total_profit}</td>
+                        <td className="px-3 py-2">{product_balance.final_balance + product_balance.total_profit}</td>
                         <td className="px-3 py-2 text-nowrap">
-                          <button onClick={() => openDetails(product_balance)} className="font-medium text-blue-600 dark:text-blue-500 hover:underline mx-1">عرض التفاصيل</button>
-                          <button onClick={() => openAddModal(product_balance)} className="font-medium text-green-600 dark:text-green-500 hover:underline mx-1">إضافة رصيد</button>
+                          <DetailsButton onClick={() => openDetails(product_balance)}>عرض التفاصيل</DetailsButton>
+                          <AddButton onClick={() => openAddModal(product_balance)}>إضافة رصيد</AddButton>
                         </td>
                       </tr>
                     ))}
                   </tbody>
                   <tfoot className="text-center">
-                    <th className="px-3 py-3"></th>
-                    <th className="px-3 py-3"></th>
-                    <th className="px-3 py-3"></th>
-                    <th className="px-3 py-3">{total_add_all}</th>
-                    <th className="px-3 py-3">{total_reduce_all}</th>
-                    <th className="px-3 py-3">{final_balance_all}</th>
-                    <th className="px-3 py-3">{total_profit_all}</th>
+                    <tr>
+                      {/* <th className="px-3 py-3"></th> */}
+                      <th className="px-3 py-3">المجموع</th>
+                      <th className="px-3 py-3"></th>
+                      <th className="px-3 py-3">{total_add_all}</th>
+                      <th className="px-3 py-3">{total_reduce_all}</th>
+                      <th className="px-3 py-3">{final_balance_all}</th>
+                      <th className="px-3 py-3">{total_profit_all}</th>
+                      <th className="px-3 py-3">{final_balance_all + total_profit_all}</th>
+                    </tr>
                   </tfoot>
                 </table>
               </div>

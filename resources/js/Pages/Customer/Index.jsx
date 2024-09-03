@@ -5,6 +5,9 @@ import { Head, Link, router } from "@inertiajs/react";
 import TableHeading from "@/Components/TableHeading";
 import SelectInput from "@/Components/SelectInput";
 import { KIND_CLASS_MAP, KIND_TEXT_MAP, STATUS_CLASS_MAP, STATUS_TEXT_MAP } from "@/constants";
+import PrimaryButton from "@/Components/Buttons/PrimaryButton";
+import DeleteButton from "@/Components/Buttons/DeleteButton";
+import AddButton from "@/Components/Buttons/AddButton";
 
 export default function index({ auth, customers, queryParams = null, success }) {
   queryParams = queryParams || {}
@@ -36,11 +39,19 @@ export default function index({ auth, customers, queryParams = null, success }) 
     router.get(route('customer.index'), queryParams)
   }
 
-  const deleteCustomer = (Customer) => {
+  const deleteCustomer = (customer) => {
     if (!window.confirm('هل تريد بالتأكيد حذف هذا الزبون؟')) {
       return;
     }
-    router.delete(route('customer.destroy', Customer.id))
+    router.delete(route('customer.destroy', customer.id))
+  }
+
+  const editCustomer = (customer) => {
+    router.get(route("customer.edit", customer))
+  }
+
+  const addCustomer = () => {
+    router.get(route("customer.create"))
   }
 
   return (
@@ -51,9 +62,7 @@ export default function index({ auth, customers, queryParams = null, success }) 
           <h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
             الزبائن
           </h2>
-          <Link href={route('customer.create')} className="bg-token1 dark:bg-token2 py-1 px-3 text-white rounded shadow transition-all hover:bg-emerald-600">
-            إضافة
-          </Link>
+          <AddButton onClick={e => addCustomer()}>إضافة</AddButton>
         </div>
       }
     >
@@ -66,17 +75,17 @@ export default function index({ auth, customers, queryParams = null, success }) 
           <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
             <div className="p-6 text-gray-900 dark:text-gray-100">
               <div className="overflow-auto">
-                <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
-                  <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400 border-b-2 border-gray-500">
+                <table className="w-full text-md font-semibold rtl:text-right text-gray-800 dark:text-gray-200">
+                  <thead className="text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400 border-b-2 border-gray-500">
                     <tr className="text-nowrap">
-                      <TableHeading
+                      {/* <TableHeading
                         name='id'
                         sort_field={queryParams.sort_field}
                         sort_direction={queryParams.sort_direction}
                         sortChanged={sortChanged}
                       >
                         ID
-                      </TableHeading>
+                      </TableHeading> */}
                       <TableHeading
                         name='name'
                         sort_field={queryParams.sort_field}
@@ -118,7 +127,7 @@ export default function index({ auth, customers, queryParams = null, success }) 
                   </thead>
                   <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400 border-b-2 border-gray-500">
                     <tr className="text-nowrap">
-                      <th className="px-3 py-3"></th>
+                      {/* <th className="px-3 py-3"></th> */}
                       <th className="px-3 py-3">
                         <TextInput
                           className="w-full text-sm font-medium"
@@ -135,23 +144,17 @@ export default function index({ auth, customers, queryParams = null, success }) 
                       <th className="px-3 py-3"></th>
                     </tr>
                   </thead>
-                  <tbody>
+                  <tbody className="text-center">
                     {customers.data.map((customer) => (
                       <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700" key={customer.id}>
-                        <td className="px-3 py-2">{customer.id}</td>
+                        {/* <td className="px-3 py-2">{customer.id}</td> */}
                         <td className="px-3 py-2 text-nowrap">{customer.name}</td>
                         <td className="px-3 py-2">{customer.mobile}</td>
                         <td className="px-3 py-2">{customer.phone}</td>
                         <td className="px-3 py-2">{customer.notes}</td>
                         <td className="px-3 py-2 text-nowrap">
-                          <Link href={route("customer.edit", customer.id)} className="font-medium text-blue-600 dark:text-blue-500 hover:underline mx-1">
-                            تعديل
-                          </Link>
-                          <button
-                            onClick={e => deleteCustomer(customer)}
-                            className="font-medium text-red-600 dark:text-red-500 hover:underline mx-1">
-                            حذف
-                          </button>
+                          <PrimaryButton onClick={e => editCustomer(customer)}>تعديل</PrimaryButton>
+                          <DeleteButton onClick={e => deleteCustomer(customer)}>حذف</DeleteButton>
                         </td>
                       </tr>
                     ))}

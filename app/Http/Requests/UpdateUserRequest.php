@@ -34,7 +34,9 @@ class UpdateUserRequest extends FormRequest
           'address'     => ['nullable', 'string', 'max:255'],
           'center'      => ['nullable', 'string', 'max:255'],
           'kind'        => ['required', Rule::in(['admin', 'super_user', 'user'])],
-          'status'      => ['required', Rule::in(['active', 'inactive'])]
+          'status'      => ['required', Rule::in(['active', 'inactive'])],
+          'created_by'  => ['required', 'exists:users,id'],
+
         ];
     }
 }

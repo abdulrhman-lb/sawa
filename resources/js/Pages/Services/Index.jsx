@@ -6,7 +6,15 @@ import TextAreaInput from '@/Components/TextAreaInput';
 import InputLabel from '@/Components/InputLabel';
 import InputError from '@/Components/InputError';
 
-export default function Index({ auth, services, customers, amountKinds, comissions, success }) {
+export default function Index({ 
+  auth, 
+  services, 
+  customers, 
+  amountKinds, 
+  comissions, 
+  remainingBalanceProduct, 
+  remainingBalanceCenter, 
+  success }) {
   const { data, setData, post, errors, reset } = useForm({
     customer_id: 1,
     user_id: auth.user.id,
@@ -30,6 +38,8 @@ export default function Index({ auth, services, customers, amountKinds, comissio
   const [isComissionManual, setIsComissionManual] = useState(false);
   const [dataKind1, setDataKind1] = useState('');
   const [dataKind2, setDataKind2] = useState('');
+  const [balanceProduct, setBalanceProduct] = useState('');
+  const [balanceCenter, setBalanceCenter] = useState('');
 
   const resetFields = () => {
     setComission(0);
@@ -37,11 +47,9 @@ export default function Index({ auth, services, customers, amountKinds, comissio
     reset();
   };
 
-  // فلترة أنواع تفاصيل الخدمة عند اختيار خدمة
   useEffect(() => {
     if (selectedService) {
       resetFields();
-      // فلترة القيم المرتبطة بالخدمة والمستخدم
       const filteredKinds = amountKinds.data.filter(kind => {
         const isServiceMatch = kind.service_id === selectedService.id;
         const comissionData = comissions.data.find(comm =>
@@ -84,7 +92,6 @@ export default function Index({ auth, services, customers, amountKinds, comissio
     }
   }, [selectedService, comissions, auth.user.id, amountKinds]);
 
-  // تحديث قيمة الخدمة والعمولة والصافي عند اختيار نوع تفاصيل الخدمة
   useEffect(() => {
     if (selectedAmountKind && selectedService.kind === 'const') {
       const amount_kind = filteredAmountKinds.find(kind => kind.id === parseInt(selectedAmountKind));
@@ -108,7 +115,6 @@ export default function Index({ auth, services, customers, amountKinds, comissio
     }
   }, [selectedAmountKind, filteredAmountKinds, comissions, auth.user.id, setSelectedAmountKind]);
 
-  // حساب الصافي يدويًا عند إدخال المبلغ والعمولة إذا كانت الخدمة من نوع "var"
   useEffect(() => {
     if (isComissionManual && data.amount > 0 && comission >= 0) {
       const netValue = parseInt(data.amount) + ((data.amount * (data.comission_admin + data.comission_super)) / 100);
@@ -121,16 +127,25 @@ export default function Index({ auth, services, customers, amountKinds, comissio
 
   useEffect(() => {
     if (success) {
-      reset(); // تصفير الحقول عند استلام success
+      reset();
       setComission(0);
     }
   }, [success]);
 
   const onSubmit = (e) => {
-    console.log(data);
-
     e.preventDefault();
-    post(route("order.store"));
+    if (remainingBalanceProduct >= data.amount && remainingBalanceCenter >= data.amount) {
+      setBalanceProduct('');
+      setBalanceCenter('');
+      post(route("order.store"));
+    } else {
+      if (remainingBalanceProduct < data.amount){
+        setBalanceProduct('لايوجد رصيد كافي للمنتج لاتمام العملية');
+      }
+      if (remainingBalanceCenter < data.amount){
+        setBalanceCenter('لايوجد رصيد كافي لدى المركز لاتمام العملية');
+      }
+    }
   };
 
   return (
@@ -156,6 +171,9 @@ export default function Index({ auth, services, customers, amountKinds, comissio
       <Head title="الخدمات" />
       {success && (<div className="bg-emerald-500 py-2 px-4 text-white rounded mx-4 mt-4">
         {success}
+      </div>)}
+      {(balanceProduct || balanceCenter) && (<div className="bg-red-500 py-2 px-4 text-white rounded mx-4 mt-4">
+        {balanceProduct} - {balanceCenter}
       </div>)}
 
       <div className="grid grid-cols-1 lg:grid-cols-10 gap-6 bg-gray-100 dark:bg-gray-900 dark:text-white pt-4 max-w-7xl mx-auto">

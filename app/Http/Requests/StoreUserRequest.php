@@ -34,7 +34,9 @@ class StoreUserRequest extends FormRequest
         'center'      => ['nullable', 'string', 'max:255'],
         'created_by'  => ['required', 'integer'],
         'kind'        => ['required', Rule::in(['admin', 'super_user', 'user'])],
-        'status'      => ['required', Rule::in(['active', 'inactive'])]
+        'status'      => ['required', Rule::in(['active', 'inactive'])],
+        'created_by'  => ['required', 'exists:users,id'],
+
     ];
     }
 }

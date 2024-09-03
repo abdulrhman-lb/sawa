@@ -1,11 +1,12 @@
 import Pagination from "@/Components/Pagination";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
-import { Head, Link, router } from "@inertiajs/react";
+import { Head, router } from "@inertiajs/react";
 import TableHeading from "@/Components/TableHeading";
 import { useState } from "react";
-import SearchableDropdown from "@/Components/SearchableDropdown";
 import Modal from "@/Components/Modal";
 import TextInput from "@/Components/TextInput";
+import PrimaryButton from "@/Components/Buttons/PrimaryButton";
+import DeleteButton from "@/Components/Buttons/DeleteButton";
 
 export default function index({
   auth,
@@ -18,6 +19,11 @@ export default function index({
   success }) {
 
   queryParams = queryParams || {}
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [add, setAdd] = useState(0);
+  const [statment, setStatment] = useState(null);
+
   const sortChanged = (name) => {
     if (name === queryParams.sort_field) {
       queryParams.sort_direction = queryParams.sort_direction === 'asc' ? 'desc' : 'asc';
@@ -28,6 +34,32 @@ export default function index({
     queryParams.page = 1;
     router.get(route('product.balances.home'), queryParams);
   };
+  const editProductBalance = (product_balance) => {
+    setSelectedProduct(product_balance);
+    setAdd(product_balance.add);
+    setStatment(product_balance.statment);
+    setShowEditModal(true);
+  }
+
+  const handleEdit = () => {
+    router.post(route('product-balance.update', selectedProduct), {
+      product_id: selectedProduct.product.id,
+      add: add,
+      statment: statment,
+      _method: 'PUT'
+    });
+    setShowEditModal(false);
+    setStatment('');
+    setAdd(0);
+  }
+
+
+  const deleteProductBalance = (product_balance) => {
+    if (!window.confirm('هل تريد بالتأكيد حذف هذا الايداع ؟')) {
+      return;
+    }
+    router.delete(route('product-balance.destroy', product_balance.id))
+  }
 
   return (
     <AuthenticatedLayout
@@ -36,12 +68,39 @@ export default function index({
         <div className="flex justify-between items-center">
           <h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
             حركة رصيد المنتج: {product_balance.data[0].product.category.name} / {product_balance.data[0].product.name}
-            {/* {JSON.stringify(product_balance)} */}
           </h2>
         </div>
       }
     >
       <Head title="حركة رصيد منتج" />
+
+      <Modal show={showEditModal} onClose={() => setShowEditModal(false)} maxWidth="md">
+        <div className="p-6 dark:text-white text-gray-900">
+          <h2 className="text-lg font-medium">تعديل حركة ايداع رصيد : {(selectedProduct && selectedProduct.product.category.name + " / " + selectedProduct.product.name)}</h2>
+          <p className="mt-4">يمكنك تعديل القيمة أو البيان فقط</p>
+          <div>
+            <TextInput
+              type="number"
+              className="mt-4"
+              placeholder="المبلغ"
+              value={add}
+              onChange={(e) => setAdd(e.target.value)}
+            />
+          </div>
+          <div>
+            <TextInput
+              className="mt-4"
+              placeholder="البيان"
+              value={statment}
+              onChange={(e) => setStatment(e.target.value)}
+            />
+          </div>
+          <div className="mt-6 flex justify-end">
+            <button onClick={handleEdit} className="bg-token1 dark:bg-token2 py-1 px-3 text-white rounded shadow transition-all hover:bg-emerald-600">موافق</button>
+            <button onClick={() => (setShowEditModal(false), setAdd(0), setStatment(''))} className="bg-gray-300 mx-4 py-1 px-3 text-gray-800 rounded shadow transition-all hover:bg-gray-200">إلغاء</button>
+          </div>
+        </div>
+      </Modal>
 
       <div className="py-6">
         <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
@@ -51,8 +110,8 @@ export default function index({
           <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
             <div className="p-6 text-gray-900 dark:text-gray-100">
               <div className="overflow-auto">
-                <table className="w-full text-sm justify-center text-right text-gray-500 dark:text-gray-400">
-                  <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400 border-b-2 border-gray-500 text-center">
+                <table className="w-full text-md font-semibold rtl:text-right text-gray-800 dark:text-gray-200">
+                  <thead className="text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400 border-b-2 border-gray-500">
                     <tr className="text-nowrap">
                       <TableHeading
                         name='id'
@@ -113,16 +172,16 @@ export default function index({
                     {product_balance.data.map((product_balanc) => (
                       <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700" key={product_balanc.id}>
                         <td className="px-3 py-2">{product_balanc.created_at}</td>
-                        <td className="px-3 py-2">{product_balanc.add}</td>
-                        <td className="px-3 py-2">{product_balanc.reduce}</td>
-                        <td className="px-3 py-2">{product_balanc.profit}</td>
+                        <td className="px-3 py-2">{product_balanc.add.toLocaleString()}</td>
+                        <td className="px-3 py-2">{product_balanc.reduce.toLocaleString()}</td>
+                        <td className="px-3 py-2">{product_balanc.profit.toLocaleString()}</td>
                         <td className="px-3 py-2">{product_balanc.statment}</td>
                         <td className="px-3 py-2">{product_balanc.order ? (product_balanc.order.user.name + " / " + product_balanc.order.service.name + " / " + product_balanc.order.amount_kind.kindName.name) : '-'}</td>
                         <td className="px-3 py-2 text-nowrap">
                           {!product_balanc.order ? (
                             <>
-                              <button onClick={() => openDetails(product_balanc)} className="font-medium text-blue-600 dark:text-blue-500 hover:underline mx-1">تعديل</button>
-                              <button onClick={() => openAddModal(product_balanc)} className="font-medium text-red-600 dark:text-red-500 hover:underline mx-1">حذف</button>
+                              <PrimaryButton onClick={() => editProductBalance(product_balanc)}>تعديل</PrimaryButton>
+                              <DeleteButton onClick={e => deleteProductBalance(product_balanc)}>حذف</DeleteButton>
                             </>
                           ) : (
                             <span className="font-medium text-gray-600 dark:text-gray-500 mx-1">لا يمكن التعديل</span>
@@ -132,13 +191,13 @@ export default function index({
                     ))}
                   </tbody>
                   <tfoot className="text-center">
-                    <th className="px-3 py-3"></th>
-                    <th className="px-3 py-3"></th>
-                    <th className="px-3 py-3"></th>
-                    <th className="px-3 py-3">{total_add_all}</th>
-                    <th className="px-3 py-3">{total_reduce_all}</th>
-                    <th className="px-3 py-3">{final_balance_all}</th>
-                    <th className="px-3 py-3">{total_profit_all}</th>
+                    <tr>
+                      <th className="px-3 py-3">المجموع</th>
+                      <th className="px-3 py-3">{total_add_all}</th>
+                      <th className="px-3 py-3">{total_reduce_all}</th>
+                      <th className="px-3 py-3">{total_profit_all}</th>
+                      <th className="px-3 py-3">الرصيد النهائي للمنتج : {final_balance_all}</th>
+                    </tr>
                   </tfoot>
                 </table>
               </div>

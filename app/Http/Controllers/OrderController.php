@@ -10,49 +10,52 @@ use App\Http\Resources\CustomerResource;
 use App\Http\Resources\OrderResource;
 use App\Http\Resources\UserResource;
 use App\Models\AmountKind;
+use App\Models\CenterBalance;
+use App\Models\CenterBalanceVirtual;
 use App\Models\Customer;
 use App\Models\Product;
 use App\Models\ProductBalance;
 use App\Models\Service;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class OrderController extends Controller
 {
   public function index()
   {
-    $currentUserId = auth()->id(); // الحصول على معرف المستخدم الحالي
+    $currentUserId = auth()->id();
     $query = Order::query();
 
     if (auth()->user()->kind != "admin") {
-      $query->where('created_by', '=', $currentUserId); // لغير الادمن عرض المستخدمين المنشأين من قبل المستخدم الحالي
-      $users = User::where('created_by', $currentUserId)->orderBy('name', 'asc')->get();
+      $query->join('users', 'orders.user_id', '=', 'users.id')
+      ->where(function ($query) use ($currentUserId) {
+          $query->where('users.created_by', '=', $currentUserId)
+                ->orWhere('users.id', '=', $currentUserId);
+      })
+      ->select('orders.*');
+      $users = User::where('created_by', $currentUserId)->orWhere('id', '=', $currentUserId)->orderBy('name', 'asc')->get();
     } else {
       $users = User::orderBy('name', 'asc')->get();
     }
-    // Sorting
+
     $sortField = request('sort_field', 'created_at');
     $sortDirection = request('sort_direction', 'desc');
 
-    // Search
     if (request("data_kind_1")) {
       $query->where("data_kind_1", "like", "%" . request("data_kind_1") . "%");
     }
-    // dd(request("data_kind_1"));
-    // if (request("status")) {
-    //   $query->where("status", request("status"));
-    // }
     if (request("user_id")) {
       $query->where("user_id", request("user_id"));
     }
     if (request("customer_id")) {
       $query->where("customer_id", request("customer_id"));
     }
-    $query->where("status", "in_progress");
 
-    // Apply
-    $orders = $query->orderBy($sortField, $sortDirection)->paginate(10)->onEachSide(1);
-    // dd(OrderResource::collection($orders));
+    $query->Where('orders.status', "in_progress");
+    $orders = $query->orderBy($sortField, $sortDirection)
+      ->paginate(10)
+      ->onEachSide(1);
     $customers = Customer::orderBy('name', 'asc')->get();
     return inertia("Order/Index", [
       "orders"      => OrderResource::collection($orders),
@@ -68,30 +71,18 @@ class OrderController extends Controller
     //
   }
 
-
   public function store(StoreOrderRequest $request)
   {
-    // Validate the request
     $data = $request->validated();
-
-    // Create the order
     Order::create($data);
-
-    // Prepare the success message
     $success = 'تم إرسال الطلب بنجاح : ';
-
-    // Get the related service, product, and category
     $service = Service::where('id', $data['service_id'])->first();
     $success .= $service->product->category->name . ' / ';
     $success .= $service->product->name . ' / ';
     $success .= $service->name . ' / ';
-
-    // Get the amount kind
     $amount_kind = AmountKind::where('id', $data['amount_kind_id'])->first();
     $success .= $amount_kind->kindName->name . ' / بيان الدفع ';
     $success .= $data['data_kind_1'] . ' / الزبون ';
-
-    // Get the customer
     $customer = Customer::where('id', $data['customer_id'])->first();
     if ($customer) {
       $success .= $customer->name;
@@ -99,10 +90,8 @@ class OrderController extends Controller
       $success .= ' غير محدد ';
     }
 
-    // Get the product related to the service
     $product = Product::where('id', $service->product->id)->first();
 
-    // Redirect to service.home with the product ID and success message
     return to_route("service.home", ['id' => $product->id])->with([
       'success' => $success,
     ]);
@@ -119,28 +108,95 @@ class OrderController extends Controller
     //
   }
 
-
-  // public function update(Request $request, Order $order)
   public function update(UpdateOrderRequest $request, Order $order)
   {
     $data = $request->validated();
-  
-    $order->update($data);
-    if ($data['status'] === "completed") {
-      $data_product_balance['add'] = 0;
-      $data_product_balance['reduce'] = $order->amount;
-      $data_product_balance['profit'] = $order->amount * $order->comission_admin / 100;
-      $data_product_balance['statment'] = 'طلب رقم: '.$order->id;
-      $data_product_balance['product_id'] = $order->service->product->id;
-      $data_product_balance['order_id'] = $order->id;
+
+    $product_balance = DB::table('product_balances')
+      ->where('product_id', $order->service->product_id)
+      ->select(DB::raw('SUM(`add`) as total_add'), DB::raw('SUM(`reduce`) as total_reduce'))
+      ->first();
+    $remainingBalance = $product_balance->total_add - $product_balance->total_reduce;
+    $productName = $order->service->product->name;
+    if ($remainingBalance <= $order->amount) {
+      return to_route('order.index')->with('success', ['1', "لايوجد رصيد في  \"$productName\" لطلب الخدمات"]);
+    } else {
+      $order->update($data);
+      if ($data['status'] === "completed") {
+        $data_product_balance = ([
+          'add'       => 0,
+          'reduce'    => $order->amount,
+          'profit'    => $order->amount * $order->comission_admin / 100,
+          'statment'  => 'طلب رقم: ' . $order->id,
+          'product_id' => $order->service->product->id,
+          'order_id'  => $order->id
+        ]);
+        $admin = User::where('kind', 'admin')->first();
+        if ($order->comission_super === 0) {
+          $data_center_admin_balance = ([
+            'add'     => 0,
+            'reduce'  => $order->net,
+            'profit'  => $order->net - $order->amount,
+            'statment' => 'طلب رقم: ' . $order->id,
+            'user_id' => $order->user_id,
+            'order_id' => $order->id
+          ]);
+          $data_center_admin_balance_virtual = ([
+            'add'     => 0,
+            'reduce'  => $order->net,
+            'statment' => 'طلب رقم: ' . $order->id,
+            'user_id' => $order->user_id,
+            'order_id' => $order->id
+          ]);
+          $balance_capcite = ([
+            'add'     => $order->net,
+            'reduce'  => 0,
+            'statment' => 'طلب رقم: ' . $order->id,
+            'user_id' => $admin->id,
+            'order_id' => $order->id
+          ]);
+        } else {
+          $data_center_admin_balance = ([
+            'add'     => 0,
+            'reduce'  => $order->amount + ($order->amount * $order->comission_admin / 100),
+            'profit'  => $order->amount * $order->comission_admin / 100,
+            'statment' => 'طلب رقم: ' . $order->id,
+            'user_id' => $order->user->created_by,
+            'order_id' => $order->id
+          ]);
+          $data_center_super_balance = ([
+            'add'     => 0,
+            'reduce'  => $order->net,
+            'profit'  => $order->amount * $order->comission_super / 100,
+            'statment' => 'طلب رقم: ' . $order->id,
+            'user_id' => $order->user_id,
+            'order_id' => $order->id
+          ]);
+          $data_center_admin_balance_virtual = ([
+            'add'     => 0,
+            'reduce'  => $order->net,
+            'statment' => 'طلب رقم: ' . $order->id,
+            'user_id' => $order->user_id,
+            'order_id' => $order->id
+          ]);
+          $balance_capcite = ([
+            'add'     => $order->net,
+            'reduce'  => 0,
+            'statment' => 'طلب رقم: ' . $order->id,
+            'user_id' => $admin->id,
+            'order_id' => $order->id
+          ]);
+          CenterBalance::create($data_center_super_balance);
+        }
+      }
+      ProductBalance::create($data_product_balance);
+      CenterBalance::create($data_center_admin_balance);
+      CenterBalanceVirtual::create($data_center_admin_balance_virtual);
+      CenterBalanceVirtual::create($balance_capcite);
+      return to_route('order.index')->with('success', ['0', "تمت معالجة الطلب"]);
     }
-    ProductBalance::create($data_product_balance);
-    return to_route('order.index')->with('success', "تمت معالجة الطلب");
   }
 
-  /**
-   * Remove the specified resource from storage.
-   */
   public function destroy(Order $order)
   {
     //

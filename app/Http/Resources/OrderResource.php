@@ -35,7 +35,7 @@ class OrderResource extends JsonResource
       'service'         => new ServiceResource($this->service),
       'amount_kind_id'  => $this->amount_kind_id,
       'amount_kind'     => new AmountKindResource($this->amount_kind),
-      'created_at'      => (new Carbon($this->created_at))->format('Y-m-d'),
+      'created_at'      => (new Carbon($this->created_at))->format('Y/m/d'),
     ];
   }
 }

@@ -23,8 +23,8 @@ class UpdateProductBalanceRequest extends FormRequest
   {
     return [
       'add'         => ['required', 'integer'],
-      'reduce'      => ['required', 'integer'],
-      'profite'     => ['required', 'integer'],
+      'reduce'      => ['nullable', 'integer'],
+      'profite'     => ['nullable', 'integer'],
       'statment'    => ['required', 'string'],
       'product_id'  => ['required', 'exists:products,id'],
       'order_id'    => ['nullable', 'exists:orders,id'],

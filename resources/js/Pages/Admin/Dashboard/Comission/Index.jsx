@@ -5,6 +5,9 @@ import TableHeading from "@/Components/TableHeading";
 import { KIND_DATA_TEXT_MAP, STATUS_CLASS_MAP, STATUS_TEXT_MAP } from "@/constants";
 import { useState } from "react";
 import SearchableDropdown from "@/Components/SearchableDropdown";
+import PrimaryButton from "@/Components/Buttons/PrimaryButton";
+import DeleteButton from "@/Components/Buttons/DeleteButton";
+import AddButton from "@/Components/Buttons/AddButton";
 
 export default function index({ auth, comissions, users, admins, queryParams = null, success }) {
   queryParams = queryParams || {}
@@ -42,11 +45,19 @@ export default function index({ auth, comissions, users, admins, queryParams = n
     router.get(route('comission.index'), queryParams)
   }
 
-  const deleteComission = (product) => {
+  const deleteComission = (comission) => {
     if (!window.confirm('هل تريد بالتأكيد حذف هذا العمولة؟')) {
       return;
     }
-    router.delete(route('comission.destroy', product.id))
+    router.delete(route('comission.destroy', comission.id))
+  }
+
+  const editComission = (comission) => {
+    router.get(route("comission.edit", comission))
+  }
+
+  const addComission = () => {
+    router.get(route("comission.create"))
   }
 
   return (
@@ -57,9 +68,7 @@ export default function index({ auth, comissions, users, admins, queryParams = n
           <h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
             نسبة العمولة
           </h2>
-          <Link href={route('comission.create')} className="bg-emerald-500 py-1 px-3 text-white rounded shadow transition-all hover:bg-emerald-600">
-            إضافة
-          </Link>
+          <AddButton onClick={e => addComission()}>إضافة</AddButton>
         </div>
       }
     >
@@ -72,17 +81,17 @@ export default function index({ auth, comissions, users, admins, queryParams = n
           <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
             <div className="p-6 text-gray-900 dark:text-gray-100">
               <div className="overflow-auto">
-                <table className="w-full text-sm justify-center text-right text-gray-500 dark:text-gray-400">
-                  <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400 border-b-2 border-gray-500">
+                <table className="w-full text-md font-semibold rtl:text-right text-gray-800 dark:text-gray-200">
+                  <thead className="text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400 border-b-2 border-gray-500">
                     <tr className="text-nowrap">
-                      <TableHeading
+                      {/* <TableHeading
                         name='id'
                         sort_field={queryParams.sort_field}
                         sort_direction={queryParams.sort_direction}
                         sortChanged={sortChanged}
                       >
                         ID
-                      </TableHeading>
+                      </TableHeading> */}
                       <TableHeading
                         name='user_id'
                         sort_field={queryParams.sort_field}
@@ -124,7 +133,7 @@ export default function index({ auth, comissions, users, admins, queryParams = n
                   </thead>
                   <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400 border-b-2 border-gray-500">
                     <tr className="text-nowrap">
-                      <th className="px-3 py-3"></th>
+                      {/* <th className="px-3 py-3"></th> */}
                       <th className="px-3 py-3 relative">
                         <SearchableDropdown
                           items={users.data}
@@ -152,33 +161,25 @@ export default function index({ auth, comissions, users, admins, queryParams = n
                       <th className="px-3 py-3"></th>
                     </tr>
                   </thead>
-                  <tbody>
+                  <tbody className="text-center">
                     {comissions.data.map((comission) => (
                       <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700" key={comission.id}>
-                        <td className="px-3 py-2">{comission.id}</td>
+                        {/* <td className="px-3 py-2">{comission.id}</td> */}
                         <td className="px-3 py-2">{comission.user.name}</td>
                         <td className="px-3 py-2">{comission.amount_kind.service.product.category.name} / {comission.amount_kind.service.product.name} / {comission.amount_kind.service.name} / {comission.amount_kind.kindName.name} / السعر {comission.amount_kind.amount}</td>
                         <td className="px-3 py-2">{comission.officer.name}</td>
-                        <td className="px-3 py-2" title={`العمولة: ${comission.comission_admin} %, عمولة التاجر: ${comission.comission_super}`}>{comission.comission_admin + comission.comission_super} %</td>
+                        <td className="px-3 py-2" title={`العمولة: ${comission.comission_admin} %, عمولة التاجر: ${comission.comission_super} %`}>{comission.comission_admin + comission.comission_super} %</td>
                         <td className="px-3 py-2 text-nowrap">
                           {(comission.officer_id === auth.user.id) ? (
                             <>
-                              <Link href={route("comission.edit", comission.id)} className="font-medium text-blue-600 dark:text-blue-500 hover:underline mx-1">
-                                تعديل
-                              </Link>
-                              <button
-                                onClick={e => deleteComission(comission)}
-                                className="font-medium text-red-600 dark:text-red-500 hover:underline mx-1">
-                                حذف
-                              </button>
+                              <PrimaryButton onClick={e => editComission(comission)}>تعديل</PrimaryButton>
+                              <DeleteButton onClick={e => deleteComission(comission)}>حذف</DeleteButton>
                             </>
                           ) : (
                             <>
                               <span className="font-medium text-gray-600 dark:text-gray-500 mx-1">ليس لديك صلاحيات</span>
                             </>
                           )}
-
-
                         </td>
                       </tr>
                     ))}

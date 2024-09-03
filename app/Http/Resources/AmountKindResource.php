@@ -20,6 +20,7 @@ class AmountKindResource extends JsonResource
       'id'          => $this->id,
       'amount'      => $this->amount,
       'service_id'  => $this->service_id,
+      'kind'        => $this->kind,
       'service'     => new ServiceResource($this->service),
       'kind_id'     => $this->kind_id,
       'kindName'    => new KindResource($this->kindName),

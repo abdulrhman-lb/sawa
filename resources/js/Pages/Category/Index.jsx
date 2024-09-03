@@ -1,6 +1,7 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link } from '@inertiajs/react';
 import Content from './Content';
+import { useState } from 'react';
 
 
 export default function Index({ auth, categories }) {

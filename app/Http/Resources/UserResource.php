@@ -26,7 +26,8 @@ class UserResource extends JsonResource
       'center'      => $this->center,
       'kind'        => $this->kind,
       'status'      => $this->status,
-      
+      'created_by'  => $this->created_by,
+      // 'createdBy'   => $this->createdBy,
     ];
   }
 }

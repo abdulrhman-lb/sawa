@@ -49,6 +49,11 @@ class User extends Authenticatable implements MustVerifyEmail
     return $this->belongsTo(User::class, 'created_by');
   }
 
+  public function officers()
+  {
+      return $this->hasMany(User::class, 'created_by');
+  }
+
   public function comission_user(){
     return $this->hasMany(Comission::class, "user_id");
   }
@@ -63,6 +68,14 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function orders(){
       return $this->hasMany(Order::class, 'user_id');
+    }
+
+    public function centerBalances(){
+      return $this->hasMany(CenterBalance::class, 'user_id');
+    }
+
+    public function centerBalanceVirtuals(){
+      return $this->hasMany(CenterBalanceVirtual::class, 'user_id');
     }
   /**
    * Get the attributes that should be cast.

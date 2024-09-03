@@ -4,8 +4,7 @@ import Content from './Content';
 import { useState } from 'react';
 
 
-export default function Index({ auth, products }) {
-  // حالة لتتبع نص البحث
+export default function Index({ auth, products, success }) {
   const [searchTerm, setSearchTerm] = useState('');
 
   // تصفية المنتجات بناءً على النص الذي يدخل المستخدم
@@ -17,12 +16,10 @@ export default function Index({ auth, products }) {
       user={auth.user}
       header={
         <div className='flex justify-between items-center'>
-          {/* مسار Breadcrumb */}
           <nav className="text-me text-gray-800 dark:text-gray-200 flex justify-between items-center">
             <h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight ml-10">المنتجات</h2>
             <Link href="/" className="hover:underline p-2"> التصنيفات </Link> &gt; {/* رابط للصفحة الرئيسية */}
-            {/* <Link href={`/products?id=${products.data[0].id}`} className="hover:underline">المنتجات</Link> &gt; رابط لصفحة التصنيف */}
-            <span className="text-gray-500 p-2">{products.data[0].category.name}</span> {/* الصفحة الحالية */}
+            <span className="text-gray-500 p-2">{products.data.length > 0 && products.data[0].category.name}</span> {/* الصفحة الحالية */}
           </nav>
           <div className="bg-gray-100 dark:bg-gray-900 dark:text-white">
             <div className="">
@@ -40,7 +37,11 @@ export default function Index({ auth, products }) {
     >
       <Head title="المنتجات" />
       <div className="bg-gray-100 dark:bg-gray-900 dark:text-white pt-6 mx-auto max-w-7xl">
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-10">
+        {success && (<div className="bg-emerald-500 py-2 px-4 text-white rounded mb-4">
+          {success}
+        </div>)}
+        {products.data.length > 0 ? (
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-10">
           {
             filteredProducts.map((member) => (
               <>
@@ -49,6 +50,11 @@ export default function Index({ auth, products }) {
             ))
           }
         </div>
+        ) : (
+          <div className="lg:col-span-10 p-5">
+            <p className="text-center text-gray-500">لا يوجد منتجات متوفرة.</p>
+          </div>
+        )}
       </div>
     </AuthenticatedLayout>
   );

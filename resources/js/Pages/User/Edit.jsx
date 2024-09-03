@@ -17,11 +17,11 @@ export default function Create({ auth, user }) {
     center: user.center || "",
     kind: user.kind || "",
     status: user.status || "",
+    created_by: user.created_by,
     password: "",
     password_confirmation: "",
     _method: 'PUT'
   })
-
   const onSubmit = (e) => {
     e.preventDefault();
     post(route("user.update", user.id))
@@ -31,7 +31,7 @@ export default function Create({ auth, user }) {
     <AuthenticatedLayout
       user={auth.user}
       header={
-        <div className="flex justify-between items-center mt-14">
+        <div className="flex justify-between items-center">
           <h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
             تعديل بيانات المستخدم  "{user.name}"
           </h2>

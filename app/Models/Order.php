@@ -29,4 +29,12 @@ class Order extends Model
     public function productBalances(){
       return $this->hasMany(ProductBalance::class, 'order_id');
     }
+
+    public function centerBalances(){
+      return $this->hasMany(CenterBalance::class, 'order_id');
+    }
+
+    public function centerBalanceVirtuals(){
+      return $this->hasMany(CenterBalanceVirtual::class, 'order_id');
+    }
 }

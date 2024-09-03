@@ -1,6 +1,6 @@
 export const STATUS_CLASS_MAP ={
   'inactive'    : 'bg-red-500',
-  'active'      : 'bg-green-500',
+  'active'      : 'bg-emerald-600',
 } 
 
 export const STATUS_TEXT_MAP ={

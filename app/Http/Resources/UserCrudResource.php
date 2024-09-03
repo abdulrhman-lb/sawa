@@ -28,6 +28,7 @@ class UserCrudResource extends JsonResource
       'center'      => $this->center,
       'kind'        => $this->kind,
       'status'      => $this->status,
+      'created_by'  => $this->created_by,
       'created_at'  => (new Carbon($this->created_at))->format('Y/m/d'),
       'createdBy'   => $this->createdBy ? $this->createdBy->name : null,
     ];

@@ -4,10 +4,9 @@ import { useState } from "react";
 import { HiOutlineChevronDoubleRight } from "react-icons/hi";
 
 const Content = ({ image, name, id }) => {
-
   return (
     <>
-      <div data-aos="fade-up" data-aos-delay={(id) * 300} className="text-white group" >
+      <div data-aos="fade-up" data-aos-delay={300} className="text-white group" >
         <Link
           key={id}
           href={route("product.home", { id })}

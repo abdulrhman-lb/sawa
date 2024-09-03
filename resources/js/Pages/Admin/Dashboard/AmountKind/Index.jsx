@@ -7,6 +7,9 @@ import TableHeading from "@/Components/TableHeading";
 import { KIND_DATA_TEXT_MAP, STATUS_CLASS_MAP, STATUS_TEXT_MAP } from "@/constants";
 import { useState } from "react";
 import SearchableDropdown from "@/Components/SearchableDropdown";
+import PrimaryButton from "@/Components/Buttons/PrimaryButton";
+import DeleteButton from "@/Components/Buttons/DeleteButton";
+import AddButton from "@/Components/Buttons/AddButton";
 
 export default function index({ auth, amount_kinds, services, kinds, queryParams = null, success }) {
   queryParams = queryParams || {}
@@ -44,11 +47,19 @@ export default function index({ auth, amount_kinds, services, kinds, queryParams
     router.get(route('amountkind.index'), queryParams)
   }
 
-  const deleteAmountKind = (product) => {
+  const deleteAmountKind = (amount_kind) => {
     if (!window.confirm('هل تريد بالتأكيد حذف هذا السعر؟')) {
       return;
     }
-    router.delete(route('amountkind.destroy', product.id))
+    router.delete(route('amountkind.destroy', amount_kind.id))
+  }
+
+  const editAmountKind = (amount_kind) => {
+    router.get(route("amountkind.edit", amount_kind))
+  }
+
+  const addAmountKind = () => {
+    router.get(route("amountkind.create"))
   }
 
   return (
@@ -59,9 +70,7 @@ export default function index({ auth, amount_kinds, services, kinds, queryParams
           <h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
             أسعار المنتجات
           </h2>
-          <Link href={route('amountkind.create')} className="bg-emerald-500 py-1 px-3 text-white rounded shadow transition-all hover:bg-emerald-600">
-            إضافة
-          </Link>
+          <AddButton onClick={e => addAmountKind()}>إضافة</AddButton>
         </div>
       }
     >
@@ -74,17 +83,17 @@ export default function index({ auth, amount_kinds, services, kinds, queryParams
           <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
             <div className="p-6 text-gray-900 dark:text-gray-100">
               <div className="overflow-auto">
-                <table className="w-full text-sm justify-center text-center text-gray-500 dark:text-gray-400">
-                  <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400 border-b-2 border-gray-500">
+                <table className="w-full text-md font-semibold rtl:text-right text-gray-800 dark:text-gray-200">
+                  <thead className="text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400 border-b-2 border-gray-500">
                     <tr className="text-nowrap">
-                      <TableHeading
+                      {/* <TableHeading
                         name='id'
                         sort_field={queryParams.sort_field}
                         sort_direction={queryParams.sort_direction}
                         sortChanged={sortChanged}
                       >
                         ID
-                      </TableHeading>
+                      </TableHeading> */}
                       <TableHeading
                         name='service_id'
                         sort_field={queryParams.sort_field}
@@ -126,7 +135,7 @@ export default function index({ auth, amount_kinds, services, kinds, queryParams
                   </thead>
                   <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400 border-b-2 border-gray-500">
                     <tr className="text-nowrap">
-                      <th className="px-3 py-3"></th>
+                      {/* <th className="px-3 py-3"></th> */}
                       <th className="px-3 py-3 relative">
                         <SearchableDropdown
                           items={services.data}
@@ -152,23 +161,17 @@ export default function index({ auth, amount_kinds, services, kinds, queryParams
                       <th className="px-3 py-3"></th>
                     </tr>
                   </thead>
-                  <tbody>
+                  <tbody className="text-center">
                     {amount_kinds.data.map((amount_kind) => (
                       <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700" key={amount_kind.id}>
-                        <td className="px-3 py-2">{amount_kind.id}</td>
+                        {/* <td className="px-3 py-2">{amount_kind.id}</td> */}
                         <td className="px-3 py-2">{amount_kind.service.product.name} - {amount_kind.service.name}</td>
                         <td className="px-3 py-2">{(amount_kind.kind_id != null ? amount_kind.kindName.name : null)}</td>
                         <td className="px-3 py-2">{KIND_DATA_TEXT_MAP[amount_kind.kind]}</td>
                         <td className="px-3 py-2">{amount_kind.amount}</td>
                         <td className="px-3 py-2 text-nowrap">
-                          <Link href={route("amountkind.edit", amount_kind)} className="font-medium text-blue-600 dark:text-blue-500 hover:underline mx-1">
-                            تعديل
-                          </Link>
-                          <button
-                            onClick={e => deleteAmountKind(amount_kind)}
-                            className="font-medium text-red-600 dark:text-red-500 hover:underline mx-1">
-                            حذف
-                          </button>
+                          <PrimaryButton onClick={e => editAmountKind(amount_kind)}>تعديل</PrimaryButton>
+                          <DeleteButton onClick={e => deleteAmountKind(amount_kind)}>حذف</DeleteButton>
                         </td>
                       </tr>
                     ))}

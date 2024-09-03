@@ -9,28 +9,32 @@ use App\Http\Resources\ProductBalanceResource;
 use App\Http\Resources\ProductResource;
 use App\Models\Category;
 use App\Models\Product;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class ProductBalanceController extends Controller
 {
   public function index(Request $request)
   {
-    // dd($request['id']);
     $query = ProductBalance::query();
-    $query->where("product_id", request("id") . "%");
+    $query->where("product_id", request("product_id"));
+    $query->orderBy("created_at", "desc");
 
-    // $sortField = request('sort_field', 'created_at');
-    // $sortDirection = request('sort_direction', 'desc');
-    // if (request("data_kind_1")) {
-    //   $query->where("data_kind_1", "like", "%" . request("data_kind_1") . "%");
-    // }
-    // if (request("status")) {
-    //   $query->where("status", request("status"));
-    // }
     $product_balance = $query->paginate(10)->onEachSide(1);
+    $balance = DB::table('product_balances')
+      ->where('product_id', request("product_id"))
+      ->select( DB::raw('SUM(`add`) as total_add'), 
+                DB::raw('SUM(`reduce`) as total_reduce'),
+                DB::raw('SUM(`profit`) as total_profit'))
+      ->first();
+    $remainingBalance = $balance->total_add - $balance->total_reduce;
     return inertia("Admin/Financial/ProductBalance/Index", [
       "product_balance"   => ProductBalanceResource::collection($product_balance),
-      'queryParams'       => request()->query() ?: null,
+      'total_add_all'     => number_format($balance->total_add),
+      'total_reduce_all'  => number_format($balance->total_reduce),
+      'total_profit_all'  => number_format($balance->total_profit),
+      'final_balance_all' => number_format($remainingBalance),
       'success'           => session('success'),
     ]);
   }
@@ -59,12 +63,19 @@ class ProductBalanceController extends Controller
 
   public function update(UpdateProductBalanceRequest $request, ProductBalance $productBalance)
   {
-    //
+    $data = $request->validated();
+    $product = $productBalance->product;
+
+    $productBalance->update($data);
+    return to_route('product-balance.index',  ['product_id' => $productBalance->product->id])->with('success', "تم تعديل الايداع لصالح \"$product->name\" بنجاح");
   }
 
   public function destroy(ProductBalance $productBalance)
   {
-    //
+    $product = $productBalance->product;
+    $productBalance->delete();
+
+    return to_route('product-balance.index',  ['product_id' => $productBalance->product->id])->with('success', "تم حذف الايداع لصالح   \"$product->name\" بنجاح");
   }
 
   public function indexAll(Request $request)
@@ -116,7 +127,7 @@ class ProductBalanceController extends Controller
       return $carry + $balances->sum('profit');
     }, 0);
     $final_balance_all = $total_add_all - $total_reduce_all;
-    
+
     $paginated_product_balances = new \Illuminate\Pagination\LengthAwarePaginator(
       $product_balances,
       $products_paginated->total(),
@@ -127,14 +138,14 @@ class ProductBalanceController extends Controller
     $categories = Category::orderBy('name', 'asc')->get();
     $products = Product::orderBy('name', 'asc')->get();
     return inertia("Admin/Financial/ProductBalance/IndexAll", [
-      "product_balances" => $paginated_product_balances, 
+      "product_balances" => $paginated_product_balances,
       "products"         => ProductResource::collection($products),
       "categories"       => ProductResource::collection($categories),
       'queryParams'      => request()->query() ?: null,
-      'total_add_all'    => number_format($total_add_all), 
-      'total_reduce_all' => number_format($total_reduce_all), 
-      'total_profit_all' => number_format($total_profit_all), 
-      'final_balance_all' => number_format($final_balance_all), 
+      'total_add_all'    => number_format($total_add_all),
+      'total_reduce_all' => number_format($total_reduce_all),
+      'total_profit_all' => number_format($total_profit_all),
+      'final_balance_all' => number_format($final_balance_all),
       'success'          => session('success'),
     ]);
   }
