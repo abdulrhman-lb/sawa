@@ -27,6 +27,7 @@ class StoreCenterBalanceVirtualRequest extends FormRequest
       'statment'    => ['required', 'string'],
       'user_id'     => ['required', 'exists:users,id'],
       'order_id'    => ['nullable', 'exists:orders,id'],
+      'status'      => ['nullable', 'integer'],
     ];
   }
 }

@@ -92,10 +92,10 @@ export default function index({ auth, customers, queryParams = null, success }) 
                         sort_direction={queryParams.sort_direction}
                         sortChanged={sortChanged}
                       >
-                        الاسم الزبون
+                        اسم الزبون
                       </TableHeading>
                       <TableHeading
-                        name='email'
+                        name='mobile'
                         sort_field={queryParams.sort_field}
                         sort_direction={queryParams.sort_direction}
                         sortChanged={sortChanged}
@@ -103,7 +103,7 @@ export default function index({ auth, customers, queryParams = null, success }) 
                         رقم الموبايل
                       </TableHeading>
                       <TableHeading
-                        name='center'
+                        name='phone'
                         sort_field={queryParams.sort_field}
                         sort_direction={queryParams.sort_direction}
                         sortChanged={sortChanged}
@@ -111,10 +111,7 @@ export default function index({ auth, customers, queryParams = null, success }) 
                         رقم الهاتف
                       </TableHeading>
                       <TableHeading
-                        name='kind'
-                        sort_field={queryParams.sort_field}
-                        sort_direction={queryParams.sort_direction}
-                        sortChanged={sortChanged}
+                        sortable={false}
                       >
                         ملاحظات
                       </TableHeading>

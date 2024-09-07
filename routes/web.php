@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AmountKindController;
 use App\Http\Controllers\BackupController;
+use App\Http\Controllers\BoxController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CenterBalanceController;
 use App\Http\Controllers\CenterBalanceVirtualController;
@@ -29,6 +30,8 @@ Route::middleware(['auth'])->group( function () {
   Route::get('/product-balances', [ProductBalanceController::class, 'indexAll'])->name('product.balances.home');
   Route::get('/center-balances', [CenterBalanceController::class, 'indexAll'])->name('center.balances.home');
   Route::get('/center-balance-virtuals', [CenterBalanceVirtualController::class, 'indexAll'])->name('center.balances.virtual.home');
+  Route::get('/orders', [OrderController::class, 'indexAll'])->name('order.home');
+  Route::get('/daily-box', [BoxController::class, 'indexAll'])->name('box.home');
 
 
 
@@ -54,6 +57,7 @@ Route::middleware('auth')->group( function () {
   Route::resource('/product-balance',       ProductBalanceController::class);
   Route::resource('/center-balance',        CenterBalanceController::class);
   Route::resource('/center-balance-virtual',CenterBalanceVirtualController::class);
+  Route::resource('/box'                   ,BoxController::class);
 });
 
 Route::middleware('auth')->group(function () {

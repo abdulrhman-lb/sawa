@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class CenterBalanceVirtual extends Model
 {
     use HasFactory;
-    protected $fillable = ['add', 'reduce', 'statment', 'user_id', 'order_id'];
+    protected $fillable = ['add', 'reduce', 'statment', 'user_id', 'order_id', 'status'];
 
     public function user()
     {

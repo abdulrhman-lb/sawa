@@ -182,11 +182,11 @@ export default function index({
                       >
                         التفاصيل
                       </TableHeading>
-                      <TableHeading
+                      {/* <TableHeading
                         sortable={false}
                       >
                         التحكم
-                      </TableHeading>
+                      </TableHeading> */}
                     </tr>
                   </thead>
                   <tbody className="text-center">
@@ -197,8 +197,8 @@ export default function index({
                         <td className="px-3 py-2">{center_balanc.reduce.toLocaleString()}</td>
                         <td className="px-3 py-2">{center_balanc.statment}</td>
                         <td className="px-3 py-2">{center_balanc.order ? (center_balanc.order.user.name + " / " + center_balanc.order.service.name + " / " + center_balanc.order.amount_kind.kindName.name) : '-'}</td>
-                        <td className="px-3 py-2 text-nowrap">
-                          {!center_balanc.order ? (
+                        {/* <td className="px-3 py-2 text-nowrap">
+                          {((center_balanc.status === 1 && center_balanc.user.kind != 'admin')) ? (
                             <>
                               <PrimaryButton onClick={() => editCenterBalance(center_balanc)}>تعديل</PrimaryButton>
                               <DeleteButton onClick={e => deleteCenterBalance(center_balanc)}>حذف</DeleteButton>
@@ -206,7 +206,7 @@ export default function index({
                           ) : (
                             <span className="font-medium text-gray-600 dark:text-gray-500 mx-1">لا يمكن التعديل</span>
                           )}
-                        </td>
+                        </td> */}
                       </tr>
                     ))}
                   </tbody>

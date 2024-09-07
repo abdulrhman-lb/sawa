@@ -201,4 +201,47 @@ class OrderController extends Controller
   {
     //
   }
+  public function indexAll()
+  {
+    $currentUserId = auth()->id();
+    $query = Order::query();
+
+    if (auth()->user()->kind != "admin") {
+      $query->join('users', 'orders.user_id', '=', 'users.id')
+      ->where(function ($query) use ($currentUserId) {
+          $query->where('users.created_by', '=', $currentUserId)
+                ->orWhere('users.id', '=', $currentUserId);
+      })
+      ->select('orders.*');
+      $users = User::where('created_by', $currentUserId)->orWhere('id', '=', $currentUserId)->orderBy('name', 'asc')->get();
+    } else {
+      $users = User::orderBy('name', 'asc')->get();
+    }
+
+    $sortField = request('sort_field', 'created_at');
+    $sortDirection = request('sort_direction', 'desc');
+
+    if (request("data_kind_1")) {
+      $query->where("data_kind_1", "like", "%" . request("data_kind_1") . "%");
+    }
+    if (request("user_id")) {
+      $query->where("user_id", request("user_id"));
+    }
+
+    if (request("status")) {
+      $query->where("status", request("status"));
+    }
+
+    $orders = $query->orderBy($sortField, $sortDirection)
+      ->paginate(10)
+      ->onEachSide(1);
+    $customers = Customer::orderBy('name', 'asc')->get();
+    return inertia("Order/IndexAll", [
+      "orders"      => OrderResource::collection($orders),
+      "users"       => UserResource::collection($users),
+      "customers"   => CustomerResource::collection($customers),
+      'queryParams' => request()->query() ?: null,
+      'success'     => session('success'),
+    ]);
+  }
 }

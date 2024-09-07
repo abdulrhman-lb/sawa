@@ -13,49 +13,12 @@ import DeleteButton from "@/Components/Buttons/DeleteButton";
 import RejectButton from "@/Components/Buttons/RejectButton copy";
 import AcceptButton from "@/Components/Buttons/AcceptButton";
 
-export default function index({ auth, users, customers, orders, queryParams = null, success = ['0', ''] }) {
-  const [showApproveModal, setShowApproveModal] = useState(false);
-  const [showRejectModal, setShowRejectModal] = useState(false);
-  const [selectedOrder, setSelectedOrder] = useState(null);
-  const [rejectReason, setRejectReason] = useState("");
+export default function indexAll({ auth, users, customers, orders, queryParams = null, success = ['0', ''] }) {
 
   queryParams = queryParams || {}
 
-
-  const openApproveModal = (order) => {
-    setSelectedOrder(order);
-    setShowApproveModal(true);
-  }
-
-  const openRejectModal = (order) => {
-    setSelectedOrder(order);
-    setShowRejectModal(true);
-  }
-
-  const handleApprove = () => {
-    console.log(selectedOrder);
-    router.post(route('order.update', selectedOrder.id), {
-      status: 'completed',
-      _method: 'PUT'
-    });
-    setShowApproveModal(false);
-  }
-
-  const handleReject = () => {
-    router.post(route('order.update', selectedOrder.id), {
-      status: 'reject',
-      reject_reson: rejectReason,
-      _method: 'PUT'
-    });
-    setShowRejectModal(false);
-  }
-
   const handleSelectUser = (selectedUser) => {
     searchFieldChanged('user_id', selectedUser.id);
-  };
-
-  const handleSelectCustomer = (selectedCustomer) => {
-    searchFieldChanged('customer_id', selectedCustomer.id);
   };
 
   const onKeyPress = (name, e) => {
@@ -70,7 +33,7 @@ export default function index({ auth, users, customers, orders, queryParams = nu
       delete queryParams[name]
     }
     queryParams.page = 1;
-    router.get(route('order.index'), queryParams)
+    router.get(route('order.home'), queryParams)
   }
 
   const sortChanged = (name) => {
@@ -85,7 +48,7 @@ export default function index({ auth, users, customers, orders, queryParams = nu
       queryParams.sort_direction = 'asc';
     }
     queryParams.page = 1;
-    router.get(route('order.index'), queryParams)
+    router.get(route('order.home'), queryParams)
   }
 
   return (
@@ -94,42 +57,12 @@ export default function index({ auth, users, customers, orders, queryParams = nu
       header={
         <div className="flex justify-between items-center">
           <h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            الطلبات قيد المعالجة
+            الطلبات الكلية
           </h2>
         </div>
       }
     >
-      <Head title="الطلبات قيد المعالجة" />
-      {/* Approve Modal */}
-      <Modal show={showApproveModal} onClose={() => setShowApproveModal(false)} maxWidth="md">
-        <div className="p-6 dark:text-white text-gray-900">
-          <h2 className="text-lg font-medium">تأكيد الموافقة</h2>
-          <p className="mt-4">هل أنت متأكد أنك تريد الموافقة على هذا الطلب؟</p>
-          <div className="mt-6 flex justify-end">
-            <button onClick={handleApprove} className="bg-token1 dark:bg-token2 py-1 px-3 text-white rounded shadow transition-all hover:bg-emerald-600">موافق</button>
-            <button onClick={() => setShowApproveModal(false)} className="bg-gray-300 mx-4 py-1 px-3 text-gray-800 rounded shadow transition-all hover:bg-gray-200">إلغاء</button>
-          </div>
-        </div>
-      </Modal>
-
-      {/* Reject Modal */}
-      <Modal show={showRejectModal} onClose={() => setShowRejectModal(false)} maxWidth="md">
-        <div className="p-6 dark:text-white text-gray-900">
-          <h2 className="text-lg font-medium">تأكيد الرفض</h2>
-          <p className="mt-4">هل أنت متأكد أنك تريد رفض هذا الطلب؟</p>
-          <TextInput
-            className="mt-4"
-            placeholder="سبب الرفض"
-            value={rejectReason}
-            onChange={(e) => setRejectReason(e.target.value)}
-          />
-          <div className="mt-6 flex justify-end">
-            <button onClick={handleReject} className="bg-token1 dark:bg-token2 py-1 px-3 text-white rounded shadow transition-all hover:bg-emerald-600">موافق</button>
-            <button onClick={() => setShowRejectModal(false)} className="bg-gray-300 mx-4 py-1 px-3 text-gray-800 rounded shadow transition-all hover:bg-gray-200">إلغاء</button>
-          </div>
-        </div>
-      </Modal>
-
+      <Head title="الطلبات الكلية" />
       <div className="py-6">
         <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
           {success && (
@@ -145,7 +78,6 @@ export default function index({ auth, users, customers, orders, queryParams = nu
             )
           )
           }
-
           <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
             <div className="p-6 text-gray-900 dark:text-gray-100">
               <div className="overflow-auto">
@@ -197,14 +129,12 @@ export default function index({ auth, users, customers, orders, queryParams = nu
                         الصافي
                       </TableHeading>
                       <TableHeading
-                        sortable={false}
+                        name='status'
+                        sort_field={queryParams.sort_field}
+                        sort_direction={queryParams.sort_direction}
+                        sortChanged={sortChanged}
                       >
                         الحالة
-                      </TableHeading>
-                      <TableHeading
-                        sortable={false}
-                      >
-                        المعالجة
                       </TableHeading>
                     </tr>
                   </thead>
@@ -221,16 +151,6 @@ export default function index({ auth, users, customers, orders, queryParams = nu
                           queryParams={queryParams}
                         />
                       </th>
-                      {/* <th className="px-3 py-3 relative">
-                        <SearchableDropdown
-                          items={customers.data}
-                          name="customer_id"
-                          selectedItem={customers.data.find((customer) => customer.id === queryParams.customer_id)}
-                          onSelectItem={handleSelectCustomer}
-                          placeholder="اختر الزيون"
-                          queryParams={queryParams}
-                        />
-                      </th> */}
                       <th className="px-3 py-3">
                         <TextInput
                           className="w-full text-sm font-medium"
@@ -244,8 +164,7 @@ export default function index({ auth, users, customers, orders, queryParams = nu
                       <th className="px-3 py-3"></th>
                       <th className="px-3 py-3"></th>
                       <th className="px-3 py-3"></th>
-                      <th className="px-3 py-3"></th>
-                      {/* <th className="px-3 py-3">
+                      <th className="px-3 py-3">
                         <SelectInput
                           className="w-full text-sm font-medium"
                           defaultValue={queryParams.status}
@@ -256,9 +175,7 @@ export default function index({ auth, users, customers, orders, queryParams = nu
                           <option value="completed">مقبول</option>
                           <option value="reject">مرفوض</option>
                         </SelectInput>
-                      </th> */}
-                      <th className="px-3 py-3"></th>
-
+                      </th>
                     </tr>
                   </thead>
                   <tbody className="text-center">
@@ -283,16 +200,7 @@ export default function index({ auth, users, customers, orders, queryParams = nu
                             {ORDER_TEXT_MAP[order.status]}
                           </span>
                         </td>
-                        <td className="px-3 py-2 text-nowrap">
-                          {(order.user.created_by == auth.user.id || order.user_id === auth.user.id) ? (
-                            <>
-                              <AcceptButton onClick={() => openApproveModal(order)}>موافق</AcceptButton>
-                              <RejectButton onClick={() => openRejectModal(order)}>رفض</RejectButton>
-                            </>
-                          ) : (
-                            <span className="font-medium text-gray-600 dark:text-gray-500 mx-1">المركز تابع لتاجر</span>
-                          )}
-                        </td>
+                      
                       </tr>
                     ))}
                   </tbody>

@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class UpdateCenterBalanceVirtualRequest extends FormRequest
+class UpdateBoxRequest extends FormRequest
 {
   /**
    * Determine if the user is authorized to make this request.
@@ -22,12 +22,8 @@ class UpdateCenterBalanceVirtualRequest extends FormRequest
   public function rules(): array
   {
     return [
-      'add'         => ['required', 'integer'],
-      'reduce'      => ['nullable', 'integer'],
+      'amount'      => ['required', 'integer'],
       'statment'    => ['required', 'string'],
-      'user_id'     => ['required', 'exists:users,id'],
-      'order_id'    => ['nullable', 'exists:orders,id'],
-      'status'      => ['nullable', 'integer'],
     ];
   }
 }

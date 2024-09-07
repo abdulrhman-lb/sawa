@@ -16,6 +16,7 @@ return new class extends Migration
       $table->integer('add');
       $table->integer('reduce');
       $table->string('statment');
+      $table->integer('status')->nullable();
       $table->foreignId('user_id')->constrained('users');
       $table->foreignId('order_id')->nullable()->constrained('orders');
       $table->timestamps();

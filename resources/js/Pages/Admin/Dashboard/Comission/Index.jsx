@@ -117,10 +117,7 @@ export default function index({ auth, comissions, users, admins, queryParams = n
                         عائدية العمولة
                       </TableHeading>
                       <TableHeading
-                        name='comission'
-                        sort_field={queryParams.sort_field}
-                        sort_direction={queryParams.sort_direction}
-                        sortChanged={sortChanged}
+                        sortable={false}
                       >
                         العمولة
                       </TableHeading>

@@ -9,6 +9,8 @@ import TextInput from "@/Components/TextInput";
 import InputError from "@/Components/InputError";
 import DetailsButton from "@/Components/Buttons/DetailsButton";
 import AddButton from "@/Components/Buttons/AddButton";
+import SecondaryButton from "@/Components/Buttons/SecondaryButton";
+import RejectButton from "@/Components/Buttons/RejectButton copy";
 
 export default function index({
   auth,
@@ -23,12 +25,16 @@ export default function index({
   success }) {
 
   const [showAddModal, setShowAddModal] = useState(false);
+  const [showReduceModal, setShowReduceModal] = useState(false);
+  const [showAddCapciteModal, setShowAddCapciteModal] = useState(false);
   const [selectedCenter, setSelectedCenter] = useState(null);
   const [add, setAdd] = useState(0);
-  const [statment, setStatment] = useState('');
+  const [addCapcite, setAddCapcite] = useState(0);
+  const [reduce, setReduce] = useState(0);
   const [addError, setAddError] = useState('');
-  const [statmentError, setStatmentError] = useState('');
+  const [reduceError, setReduceError] = useState('');
   const [balanceError, setBalanceError] = useState('');
+  const [capciteError, setCapciteError] = useState('');
 
   queryParams = queryParams || {}
 
@@ -40,39 +46,85 @@ export default function index({
     setShowAddModal(true);
   }
 
+  const openReduceModal = (center_balance) => {
+    setSelectedCenter(center_balance);
+    setShowReduceModal(true);
+  }
+
+  const openAddCapciteModal = () => {
+    setShowAddCapciteModal(true);
+  }
+
   const openDetails = (center_balance) => {
     router.get(route('center-balance-virtual.index', { center_id: center_balance.center.id }));
   }
 
   const handleAdd = () => {
-    if (statment === '') {
-      setStatmentError('يرجى إدخال البيان')
-    } else {
-      setStatmentError('');
-    }
     if (add <= 0) {
       setAddError('القيمة يجب أن تكون أكبر من الصفر');
     } else {
       setAddError('');
     }
     if (remainingBalanceCenter >= add) {
-      if ((statment != '') && (add > 0)) {
+      if (add > 0) {
         router.post(route('center-balance-virtual.store'), {
           user_id: selectedCenter.center.id,
           add: add,
           reduce: 0,
-          profit: 0,
-          statment: statment,
+          statment: 'تغذية رصيد للمركز: ' + selectedCenter.center.name + ' من قبل ' + auth.user.name,
+          status: 1
         });
         setShowAddModal(false);
-        setStatment('');
-        setStatmentError('');
         setAdd(0);
         setAddError(0);
       }
     } else {
       setShowAddModal(false);
       setBalanceError('ليس لديك رصيد كافي لتوزيعه على المراكز');
+    }
+  }
+
+  const handleReduce = () => {
+    if (reduce <= 0) {
+      setReduceError('القيمة يجب أن تكون أكبر من الصفر');
+    } else {
+      if (reduce > selectedCenter.final_balance_number) {
+        setReduceError('يجب أن تكون القيمة المدخلة أصفر أو تساوي : ' + selectedCenter.final_balance);
+      } else {
+        setAddError('');
+      }
+    }
+    if ((reduce > 0) && (reduce <= selectedCenter.final_balance_number)) {
+      router.post(route('center-balance-virtual.store'), {
+        user_id: selectedCenter.center.id,
+        add: 0,
+        reduce: reduce,
+        statment: 'سحب رصيد من المركز : ' + selectedCenter.center.name + ' من قبل ' + auth.user.name,
+        status: 0
+      });
+      setShowReduceModal(false);
+      setReduce(0);
+      setReduceError(0);
+    }
+  }
+
+  const handleAddCapcite = () => {
+    if (addCapcite <= 0) {
+      setCapciteError('القيمة يجب أن تكون أكبر من الصفر');
+    } else {
+      setCapciteError('');
+    }
+    if (addCapcite > 0) {
+      router.post(route('center-balance-virtual.store'), {
+        user_id: auth.user.id,
+        add: addCapcite,
+        reduce: 0,
+        statment: 'إضافة رصيد للبرنامج',
+        status: 2
+      });
+      setShowAddCapciteModal(false);
+      setAddCapcite(0);
+      setCapciteError(0);
     }
   }
 
@@ -113,10 +165,32 @@ export default function index({
           <h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
             أرصدة المراكز
           </h2>
+          {auth.user.kind === 'admin' && <AddButton onClick={e => openAddCapciteModal()}>إضافة</AddButton>}
         </div>
       }
     >
       <Head title="أرصدة المراكز" />
+
+      <Modal show={showAddCapciteModal} onClose={() => setShowAddCapciteModal(false)} maxWidth="md">
+        <div className="p-6 dark:text-white text-gray-900">
+          <h2 className="text-lg font-medium">إضافة رصيد لمدير النظام</h2>
+          <p className="mt-4">أدخل الرصيد الذي تريد إضافته </p>
+          <div>
+            <TextInput
+              type="number"
+              className="mt-4"
+              placeholder="الرصيد"
+              value={addCapcite}
+              onChange={(e) => setAddCapcite(e.target.value)}
+            />
+          </div>
+          <InputError message={capciteError} className="mt-2" />
+          <div className="mt-6 flex justify-end">
+            <button onClick={handleAddCapcite} className="bg-token1 dark:bg-token2 py-1 px-3 text-white rounded shadow transition-all hover:bg-emerald-600">موافق</button>
+            <button onClick={() => (setShowAddCapciteModal(false), setAddCapcite(0), setCapciteError(''))} className="bg-gray-300 mx-4 py-1 px-3 text-gray-800 rounded shadow transition-all hover:bg-gray-200">إلغاء</button>
+          </div>
+        </div>
+      </Modal>
 
       <Modal show={showAddModal} onClose={() => setShowAddModal(false)} maxWidth="md">
         <div className="p-6 dark:text-white text-gray-900">
@@ -132,7 +206,29 @@ export default function index({
             />
           </div>
           <InputError message={addError} className="mt-2" />
+          <div className="mt-6 flex justify-end">
+            <button onClick={handleAdd} className="bg-token1 dark:bg-token2 py-1 px-3 text-white rounded shadow transition-all hover:bg-emerald-600">موافق</button>
+            <button onClick={() => (setShowAddModal(false), setAdd(0), setAddError(''))} className="bg-gray-300 mx-4 py-1 px-3 text-gray-800 rounded shadow transition-all hover:bg-gray-200">إلغاء</button>
+          </div>
+        </div>
+      </Modal>
+
+      <Modal show={showReduceModal} onClose={() => setShowReduceModal(false)} maxWidth="md">
+        <div className="p-6 dark:text-white text-gray-900">
+          <h2 className="text-lg font-medium">سحب رصيد من المركز  : {(selectedCenter && selectedCenter.center.name)}</h2>
+          <h2 className="text-lg font-medium">الرصيد الحالي: {(selectedCenter && selectedCenter.final_balance)}</h2>
+          <p className="mt-4">أدخل الرصيد الذي تريد سحبه من المركز</p>
           <div>
+            <TextInput
+              type="number"
+              className="mt-4"
+              placeholder="الرصيد"
+              value={reduce}
+              onChange={(e) => setReduce(e.target.value)}
+            />
+          </div>
+          <InputError message={reduceError} className="mt-2" />
+          {/* <div>
             <TextInput
               className="mt-4"
               placeholder="البيان"
@@ -140,10 +236,10 @@ export default function index({
               onChange={(e) => { setStatment(e.target.value) }}
             />
           </div>
-          <InputError message={statmentError} className="mt-2" />
+          <InputError message={statmentError} className="mt-2" /> */}
           <div className="mt-6 flex justify-end">
-            <button onClick={handleAdd} className="bg-token1 dark:bg-token2 py-1 px-3 text-white rounded shadow transition-all hover:bg-emerald-600">موافق</button>
-            <button onClick={() => (setShowAddModal(false), setAdd(0), setStatment(''), setStatmentError(''), setAddError(''))} className="bg-gray-300 mx-4 py-1 px-3 text-gray-800 rounded shadow transition-all hover:bg-gray-200">إلغاء</button>
+            <button onClick={handleReduce} className="bg-token1 dark:bg-token2 py-1 px-3 text-white rounded shadow transition-all hover:bg-emerald-600">موافق</button>
+            <button onClick={() => (setShowReduceModal(false), setReduce(0), setReduceError(''))} className="bg-gray-300 mx-4 py-1 px-3 text-gray-800 rounded shadow transition-all hover:bg-gray-200">إلغاء</button>
           </div>
         </div>
       </Modal>
@@ -178,18 +274,12 @@ export default function index({
                         المركز
                       </TableHeading>
                       <TableHeading
-                        name='total_add'
-                        sort_field={queryParams.sort_field}
-                        sort_direction={queryParams.sort_direction}
-                        sortChanged={sortChanged}
+                        sortable={false}
                       >
                         تعبئة رصيد
                       </TableHeading>
                       <TableHeading
-                        name='total_reduce'
-                        sort_field={queryParams.sort_field}
-                        sort_direction={queryParams.sort_direction}
-                        sortChanged={sortChanged}
+                        sortable={false}
                       >
                         السحب
                       </TableHeading>
@@ -232,21 +322,20 @@ export default function index({
                       <th className="px-3 py-3"></th>
                       <th className="px-3 py-3"></th>
                       <th className="px-3 py-3"></th>
-                      <th className="px-3 py-3"></th>
-                      {/* {auth.user.kind === 'admin' ? (
-                      <th className="px-3 py-3 relative">
-                        <SearchableDropdown
-                          items={adminsMenu}
-                          name="officer_id"
-                          selectedItem={users.data.find((admin) => admin.id == queryParams.officerId)}
-                          onSelectItem={handleSelectAdmin}
-                          placeholder="اختر المسؤول"
-                          queryParams={queryParams}
-                        />
-                      </th>
-                    ) : (
-                      <th className="px-3 py-3"></th>
-                    )} */}
+                      {auth.user.kind === 'admin' ? (
+                        <th className="px-3 py-3 relative">
+                          <SearchableDropdown
+                            items={adminsMenu}
+                            name="officer_id"
+                            selectedItem={users.data.find((admin) => admin.id == queryParams.officerId)}
+                            onSelectItem={handleSelectAdmin}
+                            placeholder="اختر المسؤول"
+                            queryParams={queryParams}
+                          />
+                        </th>
+                      ) : (
+                        <th className="px-3 py-3"></th>
+                      )}
                       <th className="px-3 py-3"></th>
                     </tr>
                   </thead>
@@ -257,13 +346,26 @@ export default function index({
                         <td className="px-3 py-2">{center_balance.center.name}</td>
                         <td className="px-3 py-2">{center_balance.total_add}</td>
                         <td className="px-3 py-2">{center_balance.total_reduce}</td>
-                        <td className={`px-3 py-2 ${center_balance.final_balance_number < 0 ? "text-red-500" : 'text-green-500'}`}>{center_balance.final_balance}</td>
+                        {/* <td className={`px-3 py-2 ${center_balance.final_balance_number < 0 ? "text-red-500" : 'text-green-500'}`}>{center_balance.final_balance}</td> */}
+                        <td className={`px-3 py-2 text-white`}>
+                          <span className={`${center_balance.final_balance_number < 0 ? "bg-red-600" : 'bg-emerald-600'} rounded-md px-3 min-w-[100px] text-center inline-block font-normal`}>{center_balance.final_balance}</span>
+                        </td>
                         <td className="px-3 py-2">{center_balance.center.created_by.name}</td>
                         <td className="px-3 py-2 text-nowrap">
                           {auth.user.id === center_balance.center.created_by.id ? (
                             <>
-                              <DetailsButton onClick={() => openDetails(center_balance)}>عرض التفاصيل</DetailsButton>
-                              <AddButton onClick={() => openAddModal(center_balance)}>تغذية رصيد</AddButton>
+                              <DetailsButton onClick={() => openDetails(center_balance)} className="">عرض التفاصيل</DetailsButton>
+                              {center_balance.center.kind != "admin" ? (
+                                <>
+                                  <AddButton onClick={() => openAddModal(center_balance)}>تغذية رصيد</AddButton>
+                                  <RejectButton onClick={() => openReduceModal(center_balance)}>سحب رصيد</RejectButton>
+                                </>
+                              ) : (
+                                <>
+                                  <AddButton disabled={true} onClick={() => openAddModal(center_balance)}>تغذية رصيد</AddButton>
+                                  <RejectButton disabled={true} onClick={() => openReduceModal(center_balance)}>سحب رصيد</RejectButton>
+                                </>
+                              )}
                             </>
                           ) : (
                             <span className="font-medium text-gray-600 dark:text-gray-500 mx-1">ليس لديك صلاحيات</span>

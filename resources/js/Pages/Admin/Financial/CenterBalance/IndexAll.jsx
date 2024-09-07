@@ -18,6 +18,7 @@ export default function index({
   total_reduce_all,
   total_profit_all,
   final_balance_all,
+  all_balance_all,
   queryParams = null,
   success }) {
 
@@ -148,8 +149,8 @@ export default function index({
           <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
             <div className="p-6 text-gray-900 dark:text-gray-100">
               <div className="overflow-auto">
-              <table className="w-full text-md font-semibold rtl:text-right text-gray-800 dark:text-gray-200">
-              <thead className="text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400 border-b-2 border-gray-500">
+                <table className="w-full text-md font-semibold rtl:text-right text-gray-800 dark:text-gray-200">
+                  <thead className="text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400 border-b-2 border-gray-500">
                     <tr className="text-nowrap">
                       {/* <TableHeading
                         name='id'
@@ -168,18 +169,12 @@ export default function index({
                         المركز
                       </TableHeading>
                       <TableHeading
-                        name='total_add'
-                        sort_field={queryParams.sort_field}
-                        sort_direction={queryParams.sort_direction}
-                        sortChanged={sortChanged}
+                        sortable={false}
                       >
                         الدفعات
                       </TableHeading>
                       <TableHeading
-                        name='total_reduce'
-                        sort_field={queryParams.sort_field}
-                        sort_direction={queryParams.sort_direction}
-                        sortChanged={sortChanged}
+                        sortable={false}
                       >
                         السحب
                       </TableHeading>
@@ -198,6 +193,11 @@ export default function index({
                         sortChanged={sortChanged}
                       >
                         صافي الربح
+                      </TableHeading>
+                      <TableHeading
+                        sortable={false}
+                      >
+                        الرصيد الكلي
                       </TableHeading>
                       <TableHeading
                         name='category'
@@ -232,6 +232,7 @@ export default function index({
                       <th className="px-3 py-3"></th>
                       <th className="px-3 py-3"></th>
                       <th className="px-3 py-3"></th>
+                      <th className="px-3 py-3"></th>
                       {/* {auth.user.kind === 'admin' ? (
                       <th className="px-3 py-3 relative">
                         <SearchableDropdown
@@ -256,8 +257,11 @@ export default function index({
                         <td className="px-3 py-2">{center_balance.center.name}</td>
                         <td className="px-3 py-2">{center_balance.total_add}</td>
                         <td className="px-3 py-2">{center_balance.total_reduce}</td>
-                        <td className={`px-3 py-2 ${center_balance.final_balance_number < 0 ? "text-red-500" : 'text-green-500'}`}>{center_balance.final_balance}</td>
+                        <td className={`px-3 py-2 text-white`}>
+                          <span className={`${center_balance.final_balance_number < 0 ? "bg-red-600" : 'bg-emerald-600'} rounded-md px-3 min-w-[100px] text-center inline-block font-normal`}>{center_balance.final_balance}</span>
+                        </td>
                         <td className="px-3 py-2">{center_balance.total_profit}</td>
+                        <td className="px-3 py-2">{center_balance.all_balance}</td>
                         <td className="px-3 py-2">{center_balance.center.created_by.name}</td>
                         <td className="px-3 py-2 text-nowrap">
                           {auth.user.id === center_balance.center.created_by.id ? (
@@ -274,12 +278,13 @@ export default function index({
                   </tbody>
                   <tfoot className="text-center">
                     <tr>
-                      <th className="px-3 py-3"></th>
+                      {/* <th className="px-3 py-3"></th> */}
                       <th className="px-3 py-3">المجموع</th>
                       <th className="px-3 py-3">{total_add_all}</th>
                       <th className="px-3 py-3">{total_reduce_all}</th>
                       <th className="px-3 py-3">{final_balance_all}</th>
                       <th className="px-3 py-3">{total_profit_all}</th>
+                      <th className="px-3 py-3">{all_balance_all}</th>
                     </tr>
                   </tfoot>
                 </table>

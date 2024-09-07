@@ -24,9 +24,11 @@ class ProductBalanceController extends Controller
     $product_balance = $query->paginate(10)->onEachSide(1);
     $balance = DB::table('product_balances')
       ->where('product_id', request("product_id"))
-      ->select( DB::raw('SUM(`add`) as total_add'), 
-                DB::raw('SUM(`reduce`) as total_reduce'),
-                DB::raw('SUM(`profit`) as total_profit'))
+      ->select(
+        DB::raw('SUM(`add`) as total_add'),
+        DB::raw('SUM(`reduce`) as total_reduce'),
+        DB::raw('SUM(`profit`) as total_profit')
+      )
       ->first();
     $remainingBalance = $balance->total_add - $balance->total_reduce;
     return inertia("Admin/Financial/ProductBalance/Index", [
@@ -84,15 +86,19 @@ class ProductBalanceController extends Controller
     $categoryId = $request->input('category_id');
     $query = Product::with(['productBalances', 'category']);
 
+    // Sorting
+    $sortField = request('sort_field', 'created_at');
+    $sortDirection = request('sort_direction', 'desc');
+
     if ($productId) {
       $query->where('id', $productId);
     }
     if ($categoryId) {
       $query->where('category_id', $categoryId);
     }
-    $products_paginated = $query->paginate(10);
+    $products_paginated = $query->orderBy($sortField, $sortDirection)->paginate(10);
     $product_balances = $products_paginated->getCollection()->map(function ($product) {
-      $balances = $product->productBalances ?? collect(); // إذا كانت null، نعين Collection فارغ
+      $balances = $product->productBalances ?? collect(); 
       $total_add = $balances->sum('add');
       $total_reduce = $balances->sum('reduce');
       $total_profilt = $balances->sum('profit');
@@ -104,6 +110,7 @@ class ProductBalanceController extends Controller
         'total_reduce' => number_format($total_reduce),
         'total_profit' => number_format($total_profilt),
         'final_balance' => number_format($final_balance),
+        'all_balance' => number_format($final_balance + $total_profilt),
       ];
     });
 
@@ -126,8 +133,9 @@ class ProductBalanceController extends Controller
       $balances = $product->productBalances ?? collect();
       return $carry + $balances->sum('profit');
     }, 0);
-    $final_balance_all = $total_add_all - $total_reduce_all;
 
+    $final_balance_all = $total_add_all - $total_reduce_all;
+    $all_balance_all = $final_balance_all + $total_profit_all;
     $paginated_product_balances = new \Illuminate\Pagination\LengthAwarePaginator(
       $product_balances,
       $products_paginated->total(),
@@ -146,6 +154,7 @@ class ProductBalanceController extends Controller
       'total_reduce_all' => number_format($total_reduce_all),
       'total_profit_all' => number_format($total_profit_all),
       'final_balance_all' => number_format($final_balance_all),
+      'all_balance_all' => number_format($all_balance_all),
       'success'          => session('success'),
     ]);
   }

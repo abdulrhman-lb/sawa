@@ -59,14 +59,31 @@ class CenterBalanceVirtualController extends Controller
     $data = $request->validated();
     $user = User::where('id', $request->user_id)->first();
     CenterBalanceVirtual::create($data);
-    $balance=([
-      'add'     => 0,
-      'reduce'  => $request->add,
-      'statment'=> 'تحويل رصيد إلى المركز: ' . $user->name,
-      'user_id' => auth()->user()->id,
-    ]);
-    CenterBalanceVirtual::create($balance);
-    return to_route('center.balances.virtual.home')->with('success', 'تم إضافة الرصيد بنجاح');
+    if ($request->status === 2) {
+      return to_route('center.balances.virtual.home')->with('success', 'تم إضافة رصيد إلى البرنامج بنجاح');
+    } else {
+      if ($request->add != 0) {
+        $balance = ([
+          'add'     => 0,
+          'reduce'  => $request->add,
+          'statment' => $request->statment,
+          'user_id' => auth()->user()->id,
+          'status'  => 0
+        ]);
+        CenterBalanceVirtual::create($balance);
+        return to_route('center.balances.virtual.home')->with('success', 'تم إضافة الرصيد بنجاح');
+      } else {
+        $balance = ([
+          'add'     => $request->reduce,
+          'reduce'  => 0,
+          'statment' => $request->statment,
+          'user_id' => auth()->user()->id,
+          'status'  => $request->status
+        ]);
+        CenterBalanceVirtual::create($balance);
+        return to_route('center.balances.virtual.home')->with('success', 'تم سحب الرصيد بنجاح');
+      }
+    }
   }
 
   /**
@@ -113,8 +130,10 @@ class CenterBalanceVirtualController extends Controller
     $userId  = $request->input('user_id');
     $officerId = $request->input('officerId');
     $query = User::with(['centerBalanceVirtuals', 'createdBy']);
-    $query->where('kind', '!=', 'admin');
-    $query->where('created_by', auth()->user()->id);
+    // $query->where('kind', '!=', 'admin');
+    if (auth()->user()->kind != 'admin') {
+      $query->where('created_by', auth()->user()->id);
+    }
     if ($userId) {
       $query->where('id', $userId);
     }
@@ -162,8 +181,8 @@ class CenterBalanceVirtualController extends Controller
       $centers_paginated->currentPage(),
       ['path' => $centers_paginated->path()]
     );
-    $users = User::orderBy('name', 'asc')->get(); 
-    // استخراج رصيد المستخدم 
+    $users = User::where('created_by', auth()->user()->id)->orderBy('name', 'asc')->get();
+
     $center_balance = DB::table('center_balance_virtuals')
       ->where('user_id', auth()->user()->id)
       ->select(DB::raw('SUM(`add`) as total_add'), DB::raw('SUM(`reduce`) as total_reduce'))

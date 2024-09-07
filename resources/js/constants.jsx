@@ -27,7 +27,7 @@ export const KIND_DATA_TEXT_MAP ={
 
 export const ORDER_CLASS_MAP ={
   'in_progress' : 'bg-amber-500',
-  'completed'   : 'bg-green-500',
+  'completed'   : 'bg-emerald-600',
   'reject'      : 'bg-red-500',
 } 
 

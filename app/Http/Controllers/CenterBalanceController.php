@@ -119,6 +119,7 @@ class CenterBalanceController extends Controller
         'total_profit' => number_format($total_profilt),
         'final_balance' => number_format($final_balance),
         'final_balance_number' => $final_balance,
+        'all_balance' => number_format($final_balance + $total_profilt),
       ];
     });
 
@@ -142,7 +143,7 @@ class CenterBalanceController extends Controller
       return $carry + $balances->sum('profit');
     }, 0);
     $final_balance_all = $total_add_all - $total_reduce_all;
-
+    $all_balance_all = $final_balance_all + $total_profit_all;
     $paginated_center_balances = new \Illuminate\Pagination\LengthAwarePaginator(
       $center_balances,
       $centers_paginated->total(),
@@ -150,7 +151,7 @@ class CenterBalanceController extends Controller
       $centers_paginated->currentPage(),
       ['path' => $centers_paginated->path()]
     );
-    $users = User::orderBy('name', 'asc')->get();
+    $users = User::where('created_by', auth()->user()->id)->orderBy('name', 'asc')->get();
     return inertia("Admin/Financial/CenterBalance/IndexAll", [
       "center_balances"   => $paginated_center_balances,
       "users"             => UserCrudResource::collection($users),
@@ -159,6 +160,7 @@ class CenterBalanceController extends Controller
       'total_reduce_all'  => number_format($total_reduce_all),
       'total_profit_all'  => number_format($total_profit_all),
       'final_balance_all' => number_format($final_balance_all),
+      'all_balance_all' => number_format($all_balance_all),
       'success'           => session('success'),
     ]);
   }

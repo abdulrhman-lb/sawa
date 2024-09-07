@@ -18,6 +18,7 @@ export default function index({
   total_reduce_all,
   total_profit_all,
   final_balance_all,
+  all_balance_all,
   queryParams = null,
   success }) {
   const [showAddModal, setShowAddModal] = useState(false);
@@ -137,7 +138,7 @@ export default function index({
                         ID
                       </TableHeading> */}
                       <TableHeading
-                        name='category'
+                        name='category_id'
                         sort_field={queryParams.sort_field}
                         sort_direction={queryParams.sort_direction}
                         sortChanged={sortChanged}
@@ -145,7 +146,7 @@ export default function index({
                         التصنيف
                       </TableHeading>
                       <TableHeading
-                        name='product.name'
+                        name='name'
                         sort_field={queryParams.sort_field}
                         sort_direction={queryParams.sort_direction}
                         sortChanged={sortChanged}
@@ -153,18 +154,12 @@ export default function index({
                         المنتج
                       </TableHeading>
                       <TableHeading
-                        name='total_add'
-                        sort_field={queryParams.sort_field}
-                        sort_direction={queryParams.sort_direction}
-                        sortChanged={sortChanged}
+                        sortable={false}
                       >
                         ايداع
                       </TableHeading>
                       <TableHeading
-                        name='total_reduce'
-                        sort_field={queryParams.sort_field}
-                        sort_direction={queryParams.sort_direction}
-                        sortChanged={sortChanged}
+                        sortable={false}
                       >
                         سحب
                       </TableHeading>
@@ -185,7 +180,7 @@ export default function index({
                         صافي الربح
                       </TableHeading>
                       <TableHeading
-                        name='profit'
+                        name='all'
                         sort_field={queryParams.sort_field}
                         sort_direction={queryParams.sort_direction}
                         sortChanged={sortChanged}
@@ -240,7 +235,7 @@ export default function index({
                         <td className="px-3 py-2">{product_balance.total_reduce}</td>
                         <td className="px-3 py-2">{product_balance.final_balance}</td>
                         <td className="px-3 py-2">{product_balance.total_profit}</td>
-                        <td className="px-3 py-2">{product_balance.final_balance + product_balance.total_profit}</td>
+                        <td className="px-3 py-2">{product_balance.all_balance}</td>
                         <td className="px-3 py-2 text-nowrap">
                           <DetailsButton onClick={() => openDetails(product_balance)}>عرض التفاصيل</DetailsButton>
                           <AddButton onClick={() => openAddModal(product_balance)}>إضافة رصيد</AddButton>
@@ -257,7 +252,7 @@ export default function index({
                       <th className="px-3 py-3">{total_reduce_all}</th>
                       <th className="px-3 py-3">{final_balance_all}</th>
                       <th className="px-3 py-3">{total_profit_all}</th>
-                      <th className="px-3 py-3">{final_balance_all + total_profit_all}</th>
+                      <th className="px-3 py-3">{all_balance_all}</th>
                     </tr>
                   </tfoot>
                 </table>
