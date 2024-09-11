@@ -70,18 +70,21 @@ const Content = ({ align = 'right', width = '60', contentClasses = 'py-1 bg-whit
     );
 };
 
-const DropdownLink = ({ className = '', children, ...props }) => {
-    return (
-        <Link
-            {...props}
-            className={
-                'block w-full px-4 py-2 text-start lg:text-base leading-5 text-gray-900 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 focus:outline-none focus:bg-gray-100 dark:focus:bg-gray-800 transition duration-150 ease-in-out ' +
-                className
-            }
-        >
-            {children}
-        </Link>
-    );
+const DropdownLink = ({ className = '', isActive = false, children, ...props }) => {
+  return (
+      <Link
+          {...props}
+          className={
+              'block my-1 mx-1 px-4 py-2 text-start lg:text-base rounded-md leading-5 transition duration-150 ease-in-out ' +
+              (isActive
+                  ? 'bg-blue-700 text-white'
+                  : 'bg-blue-700/50 text-white hover:text-gray-700') + 
+              className
+          }
+      >
+          {children}
+      </Link>
+  );
 };
 
 Dropdown.Trigger = Trigger;

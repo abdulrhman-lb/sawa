@@ -93,6 +93,7 @@ class BoxController extends Controller
     $center_balance_query = DB::table('center_balances')
       ->join('users', 'users.id', '=', 'center_balances.user_id')
       ->where('users.created_by', Auth::id())
+      ->where('order_id', "=" , null)
       ->whereBetween('center_balances.created_at', [$start_date, $end_date])
       ->select('center_balances.*', 'users.name as user_name')
       ->orderBy('center_balances.created_at', 'desc');
@@ -109,6 +110,7 @@ class BoxController extends Controller
     $product_balance_query = DB::table('product_balances')
       ->join('products', 'products.id', '=', 'product_balances.product_id')
       ->whereBetween('product_balances.created_at', [$start_date, $end_date])
+      ->where('order_id', "=" , null)
       ->select('product_balances.*', 'products.name as product_name')
       ->orderBy('product_balances.created_at', 'desc');
     $product_balance = $product_balance_query->get();

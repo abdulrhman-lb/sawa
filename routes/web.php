@@ -3,6 +3,7 @@
 use App\Http\Controllers\AmountKindController;
 use App\Http\Controllers\BackupController;
 use App\Http\Controllers\BoxController;
+use App\Http\Controllers\CapitalController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CenterBalanceController;
 use App\Http\Controllers\CenterBalanceVirtualController;
@@ -19,7 +20,6 @@ use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
-// Route::redirect('/', '/dashboard');
 
 Route::middleware(['auth'])->group( function () {
   Route::get('/', [CategoryController::class, 'indexToHome'])->name('category.home');
@@ -34,11 +34,6 @@ Route::middleware(['auth'])->group( function () {
   Route::get('/daily-box', [BoxController::class, 'indexAll'])->name('box.home');
 
 
-
-  // Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-  // Route::resource('project' , ProjectCotroller::class);
-  // Route::get('task/my-tasks' , [TaskCotroller::class, 'myTasks'])->name('task.myTasks');
-  // Route::resource('task' , TaskCotroller::class);
   Route::resource('user' , UserController::class);
   Route::get('/download-backup', [BackupController::class, 'downloadBackup']);
 });
@@ -58,6 +53,7 @@ Route::middleware('auth')->group( function () {
   Route::resource('/center-balance',        CenterBalanceController::class);
   Route::resource('/center-balance-virtual',CenterBalanceVirtualController::class);
   Route::resource('/box'                   ,BoxController::class);
+  Route::resource('/capital'               ,CapitalController::class);
 });
 
 Route::middleware('auth')->group(function () {

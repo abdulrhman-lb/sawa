@@ -194,11 +194,11 @@ export default function index({
                       >
                         صافي الربح
                       </TableHeading>
-                      <TableHeading
+                      {/* <TableHeading
                         sortable={false}
                       >
                         الرصيد الكلي
-                      </TableHeading>
+                      </TableHeading> */}
                       <TableHeading
                         name='category'
                         sort_field={queryParams.sort_field}
@@ -232,7 +232,7 @@ export default function index({
                       <th className="px-3 py-3"></th>
                       <th className="px-3 py-3"></th>
                       <th className="px-3 py-3"></th>
-                      <th className="px-3 py-3"></th>
+                      {/* <th className="px-3 py-3"></th> */}
                       {/* {auth.user.kind === 'admin' ? (
                       <th className="px-3 py-3 relative">
                         <SearchableDropdown
@@ -261,7 +261,7 @@ export default function index({
                           <span className={`${center_balance.final_balance_number < 0 ? "bg-red-600" : 'bg-emerald-600'} rounded-md px-3 min-w-[100px] text-center inline-block font-normal`}>{center_balance.final_balance}</span>
                         </td>
                         <td className="px-3 py-2">{center_balance.total_profit}</td>
-                        <td className="px-3 py-2">{center_balance.all_balance}</td>
+                        {/* <td className="px-3 py-2">{center_balance.all_balance}</td> */}
                         <td className="px-3 py-2">{center_balance.center.created_by.name}</td>
                         <td className="px-3 py-2 text-nowrap">
                           {auth.user.id === center_balance.center.created_by.id ? (
@@ -284,7 +284,7 @@ export default function index({
                       <th className="px-3 py-3">{total_reduce_all}</th>
                       <th className="px-3 py-3">{final_balance_all}</th>
                       <th className="px-3 py-3">{total_profit_all}</th>
-                      <th className="px-3 py-3">{all_balance_all}</th>
+                      {/* <th className="px-3 py-3">{all_balance_all}</th> */}
                     </tr>
                   </tfoot>
                 </table>

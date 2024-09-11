@@ -28,6 +28,7 @@ export default function AuthenticatedLayout({ user, header, children }) {
         { id: 24, name: 'أرصدة المراكز', link: 'center.balances.virtual.home' },
         { id: 25, name: 'نفقات ومصاريف', link: 'box.index' },
         { id: 26, name: 'حركة الصندوق اليومية', link: 'box.home' },
+        { id: 27, name: 'إجمالي البيان المالي', link: 'capital.index' },
       ]
     },
     { id: 3, name: 'الزبائن', link: 'customer.index', kind: 1, dropdown: false, down: [] },
@@ -63,7 +64,7 @@ export default function AuthenticatedLayout({ user, header, children }) {
       if (!link.dropdown) {
         return (
           <li key={link.id} className="cursor-pointer">
-            <NavLink href={route(link.link)} active={route().current(link.link)} className='ml-8 text-gray-900'>
+            <NavLink href={route(link.link)} active={route().current(link.link)} >
               {link.name}
             </NavLink>
           </li>
@@ -73,8 +74,12 @@ export default function AuthenticatedLayout({ user, header, children }) {
       return (
         <Dropdown key={link.id}>
           <Dropdown.Trigger>
-            <li className="cursor-pointer ml-6">
-              <button className="inline-flex items-center px-1 pt-1 border-b-2 text-lg font-medium leading-5 transition duration-150 ease-in-out focus:outline-none border-transparent text-gray-900 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-700 focus:text-gray-700 dark:focus:text-gray-300 focus:border-gray-300 dark:focus:border-gray-700">
+            <li className="cursor-pointer">
+              <button className={
+                'inline-flex items-center px-2 pt-2 pb-2 text-lg font-medium leading-5 transition duration-150 ease-in-out focus:outline-none ' +
+                'bg-blue-700/50 text-white hover:text-gray-700 dark:hover:text-gray-300 focus:border-gray-300 ' +
+                'border-transparent rounded-md'
+              }>
                 {link.name}
                 <svg className="w-2.5 h-2.5 ms-2.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
                   <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m1 1 4 4 4-4" />
@@ -84,7 +89,7 @@ export default function AuthenticatedLayout({ user, header, children }) {
           </Dropdown.Trigger>
           <Dropdown.Content>
             {link.down.map(downLink => (
-              <Dropdown.Link key={downLink.id} href={route(downLink.link)}>{downLink.name}</Dropdown.Link>
+              <Dropdown.Link key={downLink.id} href={route(downLink.link)} isActive={route().current(downLink.link)}>{downLink.name}</Dropdown.Link>
             ))}
           </Dropdown.Content>
         </Dropdown>
