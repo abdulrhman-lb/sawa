@@ -10,16 +10,17 @@ export default function UpdatePasswordForm({ className = '', updated }) {
   const passwordInput = useRef();
   const currentPasswordInput = useRef();
 
-  const { data, setData, errors, put, reset, processing, recentlySuccessful } = useForm({
+  const { data, setData, errors, post, reset, processing, recentlySuccessful } = useForm({
     current_password: '',
     password: '',
     password_confirmation: '',
+    _method: 'PUT'
   });
 
   const updatePassword = (e) => {
     e.preventDefault();
 
-    put(route('password.update'), {
+    post(route('password.update'), {
       preserveScroll: true,
       onSuccess: () => reset(),
       onError: (errors) => {

@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('email')->unique();
-            $table->string('user_name')->unique();
+            $table->string('user_name')->nullable();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->string('phone')->nullable();
@@ -23,8 +23,10 @@ return new class extends Migration
             $table->string('address')->nullable();
             $table->string('center')->nullable();
             $table->integer('user_balance')->default(0);
+            $table->integer('add_balance')->default(0);
             $table->enum('kind',['admin', 'super_user', 'user']);
             $table->enum('status',['active', 'inactive']);
+            $table->string('image')->nullable();
             $table->foreignId('created_by')->constrained('users');
             $table->text('notes')->nullable();
             $table->rememberToken();

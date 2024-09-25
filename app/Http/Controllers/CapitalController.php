@@ -6,6 +6,7 @@ use App\Models\Capital;
 use App\Http\Requests\StoreCapitalRequest;
 use App\Http\Requests\UpdateCapitalRequest;
 use App\Http\Resources\CapitalResource;
+use App\Models\Message;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
@@ -40,9 +41,11 @@ class CapitalController extends Controller
     $total_box = $box->total_amount;
 
     $totalAmount = Capital::sum('amount');
-    $capitals = Capital::orderBy('created_at', 'desc')->paginate(10)->onEachSide(1);
-    $sum1 = $total_center+$totalAmount+$center_balance->total_profit;
+    $capitals = Capital::orderBy('created_at', 'desc')->paginate(25)->onEachSide(1);
+    $sum1 = $total_center+$totalAmount;
     $sum2 = $total_product+$total_box;
+    $sum3 = $totalAmount+$center_balance->total_profit;
+    $message          = Message::first();
     return inertia("Admin/Financial/Capital/Index", [
       "capitals"      => CapitalResource::collection($capitals),
       'success'       => session('success'),
@@ -53,13 +56,18 @@ class CapitalController extends Controller
       'total_box'     => $total_box,
       'total_profit'  => $center_balance->total_profit,
       'sum1'          => $sum1,
-      'sum2'          => $sum2
+      'sum2'          => $sum2,
+      'sum3'          => $sum3,
+      'message'           => $message
     ]);
   }
 
   public function create()
   {
-    return inertia("Admin/Financial/Capital/Create");
+    $message          = Message::first();
+    return inertia("Admin/Financial/Capital/Create",[
+      'message'           => $message
+    ]);
   }
 
   public function store(StoreCapitalRequest $request)
@@ -82,15 +90,19 @@ class CapitalController extends Controller
    */
   public function edit(Capital $capital)
   {
-    //
+    $message = Message::first();
+    return inertia("Admin/Financial/Capital/Edit", [
+      'capital'     => new CapitalResource($capital),
+      'message'     => $message
+    ]);
   }
 
-  /**
-   * Update the specified resource in storage.
-   */
   public function update(UpdateCapitalRequest $request, Capital $capital)
   {
-    //
+    $data = $request->validated();
+
+    $capital->update($data);
+    return to_route('capital.index')->with('success', "تم تعديل رأس المال بنجاح");
   }
 
   /**
@@ -98,6 +110,8 @@ class CapitalController extends Controller
    */
   public function destroy(Capital $capital)
   {
-    //
+    $capital->delete();
+
+    return to_route('capital.index')->with('success', "تم حذف تفاصيل رأس المال");
   }
 }

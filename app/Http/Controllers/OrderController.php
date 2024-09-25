@@ -5,19 +5,17 @@ namespace App\Http\Controllers;
 use App\Models\Order;
 use App\Http\Requests\StoreOrderRequest;
 use App\Http\Requests\UpdateOrderRequest;
-use App\Http\Resources\AmountKindResource;
 use App\Http\Resources\CustomerResource;
 use App\Http\Resources\OrderResource;
 use App\Http\Resources\UserResource;
 use App\Models\AmountKind;
 use App\Models\CenterBalance;
-use App\Models\CenterBalanceVirtual;
 use App\Models\Customer;
+use App\Models\Message;
 use App\Models\Product;
 use App\Models\ProductBalance;
 use App\Models\Service;
 use App\Models\User;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class OrderController extends Controller
@@ -29,11 +27,11 @@ class OrderController extends Controller
 
     if (auth()->user()->kind != "admin") {
       $query->join('users', 'orders.user_id', '=', 'users.id')
-      ->where(function ($query) use ($currentUserId) {
+        ->where(function ($query) use ($currentUserId) {
           $query->where('users.created_by', '=', $currentUserId)
-                ->orWhere('users.id', '=', $currentUserId);
-      })
-      ->select('orders.*');
+            ->orWhere('users.id', '=', $currentUserId);
+        })
+        ->select('orders.*');
       $users = User::where('created_by', $currentUserId)->orWhere('id', '=', $currentUserId)->orderBy('name', 'asc')->get();
     } else {
       $users = User::orderBy('name', 'asc')->get();
@@ -54,15 +52,15 @@ class OrderController extends Controller
 
     $query->Where('orders.status', "in_progress");
     $orders = $query->orderBy($sortField, $sortDirection)
-      ->paginate(10)
+      ->paginate(25)
       ->onEachSide(1);
-    $customers = Customer::orderBy('name', 'asc')->get();
+    $message      = Message::first();
     return inertia("Order/Index", [
       "orders"      => OrderResource::collection($orders),
       "users"       => UserResource::collection($users),
-      "customers"   => CustomerResource::collection($customers),
       'queryParams' => request()->query() ?: null,
       'success'     => session('success'),
+      'message'     => $message
     ]);
   }
 
@@ -141,20 +139,6 @@ class OrderController extends Controller
             'user_id' => $order->user_id,
             'order_id' => $order->id
           ]);
-          $data_center_admin_balance_virtual = ([
-            'add'     => 0,
-            'reduce'  => $order->net,
-            'statment' => 'طلب رقم: ' . $order->id,
-            'user_id' => $order->user_id,
-            'order_id' => $order->id
-          ]);
-          $balance_capcite = ([
-            'add'     => $order->net,
-            'reduce'  => 0,
-            'statment' => 'طلب رقم: ' . $order->id,
-            'user_id' => $admin->id,
-            'order_id' => $order->id
-          ]);
         } else {
           $data_center_admin_balance = ([
             'add'     => 0,
@@ -172,27 +156,13 @@ class OrderController extends Controller
             'user_id' => $order->user_id,
             'order_id' => $order->id
           ]);
-          $data_center_admin_balance_virtual = ([
-            'add'     => 0,
-            'reduce'  => $order->net,
-            'statment' => 'طلب رقم: ' . $order->id,
-            'user_id' => $order->user_id,
-            'order_id' => $order->id
-          ]);
-          $balance_capcite = ([
-            'add'     => $order->net,
-            'reduce'  => 0,
-            'statment' => 'طلب رقم: ' . $order->id,
-            'user_id' => $admin->id,
-            'order_id' => $order->id
-          ]);
           CenterBalance::create($data_center_super_balance);
         }
+        ProductBalance::create($data_product_balance);
+        CenterBalance::create($data_center_admin_balance);
       }
-      ProductBalance::create($data_product_balance);
-      CenterBalance::create($data_center_admin_balance);
-      CenterBalanceVirtual::create($data_center_admin_balance_virtual);
-      CenterBalanceVirtual::create($balance_capcite);
+      // CenterBalanceVirtual::create($data_center_admin_balance_virtual);
+      // CenterBalanceVirtual::create($balance_capcite);
       return to_route('order.index')->with('success', ['0', "تمت معالجة الطلب"]);
     }
   }
@@ -208,11 +178,11 @@ class OrderController extends Controller
 
     if (auth()->user()->kind != "admin") {
       $query->join('users', 'orders.user_id', '=', 'users.id')
-      ->where(function ($query) use ($currentUserId) {
+        ->where(function ($query) use ($currentUserId) {
           $query->where('users.created_by', '=', $currentUserId)
-                ->orWhere('users.id', '=', $currentUserId);
-      })
-      ->select('orders.*');
+            ->orWhere('users.id', '=', $currentUserId);
+        })
+        ->select('orders.*');
       $users = User::where('created_by', $currentUserId)->orWhere('id', '=', $currentUserId)->orderBy('name', 'asc')->get();
     } else {
       $users = User::orderBy('name', 'asc')->get();
@@ -233,15 +203,15 @@ class OrderController extends Controller
     }
 
     $orders = $query->orderBy($sortField, $sortDirection)
-      ->paginate(10)
+      ->paginate(25)
       ->onEachSide(1);
-    $customers = Customer::orderBy('name', 'asc')->get();
+    $message      = Message::first();
     return inertia("Order/IndexAll", [
       "orders"      => OrderResource::collection($orders),
       "users"       => UserResource::collection($users),
-      "customers"   => CustomerResource::collection($customers),
       'queryParams' => request()->query() ?: null,
       'success'     => session('success'),
+      'message'     => $message
     ]);
   }
 }

@@ -7,10 +7,11 @@ use App\Http\Requests\StoreCenterBalanceRequest;
 use App\Http\Requests\UpdateCenterBalanceRequest;
 use App\Http\Resources\CenterBalanceResource;
 use App\Http\Resources\UserCrudResource;
+use App\Models\Message;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
-
+use Illuminate\Support\Facades\Auth;
 
 class CenterBalanceController extends Controller
 {
@@ -22,7 +23,7 @@ class CenterBalanceController extends Controller
 
     $center_balance = $query->get();
 
-    $center_balance = $query->paginate(10)->onEachSide(1);
+    $center_balance = $query->paginate(25)->onEachSide(1);
     $balance = DB::table('center_balances')
       ->where('user_id', request("center_id"))
       ->select(
@@ -32,6 +33,7 @@ class CenterBalanceController extends Controller
       )
       ->first();
     $remainingBalance = $balance->total_add - $balance->total_reduce;
+    $message          = Message::first();
     return inertia("Admin/Financial/CenterBalance/Index", [
       "center_balance"   => CenterBalanceResource::collection($center_balance),
       'total_add_all'     => number_format($balance->total_add),
@@ -40,6 +42,7 @@ class CenterBalanceController extends Controller
       'final_balance_all' => number_format($remainingBalance),
       'final_balance_all_test' => $remainingBalance,
       'success'           => session('success'),
+      'message'           => $message
     ]);
   }
 
@@ -57,7 +60,16 @@ class CenterBalanceController extends Controller
   public function store(StoreCenterBalanceRequest $request)
   {
     $data = $request->validated();
+    // dd($data['add']);
     CenterBalance::create($data);
+    $user = User::where('id', $data['user_id'])->first();
+    if ($user->user_balance <= $data['add'] ) {
+      $user->user_balance = 0;
+      $user->save();
+    } else {
+      $user->user_balance = $user->user_balance - $data['add'];
+      $user->save();
+    }
     return to_route('center.balances.home')->with('success', 'تم إضافة دفعة بنجاح');
   }
 
@@ -104,7 +116,7 @@ class CenterBalanceController extends Controller
     if ($officerId) {
       $query->where('created_by', $officerId);
     }
-    $centers_paginated = $query->paginate(10);
+    $centers_paginated = $query->paginate(25);
     $center_balances = $centers_paginated->getCollection()->map(function ($center) {
       $centers = $center->centerBalances ?? collect(); // إذا كانت null، نعين Collection فارغ
       $total_add = $centers->sum('add');
@@ -114,8 +126,8 @@ class CenterBalanceController extends Controller
 
       return [
         'center' => $center,
-        'total_add' => number_format($total_add),
-        'total_reduce' => number_format($total_reduce),
+        'total_add' => $total_add,
+        'total_reduce' => $total_reduce,
         'total_profit' => number_format($total_profilt),
         'final_balance' => number_format($final_balance),
         'final_balance_number' => $final_balance,
@@ -152,6 +164,9 @@ class CenterBalanceController extends Controller
       ['path' => $centers_paginated->path()]
     );
     $users = User::where('created_by', auth()->user()->id)->orderBy('name', 'asc')->get();
+    $message      = Message::first();
+    // dd($paginated_center_balances);
+
     return inertia("Admin/Financial/CenterBalance/IndexAll", [
       "center_balances"   => $paginated_center_balances,
       "users"             => UserCrudResource::collection($users),
@@ -160,8 +175,9 @@ class CenterBalanceController extends Controller
       'total_reduce_all'  => number_format($total_reduce_all),
       'total_profit_all'  => number_format($total_profit_all),
       'final_balance_all' => number_format($final_balance_all),
-      'all_balance_all' => number_format($all_balance_all),
+      'all_balance_all'   => number_format($all_balance_all),
       'success'           => session('success'),
+      'message'           => $message
     ]);
   }
 }

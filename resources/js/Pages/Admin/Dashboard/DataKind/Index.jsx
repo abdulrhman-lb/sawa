@@ -8,8 +8,11 @@ import { STATUS_CLASS_MAP, STATUS_TEXT_MAP } from "@/constants";
 import PrimaryButton from "@/Components/Buttons/PrimaryButton";
 import DeleteButton from "@/Components/Buttons/DeleteButton";
 import AddButton from "@/Components/Buttons/AddButton";
+import ScrollBar from "@/Components/ScrollBar";
+import SuccessMessage from "@/Components/SuccessMessage";
+import Title from "@/Components/Title";
 
-export default function index({ auth, datakinds, queryParams = null, success }) {
+export default function index({ auth, datakinds, queryParams = null, success, message }) {
   queryParams = queryParams || {}
   const searchFieldChanged = (name, value) => {
     if (value) {
@@ -45,7 +48,9 @@ export default function index({ auth, datakinds, queryParams = null, success }) 
     if (!window.confirm('هل تريد بالتأكيد حذف هذا النوع من البيانات؟')) {
       return;
     }
-    router.delete(route('datakind.destroy', datakind.id))
+    router.post(route('datakind.destroy', datakind.id),{
+      _method: 'DELETE',
+    })
   }
 
   const editDataKind = (datakind) => {
@@ -59,23 +64,21 @@ export default function index({ auth, datakinds, queryParams = null, success }) 
   return (
     <AuthenticatedLayout
       user={auth.user}
+      message={message}
       header={
         <div className="flex justify-between items-center">
-          <h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            انواع بيانات الخدمات
-          </h2>
+          <Title>انواع بيانات الخدمات</Title>
+          <ScrollBar message={message}/>
           <AddButton onClick={e => addDataKind()}>إضافة</AddButton>
         </div>
       }
     >
       <Head title="أنواع بيانات الخدمات" />
-      <div className="py-6">
+      <div className="py-2">
         <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
-          {success && (<div className="bg-emerald-500 py-2 px-4 text-white rounded mb-4">
-            {success}
-          </div>)}
+        {success && (<SuccessMessage message={success} />)}
           <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
-            <div className="p-6 text-gray-900 dark:text-gray-100">
+            <div className="p-2 text-gray-900 dark:text-gray-100">
               <div className="overflow-auto">
                 <table className="w-full text-md font-semibold rtl:text-right text-gray-800 dark:text-gray-200">
                   <thead className="text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400 border-b-2 border-gray-500">

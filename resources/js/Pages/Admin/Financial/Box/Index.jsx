@@ -13,10 +13,13 @@ import CustomDatePicker from "@/Components/CustomDatePicker";
 import SecondaryButton from "@/Components/Buttons/SecondaryButton";
 import { useState } from "react";
 import { format } from "date-fns";
+import ScrollBar from "@/Components/ScrollBar";
+import SuccessMessage from "@/Components/SuccessMessage";
+import Title from "@/Components/Title";
 
 
 
-export default function index({ auth, boxs, queryParams, totalAmount = null, success }) {
+export default function index({ auth, boxs, queryParams, totalAmount = null, success, message }) {
   queryParams = queryParams || {}
   
   const [selectedStartDate, setSelectedStartDate] = useState((queryParams['start_date'] && format(queryParams['start_date'], "dd-MM-yyyy")) || null);
@@ -26,7 +29,6 @@ export default function index({ auth, boxs, queryParams, totalAmount = null, suc
   const searchFieldChanged = (name, value) => {
     queryParams['start_date'] = (selectedStartDate && format(selectedStartDate, "dd-MM-yyyy"));
     queryParams['end_date'] = (selectedEndDate && format(selectedEndDate, "dd-MM-yyyy"));
-    console.log(queryParams)
     router.get(route('box.index'), queryParams)
   }
 
@@ -48,7 +50,9 @@ export default function index({ auth, boxs, queryParams, totalAmount = null, suc
     if (!window.confirm('هل تريد بالتأكيد حذف هذا المصروف ؟')) {
       return;
     }
-    router.delete(route('box.destroy', box.id))
+    router.post(route('box.destroy', box.id),{
+      _method: 'DELETE',
+    })
   }
 
   const editBox = (box) => {
@@ -62,23 +66,21 @@ export default function index({ auth, boxs, queryParams, totalAmount = null, suc
   return (
     <AuthenticatedLayout
       user={auth.user}
+      message={message}
       header={
         <div className="flex justify-between items-center">
-          <h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            النفقات والمصاريف
-          </h2>
+          <Title>النفقات والمصاريف</Title>
+          <ScrollBar message={message}/>
           <AddButton onClick={e => addBox()}>إضافة</AddButton>
         </div>
       }
     >
       <Head title="النفقات والمصاريف" />
-      <div className="py-6">
+      <div className="py-2">
         <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
-          {success && (<div className="bg-emerald-500 py-2 px-4 text-white rounded mb-4">
-            {success}
-          </div>)}
+        {success && (<SuccessMessage message={success} />)}
           <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
-            <div className="p-6 text-gray-900 dark:text-gray-100">
+            <div className="p-2 text-gray-900 dark:text-gray-100">
               <div className="overflow-auto">
                 <table className="w-full text-md font-semibold rtl:text-right text-gray-800 dark:text-gray-200">
                   <thead className="text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400 border-b-2 border-gray-500">

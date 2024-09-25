@@ -8,10 +8,13 @@ use Illuminate\Database\Eloquent\Model;
 class Customer extends Model
 {
     use HasFactory;
-    protected $fillable = ['name', 'notes', 'mobile', 'phone'];
+    protected $fillable = ['name', 'notes', 'mobile', 'phone', 'created_by'];
 
     public function orders(){
       return $this->hasMany(Order::class, 'customer_id');
     }
-
+    public function createdBy()
+    {
+      return $this->belongsTo(User::class, 'created_by');
+    }
 }

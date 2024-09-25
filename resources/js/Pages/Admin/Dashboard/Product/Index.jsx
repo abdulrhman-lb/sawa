@@ -8,8 +8,11 @@ import { STATUS_CLASS_MAP, STATUS_TEXT_MAP } from "@/constants";
 import DeleteButton from "@/Components/Buttons/DeleteButton";
 import PrimaryButton from "@/Components/Buttons/PrimaryButton";
 import AddButton from "@/Components/Buttons/AddButton";
+import ScrollBar from "@/Components/ScrollBar";
+import SuccessMessage from "@/Components/SuccessMessage";
+import Title from "@/Components/Title";
 
-export default function index({ auth, products, categories, queryParams = null, success }) {
+export default function index({ auth, products, categories, queryParams = null, success, message }) {
   queryParams = queryParams || {}
   const searchFieldChanged = (name, value) => {
     if (value) {
@@ -45,7 +48,9 @@ export default function index({ auth, products, categories, queryParams = null, 
     if (!window.confirm('هل تريد بالتأكيد حذف هذا المنتج؟')) {
       return;
     }
-    router.delete(route('product.destroy', product.id))
+    router.post(route('product.destroy', product.id),{
+      _method: 'DELETE',
+    })
   }
   const editProduct = (product) => {
     router.get(route("product.edit", product))
@@ -57,35 +62,25 @@ export default function index({ auth, products, categories, queryParams = null, 
   return (
     <AuthenticatedLayout
       user={auth.user}
+      message={message}
       header={
         <div className="flex justify-between items-center">
-          <h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            المنتجات
-          </h2>
+          <Title>المنتجات</Title>
+          <ScrollBar message={message}/>
           <AddButton onClick={e => addProduct()}>إضافة</AddButton>
         </div>
       }
     >
       <Head title="المنتجات" />
-      <div className="py-6">
+      <div className="py-2">
         <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
-          {success && (<div className="bg-emerald-500 py-2 px-4 text-white rounded mb-4">
-            {success}
-          </div>)}
+        {success && (<SuccessMessage message={success} />)}
           <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
-            <div className="p-6 text-gray-900 dark:text-gray-100">
+            <div className="p-2 text-gray-900 dark:text-gray-100">
               <div className="overflow-auto">
                 <table className="w-full text-md font-semibold text-left rtl:text-right text-gray-800 dark:text-gray-200">
                   <thead className="text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400 border-b-2 border-gray-500">
                     <tr className="text-nowrap">
-                      {/* <TableHeading
-                        name='id'
-                        sort_field={queryParams.sort_field}
-                        sort_direction={queryParams.sort_direction}
-                        sortChanged={sortChanged}
-                      >
-                        ID
-                      </TableHeading> */}
                       <TableHeading
                         name='image'
                         sortable={false}
@@ -125,7 +120,6 @@ export default function index({ auth, products, categories, queryParams = null, 
                   </thead>
                   <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400 border-b-2 border-gray-500">
                     <tr className="text-nowrap">
-                      {/* <th className="px-3 py-3"></th> */}
                       <th className="px-3 py-3"></th>
                       <th className="px-3 py-3">
                         <TextInput
@@ -166,8 +160,7 @@ export default function index({ auth, products, categories, queryParams = null, 
                   <tbody className="text-center">
                     {products.data.map((product) => (
                       <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700" key={product.id}>
-                        {/* <td className="px-3 py-2">{product.id}</td> */}
-                        <td className="px-3 py-2"><img src={product.image} className="rounded-md h-[60px] w-[60px] object-cover" style={{ width: 60, height: 60 }} /></td>
+                        <td className="px-3 py-2 text-center"><img src={product.image} className="mx-auto rounded-full h-[70px] w-[70px] object-cover" style={{ width: 60, height: 60 }} /></td>
                         <td className="px-3 py-2 text-nowrap">
                           <Link href={route("product.show", product.id)}>
                             {product.name}

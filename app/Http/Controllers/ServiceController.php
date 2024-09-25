@@ -16,9 +16,11 @@ use App\Models\Category;
 use App\Models\Comission;
 use App\Models\Customer;
 use App\Models\DataKind;
+use App\Models\Message;
 use App\Models\Product;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class ServiceController extends Controller
@@ -46,23 +48,27 @@ class ServiceController extends Controller
     }
 
     // Apply
-    $services = $query->orderBy($sortField, $sortDirection)->paginate(10)->onEachSide(1);
+    $services = $query->orderBy($sortField, $sortDirection)->paginate(25)->onEachSide(1);
     $products = Product::orderBy('name', 'asc')->get();
+    $message = Message::first();
     return inertia("Admin/Dashboard/Service/Index", [
       "services"    => ServiceResource::collection($services),
       'products'    => $products,
       'queryParams' => request()->query() ?: null,
       'success'     => session('success'),
+      'message'     => $message
     ]);
   }
 
   public function create()
   {
+    $message = Message::first();
     $products = Product::orderBy('name', 'asc')->get();
     $data_kinds = DataKind::orderBy('name', 'asc')->get();
     return inertia("Admin/Dashboard/Service/Create", [
       'products'  => ProductResource::collection($products),
-      'data_kinds' => DataKindResource::collection($data_kinds)
+      'data_kinds' => DataKindResource::collection($data_kinds),
+      'message'     => $message
     ]);
   }
 
@@ -75,19 +81,23 @@ class ServiceController extends Controller
 
   public function show(Service $service)
   {
+    $message = Message::first();
     return inertia("Admin/Dashboard/Service/Show", [
       'service' => new ServiceResource($service),
+      'message'     => $message
     ]);
   }
 
   public function edit(Service $service)
   {
+    $message = Message::first();
     $products = Product::query()->orderBy('name')->get();
     $data_kinds = DataKind::orderBy('name', 'asc')->get();
     return inertia("Admin/Dashboard/Service/Edit", [
       'service'     => new ServiceResource($service),
       'products'    => ProductResource::collection($products),
-      'data_kinds'  => DataKindResource::collection($data_kinds)
+      'data_kinds'  => DataKindResource::collection($data_kinds),
+      'message'     => $message
     ]);
   }
 
@@ -112,18 +122,31 @@ class ServiceController extends Controller
   }
   public function indexToHome(Request $request, $id)
   {
-    $center_balance = DB::table('center_balance_virtuals')
+    $message = Message::first();
+    $center_balance = DB::table('center_balances')
       ->where('user_id', auth()->user()->id)
       ->select(DB::raw('SUM(`add`) as total_add'), DB::raw('SUM(`reduce`) as total_reduce'))
       ->first();
     $remainingBalanceCenter = $center_balance->total_add - $center_balance->total_reduce;
+    $user = Auth::user();
+    $user = Auth::user();
+    if ($user->user_balance === 0) {
+      $balance = $remainingBalanceCenter;
+    } else {
+      $balance = ($user->user_balance + $remainingBalanceCenter);
+    }
+    if ($remainingBalanceCenter > 0) {
+      $balance = $remainingBalanceCenter;
+    }
+
     $product = Product::where('id', $id)->first();
     $products = Product::where('category_id', $product->category_id)->orderBy('id', 'asc')->get();
     $center = User::where('id', auth()->user()->id)->first();
-    if ($remainingBalanceCenter <= 0) {
+    if ($balance < 0) {
       return inertia("Product/Index", [
         "products"  => ProductResource::collection($products),
-        'success'   => "لايوجد رصيد لدى  \"$center->name\" لطلب الخدمات"
+        'success'   => "لايوجد رصيد لدى  \"$center->name\" لطلب الخدمات",
+        'message'     => $message
       ]);
     }
 
@@ -137,7 +160,8 @@ class ServiceController extends Controller
     if ($remainingBalanceProduct <= 0) {
       return inertia("Product/Index", [
         "products"  => ProductResource::collection($products),
-        'success'   => "لايوجد رصيد في  \"$product->name\" لطلب الخدمات"
+        'success'   => "لايوجد رصيد في  \"$product->name\" لطلب الخدمات",
+        'message'     => $message
       ]);
     }
 
@@ -145,18 +169,18 @@ class ServiceController extends Controller
     $query->where("status", "active");
     $query->where("product_id", $id);
     $services = $query->orderBy('id', 'asc')->get();
-    $customers = Customer::orderBy('name', 'asc')->get();
+    $customers = Customer::where('created_by', Auth()->user()->id)->orderBy('name', 'asc')->get();
     $amountKinds = AmountKind::get();
     $comissions = Comission::get();
-
     return inertia("Services/Index", [
       "services"          => ServiceResource::collection($services),
       'customers'         => CustomerResource::collection($customers),
       'amountKinds'       => AmountKindResource::collection($amountKinds),
       'comissions'        => ComissionResource::collection($comissions),
       'remainingBalanceProduct'  => $remainingBalanceProduct,
-      'remainingBalanceCenter'  => $remainingBalanceCenter,
+      'remainingBalanceCenter'  => $balance,
       'success'           => session('success'),
+      'message'     => $message
     ]);
   }
 }

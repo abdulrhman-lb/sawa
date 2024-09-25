@@ -6,6 +6,7 @@ use App\Models\DataKind;
 use App\Http\Requests\StoreDataKindRequest;
 use App\Http\Requests\UpdateDataKindRequest;
 use App\Http\Resources\DataKindResource;
+use App\Models\Message;
 
 class DataKindController extends Controller
 {
@@ -23,17 +24,22 @@ class DataKindController extends Controller
     }
 
     // Apply
-    $datakinds = $query->orderBy($sortField, $sortDirection)->paginate(10)->onEachSide(1);
+    $datakinds = $query->orderBy($sortField, $sortDirection)->paginate(25)->onEachSide(1);
+    $message = Message::first();
     return inertia("Admin/Dashboard/DataKind/Index", [
       "datakinds"    => DataKindResource::collection($datakinds),
       'queryParams' => request()->query() ?: null,
       'success'     => session('success'),
+      'message'     => $message
     ]);
   }
 
   public function create()
   {
-    return inertia("Admin/Dashboard/DataKind/Create");
+    $message = Message::first();
+    return inertia("Admin/Dashboard/DataKind/Create", [
+      'message'     => $message
+    ]);
   }
 
   public function store(StoreDataKindRequest $request)
@@ -50,8 +56,10 @@ class DataKindController extends Controller
 
   public function edit(DataKind $datakind)
   {
+    $message = Message::first();
     return inertia("Admin/Dashboard/DataKind/Edit", [
-      'dataKind' => new DataKindResource($datakind)
+      'dataKind' => new DataKindResource($datakind),
+      'message'     => $message
     ]);
   }
 

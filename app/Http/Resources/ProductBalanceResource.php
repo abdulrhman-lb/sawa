@@ -27,7 +27,7 @@ class ProductBalanceResource extends JsonResource
       'product'     => new ProductResource($this->product),
       'order_id'    => $this->order_id,
       'order'       => new OrderResource($this->order),
-      'created_at'      => (new Carbon($this->created_at))->format('Y-m-d'),
+      'created_at'      => (new Carbon($this->created_at))->format('Y/m/d'),
     ];
   }
 }

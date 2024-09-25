@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
+use App\Models\Message;
+use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -20,27 +22,32 @@ class AuthenticatedSessionController extends Controller
    */
   public function create(): Response
   {
+    $message          = Message::first();
     return Inertia::render('Auth/Login', [
       'canResetPassword' => Route::has('password.request'),
       'status' => session('status'),
+      'message'           => $message
     ]);
   }
 
-  /**
-   * Handle an incoming authentication request.
-   */
   public function store(LoginRequest $request): RedirectResponse
   {
+    $user = User::where('email', $request->email)->first();
+    if (!$user || $user->status === 'inactive') {
+      return redirect()->back()->withErrors([
+        'email' => 'حسابك غير مفعل، يرجى التواصل مع الدعم.',
+      ]);
+    }
     $request->authenticate();
 
     $request->session()->regenerate();
-    
-    return redirect()->intended(route('category.home', absolute: false));
+    if ($user->kind === 'admin') {
+      return to_route('order.index');
+    } else {
+      return redirect()->intended(route('category.home', absolute: false));
+    }
   }
 
-  /**
-   * Destroy an authenticated session.
-   */
   public function destroy(Request $request): RedirectResponse
   {
     Auth::guard('web')->logout();

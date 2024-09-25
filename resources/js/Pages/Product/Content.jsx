@@ -9,7 +9,6 @@ const Content = ({ image, name, id, phone }) => {
     <>
       <div data-aos="fade-up" data-aos-delay={50} className="text-white group">
       <Link
-          key={id}
           href={route("service.home", { id })}
         >
         <div className="overflow-hidden pt-2">

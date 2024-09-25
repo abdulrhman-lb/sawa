@@ -1,12 +1,16 @@
+import AcceptButton from "@/Components/Buttons/AcceptButton";
+import RejectButton from "@/Components/Buttons/RejectButton copy";
 import InputError from "@/Components/InputError";
 import InputLabel from "@/Components/InputLabel"; 
+import ScrollBar from "@/Components/ScrollBar";
 import SelectInput from "@/Components/SelectInput";
 import TextInput from "@/Components/TextInput";
+import Title from "@/Components/Title";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { Head, Link, useForm } from "@inertiajs/react";
 
 
-export default function Create({ auth, user }) {
+export default function Create({ auth, user, message }) {
   const { data, setData, post, errors, reset } = useForm({
     name: user.name || "",
     email: user.email || "",
@@ -30,53 +34,21 @@ export default function Create({ auth, user }) {
   return (
     <AuthenticatedLayout
       user={auth.user}
+      message={message}
       header={
         <div className="flex justify-between items-center">
-          <h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            تعديل بيانات المستخدم  "{user.name}"
-          </h2>
+          <Title>تعديل بيانات المركز  "{user.name}"</Title>
+          <ScrollBar message={message}/>
         </div>
       }
     >
       <Head title="Users" />
-      <div className="py-6">
+      <div className="py-2">
         <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
           <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
-          <form onSubmit={onSubmit} className="p-4 sm:p-8 bg-white dark:bg-gray-800 shadow sm:rounded-lg">
-              <div className="mt-4">
-                <InputLabel
-                  htmlFor="name"
-                  value="الاسم الكامل"
-                />
-                <TextInput
-                  id="name"
-                  type="text"
-                  name="name"
-                  value={data.name}
-                  isFocused={true}
-                  className="mt-1 block w-full"
-                  onChange={e => setData('name', e.target.value)}
-                />
-                <InputError message={errors.name} className="mt-2" />
-              </div>
-              <div className=" mt-6 space-y-6 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-2 gap-4">
-                <div className="mt-4">
-                  <InputLabel
-                    htmlFor="user_name"
-                    value="اسم المستخدم"
-                  />
-                  <TextInput
-                    id="user_name"
-                    type="text"
-                    name="user_name"
-                    value={data.user_name}
-                    isFocused={true}
-                    className="mt-1 block w-full"
-                    onChange={e => setData('user_name', e.target.value)}
-                  />
-                  <InputError message={errors.user_name} className="mt-2" />
-                </div>
-                <div className="mt-4">
+            <form onSubmit={onSubmit} className="p-3 bg-white dark:bg-gray-800 shadow sm:rounded-lg">
+              <div className="space-y-1 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">                
+                <div className="mt-1">
                   <InputLabel
                     htmlFor="email"
                     value="البريد الالكتروني"
@@ -86,15 +58,16 @@ export default function Create({ auth, user }) {
                     type="email"
                     name="email"
                     value={data.email}
+                    isFocused={true}
                     className="mt-1 block w-full"
                     onChange={e => setData('email', e.target.value)}
                   />
                   <InputError message={errors.email} className="mt-2" />
                 </div>
-                <div className="mt-4">
+                <div>
                   <InputLabel
                     htmlFor="user_password"
-                    value="Password"
+                    value="كلمة المرور"
                   />
                   <TextInput
                     id="user_password"
@@ -109,7 +82,7 @@ export default function Create({ auth, user }) {
                 <div className="mt-4">
                   <InputLabel
                     htmlFor="user_password_confirmation"
-                    value="Confirm Password"
+                    value="تأكيد كلمة المرور"
                   />
                   <TextInput
                     id="user_password_confirmation"
@@ -121,7 +94,22 @@ export default function Create({ auth, user }) {
                   />
                   <InputError message={errors.password_confirmation} className="mt-2" />
                 </div>
-                <div className="mt-4">
+                <div className="mt-2">
+                  <InputLabel
+                    htmlFor="name"
+                    value="الاسم الكامل"
+                  />
+                  <TextInput
+                    id="name"
+                    type="text"
+                    name="name"
+                    value={data.name}
+                    className="mt-1 block w-full"
+                    onChange={e => setData('name', e.target.value)}
+                  />
+                  <InputError message={errors.name} className="mt-2" />
+                </div>
+                <div>
                   <InputLabel
                     htmlFor="phone"
                     value="رقم الهاتف"
@@ -131,13 +119,12 @@ export default function Create({ auth, user }) {
                     type="text"
                     name="phone"
                     value={data.phone}
-                    isFocused={true}
                     className="mt-1 block w-full"
                     onChange={e => setData('phone', e.target.value)}
                   />
                   <InputError message={errors.phone} className="mt-2" />
                 </div>
-                <div className="mt-4">
+                <div>
                   <InputLabel
                     htmlFor="mobile"
                     value="رقم الموبايل"
@@ -147,7 +134,6 @@ export default function Create({ auth, user }) {
                     type="text"
                     name="mobile"
                     value={data.mobile}
-                    isFocused={true}
                     className="mt-1 block w-full"
                     onChange={e => setData('mobile', e.target.value)}
                   />
@@ -163,13 +149,12 @@ export default function Create({ auth, user }) {
                     type="text"
                     name="address"
                     value={data.address}
-                    isFocused={true}
                     className="mt-1 block w-full"
                     onChange={e => setData('address', e.target.value)}
                   />
                   <InputError message={errors.address} className="mt-2" />
                 </div>
-                <div className="mt-4">
+                <div>
                   <InputLabel
                     htmlFor="center"
                     value="اسم المركز"
@@ -179,30 +164,29 @@ export default function Create({ auth, user }) {
                     type="text"
                     name="center"
                     value={data.center}
-                    isFocused={true}
                     className="mt-1 block w-full"
+                    autoComplete="off"
                     onChange={e => setData('center', e.target.value)}
                   />
                   <InputError message={errors.center} className="mt-2" />
                 </div>
 
-                <div className="mt-4">
-                  <InputLabel htmlFor="kind" value="نوع المستخدم" />
+                <div>
+                  <InputLabel htmlFor="kind" value="نوع المركز" />
                   <SelectInput
                     className="mt-1 block w-full"
                     defaultValue={data.kind}
                     onChange={(e) => setData('kind', e.target.value)}
-                    
                   >
                     {(auth.user.kind === "admin") ? <option value="admin">مدير نظام </option> : null}
-                    {(auth.user.kind === "admin") ? <option value="super_user">مركز توزيع</option> : null}
-                    <option value="user">مركز بيع</option>
+                    {(auth.user.kind === "admin") ? <option value="super_user">حساب تاجر مميز</option> : null}
+                    <option value="user">مركز بيع عادي</option>
                   </SelectInput>
                   <InputError className="mt-2" message={errors.kind} />
                 </div>
 
-                <div className="mt-4">
-                  <InputLabel htmlFor="status" value="حالة المستخدم" />
+                <div>
+                  <InputLabel htmlFor="status" value="حالة المركز" />
                   <SelectInput
                     className="mt-1 block w-full"
                     defaultValue={data.status}
@@ -213,14 +197,12 @@ export default function Create({ auth, user }) {
                   </SelectInput>
                   <InputError className="mt-2" message={errors.status} />
                 </div>
-
-                <div className="mt-4 text-right ">
-                  <button className="bg-token1 dark:bg-token2 py-1 px-3 text-white rounded shadow transition-all hover:bg-emerald-600">موافق</button>
-                  <Link href={route('user.index')} className="bg-gray-300 mx-4 py-1 px-3 text-gray-800 rounded shadow transition-all hover:bg-gray-200 mr-2">
-                    إلغاء الأمر
+                <div className="text-center pt-8">
+                  <AcceptButton className="w-28 justify-center">موافق</AcceptButton>
+                  <Link href={route('user.index')} >
+                    <RejectButton className="w-28 justify-center">إلغاء الأمر</RejectButton>
                   </Link>
                 </div>
-
               </div>
             </form>
           </div>

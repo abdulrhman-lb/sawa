@@ -1,13 +1,18 @@
+import AcceptButton from "@/Components/Buttons/AcceptButton";
+import RejectButton from "@/Components/Buttons/RejectButton copy";
 import InputError from "@/Components/InputError";
 import InputLabel from "@/Components/InputLabel";
+import ScrollBar from "@/Components/ScrollBar";
 import SelectInput from "@/Components/SelectInput";
 import TextAreaInput from "@/Components/TextAreaInput";
 import TextInput from "@/Components/TextInput";
+import Title from "@/Components/Title";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { Head, Link, useForm } from "@inertiajs/react";
+import { useState } from "react";
 
 
-export default function Create({ auth, categories }) {
+export default function Create({ auth, categories, message }) {
   const { data, setData, post, errors, reset } = useForm({
     image: '',
     name: '',
@@ -16,128 +21,146 @@ export default function Create({ auth, categories }) {
     phone: ''
   })
 
+  const image = '/images/products/noimage.jpg'
+  const [selectedImage, setSelectedImage] = useState(null);
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setSelectedImage(URL.createObjectURL(file));
+    }
+    setData('image', file);
+  };
+
   const onSubmit = (e) => {
     e.preventDefault();
-    console.log(data);
     post(route("product.store"))
   }
 
   return (
     <AuthenticatedLayout
       user={auth.user}
+      message={message}
       header={
         <div className="flex justify-between items-center">
-          <h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            إنشاء منتج جديد
-          </h2>
+          <Title>إنشاء منتج جديد</Title>
+          <ScrollBar message={message} />
         </div>
       }
     >
       <Head title="المنتجات" />
-      <div className="py-12">
+      <div className="py-2">
         <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
           <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
-            <form onSubmit={onSubmit} className="p-4 sm:p-8 bg-white dark:bg-gray-800 shadow sm:rounded-lg">
-              <div>
-                <InputLabel
-                  htmlFor="category_id"
-                  value="التصنيف"
-                />
-                <SelectInput
-                  id="category_id"
-                  name="category_id"
-                  className="mt-1 block w-full"
-                  onChange={e => setData('category_id', e.target.value)}
-                >
-                  <option value="">اختر التصنيف</option>
-                  {categories.data.map((category) => (
-                    <option value={category.id} key={category.id}>{category.name}</option>
-                  ))}
-                </SelectInput>
-                <InputError message={errors.project_id} className="mt-2" />
-              </div>
-              <div className="mt-4">
-                <InputLabel
-                  htmlFor="image"
-                  value="صورة المنتج"
-                />
-                <TextInput
-                  id="image"
-                  type="file"
-                  name="image"
-                  className="mt-1 block w-full"
-                  onChange={e => setData('image', e.target.files[0])}
-                />
-                <InputError message={errors.image} className="mt-2" />
-              </div>
-              <div className="mt-4">
-                <InputLabel
-                  htmlFor="name"
-                  value="اسم المنتج"
-                />
-                <TextInput
-                  id="name"
-                  type="text"
-                  name="name"
-                  value={data.name}
-                  isFocused={true}
-                  className="mt-1 block w-full"
-                  onChange={e => setData('name', e.target.value)}
-                />
-                <InputError message={errors.name} className="mt-2" />
-              </div>
-              <div className="mt-4">
-                <InputLabel
-                  htmlFor="phone"
-                  value="رقم الهاتف"
-                />
-                <TextInput
-                  id="phone"
-                  type="text"
-                  name="phone"
-                  value={data.phone}
-                  isFocused={true}
-                  className="mt-1 block w-full"
-                  onChange={e => setData('phone', e.target.value)}
-                />
-                <InputError message={errors.phone} className="mt-2" />
-              </div>
-              <div className="mt-4">
-                <InputLabel
-                  htmlFor="notes"
-                  value="ملاحظات"
-                />
-                <TextAreaInput
-                  id="notes"
-                  name="notes"
-                  value={data.notes}
-                  className="mt-1 block w-full"
-                  onChange={e => setData('notes', e.target.value)}
-                />
-                <InputError message={errors.notes} className="mt-2" />
-              </div>
-              <div className="mt-4">
-                <InputLabel
-                  htmlFor="status"
-                  value="الحالة"
-                />
-                <SelectInput
-                  id="status"
-                  name="status"
-                  className="mt-1 block w-full"
-                  onChange={e => setData('status', e.target.value)}
-                >
-                  <option value="active">فعال</option>
-                  <option value="inactive">غير فعال</option>
-                </SelectInput>
-                <InputError message={errors.status} className="mt-2" />
-              </div>
-
-              <div className="mt-4 text-right ">
-                <button className="bg-token1 dark:bg-token2 py-1 px-3 text-white rounded shadow transition-all hover:bg-emerald-600">موافق</button>
-                <Link href={route('product.index')} className="bg-gray-300 mx-4 py-1 px-3 text-gray-800 rounded shadow transition-all hover:bg-gray-200 mr-2">
-                  إلغاء الأمر
-                </Link>
+            <form onSubmit={onSubmit} className="px-4 sm:px-8 pt-4 bg-white dark:bg-gray-800 shadow sm:rounded-lg">
+              <div className='justify-center grid sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-2'>
+                <div className="order-2 lg:order-1">
+                  <div>
+                    <InputLabel
+                      htmlFor="category_id"
+                      value="التصنيف"
+                    />
+                    <SelectInput
+                      id="category_id"
+                      name="category_id"
+                      className="mt-1 block w-full"
+                      onChange={e => setData('category_id', e.target.value)}
+                    >
+                      <option value="">اختر التصنيف</option>
+                      {categories.data.map((category) => (
+                        <option value={category.id} key={category.id}>{category.name}</option>
+                      ))}
+                    </SelectInput>
+                    <InputError message={errors.project_id} className="mt-2" />
+                  </div>
+                  <div className="mt-4">
+                    <InputLabel
+                      htmlFor="name"
+                      value="اسم المنتج"
+                    />
+                    <TextInput
+                      id="name"
+                      type="text"
+                      name="name"
+                      value={data.name}
+                      isFocused={true}
+                      className="mt-1 block w-full"
+                      onChange={e => setData('name', e.target.value)}
+                    />
+                    <InputError message={errors.name} className="mt-2" />
+                  </div>
+                  <div className="mt-4">
+                    <InputLabel
+                      htmlFor="phone"
+                      value="رقم الهاتف"
+                    />
+                    <TextInput
+                      id="phone"
+                      type="text"
+                      name="phone"
+                      value={data.phone}
+                      className="mt-1 block w-full"
+                      onChange={e => setData('phone', e.target.value)}
+                    />
+                    <InputError message={errors.phone} className="mt-2" />
+                  </div >
+                  <div className="mt-4">
+                    <InputLabel
+                      htmlFor="status"
+                      value="الحالة"
+                    />
+                    <SelectInput
+                      id="status"
+                      name="status"
+                      className="mt-1 block w-full"
+                      onChange={e => setData('status', e.target.value)}
+                    >
+                      <option value="active">فعال</option>
+                      <option value="inactive">غير فعال</option>
+                    </SelectInput>
+                    <InputError message={errors.status} className="mt-2" />
+                  </div>
+                  <div className="mt-4">
+                    <InputLabel
+                      htmlFor="notes"
+                      value="ملاحظات"
+                    />
+                    <TextAreaInput
+                      id="notes"
+                      name="notes"
+                      value={data.notes}
+                      className="mt-1 block w-full"
+                      onChange={e => setData('notes', e.target.value)}
+                    />
+                    <InputError message={errors.notes} className="mt-2" />
+                  </div>
+                  <div className="text-center py-2">
+                    <AcceptButton className="w-28 justify-center">موافق</AcceptButton>
+                    <Link href={route('product.index')} >
+                      <RejectButton className="w-28 justify-center">إلغاء الأمر</RejectButton>
+                    </Link>
+                  </div>
+                </div>
+                <div className="flex justify-center items-center order-1 py-2 lg:order-2">
+                  <div className="relative inline-block items-center justify-end">
+                    <img
+                      src={selectedImage || image}
+                      alt="Uploaded"
+                      className="w-[200px] h-[200px] object-cover rounded-full border-2"
+                    />
+                    <label htmlFor="image" className="absolute bottom-2 right-5 bg-white p-1 rounded-full cursor-pointer shadow-md">
+                      <img src="https://img.icons8.com/material-rounded/24/000000/camera.png" alt="camera icon" />
+                    </label>
+                    <input
+                      id="image"
+                      type="file"
+                      name="image"
+                      className="hidden"
+                      onChange={handleImageChange}
+                      accept="image/*"
+                    />
+                  </div>
+                </div>
               </div>
             </form>
           </div>

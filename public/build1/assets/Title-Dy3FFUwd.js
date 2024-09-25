@@ -1,0 +1,1 @@
+import{j as r}from"./app-4CarAZae.js";function x({className:t="",children:e}){return r.jsx("h2",{className:`font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight text-nowrap ${t}`,children:e})}export{x as T};

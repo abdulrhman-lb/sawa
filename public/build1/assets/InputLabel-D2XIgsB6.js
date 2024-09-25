@@ -1,0 +1,1 @@
+import{j as s}from"./app-4CarAZae.js";function l({value:t,className:r="",children:e,...a}){return s.jsx("label",{...a,className:"block text-lg text-gray-700 dark:text-gray-300 "+r,children:t||e})}export{l as I};

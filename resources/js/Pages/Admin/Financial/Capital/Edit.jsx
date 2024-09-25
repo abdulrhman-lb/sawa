@@ -2,17 +2,18 @@ import AcceptButton from "@/Components/Buttons/AcceptButton";
 import RejectButton from "@/Components/Buttons/RejectButton copy";
 import InputError from "@/Components/InputError";
 import InputLabel from "@/Components/InputLabel";
+import ScrollBar from "@/Components/ScrollBar";
 import TextAreaInput from "@/Components/TextAreaInput";
 import TextInput from "@/Components/TextInput";
+import Title from "@/Components/Title";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
-import { Head, Link, useForm } from "@inertiajs/react";
+import { Head, Link, router, useForm } from "@inertiajs/react";
 import { useState } from "react";
 
-
-export default function Edit({ auth, box }) {
+export default function Create({ auth, message, capital }) {
   const { data, setData, post, errors, reset } = useForm({
-    amount: box.amount || "",
-    statment: box.statment || "",
+    amount: capital.amount || "",
+    statment: capital.statment || "",
     _method: 'PUT'
   })
 
@@ -27,35 +28,32 @@ export default function Edit({ auth, box }) {
       setAmountError('');
     }
     if (data.statment === "") {
-      setStatmentError("يرجى إدخال بيان النفقات أو المصاريف");
+      setStatmentError("يرجى إدخال بيان رأس المال");
     } else {
       setStatmentError('');
     }
     if ((data.amount > 0) && (data.statment != "")) {
-      post(route("box.update", box.id))
-    } else {
-      data.amount = box.amount;
-      data.statment = box.statment;
+      post(route("capital.update", capital.id))
     }
   }
 
   return (
     <AuthenticatedLayout
       user={auth.user}
+      message={message}
       header={
         <div className="flex justify-between items-center">
-          <h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            تعديل نفقات ومصاريف
-          </h2>
+          <Title>تعديل رأس مال</Title>
+          <ScrollBar message={message}/>
         </div>
       }
     >
-      <Head title="نفقات ومصاريف" />
-      <div className="py-12">
+      <Head title="رأس المال" />
+      <div className="py-2">
         <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
           <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
             <form onSubmit={onSubmit} className="p-4 sm:p-8 bg-white dark:bg-gray-800 shadow sm:rounded-lg">
-              <div className="mt-4">
+              <div>
                 <InputLabel
                   htmlFor="amount"
                   value="المبلغ"
@@ -68,6 +66,7 @@ export default function Edit({ auth, box }) {
                   isFocused={true}
                   className="mt-1 block w-full"
                   onChange={e => setData('amount', e.target.value)}
+                  lang="en"
                 />
                 <InputError message={errors.amount} className="mt-2" />
                 <InputError message={amoutError} className="mt-2" />
@@ -89,7 +88,7 @@ export default function Edit({ auth, box }) {
               </div>
               <div className="mt-4 text-right ">
                 <AcceptButton className="w-28 justify-center">موافق</AcceptButton>
-                <Link href={route('box.index')} >
+                <Link href={route('capital.index')} >
                   <RejectButton className="w-28 justify-center">إلغاء الأمر</RejectButton>
                 </Link>
               </div>

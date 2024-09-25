@@ -22,13 +22,12 @@ class UpdateComissionRequest extends FormRequest
   public function rules(): array
   {
     return [
-      'comission_admin' => ['required', 'integer'],
-      'comission_super' => ['nullable', 'integer'],
+      'comission_admin' => ['required', 'integer', 'min:0'],
+      'comission_super' => ['nullable', 'integer', 'min:0'],
       'amount_kind_id'  => ['required', 'exists:amount_kinds,id'],
       'user_id'         => ['required', 'exists:users,id'],
       'officer_id'      => ['required', 'exists:users,id'],
       'notes'           => ['nullable'],
-
     ];
   }
 }

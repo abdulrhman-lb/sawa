@@ -7,8 +7,11 @@ import SelectInput from "@/Components/SelectInput";
 import { KIND_CLASS_MAP, KIND_TEXT_MAP, STATUS_CLASS_MAP, STATUS_TEXT_MAP } from "@/constants";
 import PrimaryButton from "@/Components/Buttons/PrimaryButton";
 import AddButton from "@/Components/Buttons/AddButton";
+import ScrollBar from "@/Components/ScrollBar";
+import SuccessMessage from "@/Components/SuccessMessage";
+import Title from "@/Components/Title";
 
-export default function index({ auth, admins, users, queryParams = null, success }) {
+export default function index({ auth, admins, users, queryParams = null, success, message }) {
   queryParams = queryParams || {}
   const searchFieldChanged = (name, value) => {
     if (value) {
@@ -18,7 +21,7 @@ export default function index({ auth, admins, users, queryParams = null, success
     }
     router.get(route('user.index'), queryParams)
   }
-
+  
   const onKeyPress = (name, e) => {
     if (e.key !== 'Enter') return;
     searchFieldChanged(name, e.target.value);
@@ -42,11 +45,17 @@ export default function index({ auth, admins, users, queryParams = null, success
     if (!window.confirm('Are you sure you want to delete this user?')) {
       return;
     }
-    router.delete(route('user.destroy', user.id))
+    router.post(route('user.destroy', user.id),{
+      _method: 'DELETE',
+    })
   }
-  
+
   const editUser = (user) => {
     router.get(route("user.edit", user))
+  }
+
+  const editPermission = (user) => {
+    router.get(route("category-permission.edit", user.id))
   }
 
   const addUser = () => {
@@ -56,35 +65,31 @@ export default function index({ auth, admins, users, queryParams = null, success
   return (
     <AuthenticatedLayout
       user={auth.user}
+      message={message}
       header={
         <div className="flex justify-between items-center">
-          <h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            المستخدمين
-          </h2>
+          <Title>المراكز</Title>
+          <ScrollBar message={message} />
           <AddButton onClick={e => addUser()}>إضافة</AddButton>
         </div>
       }
     >
-      <Head title="المستخدمين" />
-      <div className="py-6">
+      <Head title="المراكز" />
+      <div className="py-2">
         <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
-          {success && (<div className="bg-emerald-500 py-2 px-4 text-white rounded mb-4">
-            {success}
-          </div>)}
+        {success && (<SuccessMessage message={success} />)}
           <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
-            <div className="p-6 text-gray-900 dark:text-gray-100">
+            <div className="p-2 text-gray-900 dark:text-gray-100">
               <div className="overflow-auto">
-              <table className="w-full text-md font-semibold rtl:text-right text-gray-800 dark:text-gray-200">
-              <thead className="text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400 border-b-2 border-gray-500">
+                <table className="w-full text-md font-semibold rtl:text-right text-gray-800 dark:text-gray-200">
+                  <thead className="text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400 border-b-2 border-gray-500">
                     <tr className="text-nowrap">
-                      {/* <TableHeading
-                        name='id'
-                        sort_field={queryParams.sort_field}
-                        sort_direction={queryParams.sort_direction}
-                        sortChanged={sortChanged}
+                      <TableHeading
+                        name='image'
+                        sortable={false}
                       >
-                        ID
-                      </TableHeading> */}
+                        الصورة
+                      </TableHeading>
                       <TableHeading
                         name='name'
                         sort_field={queryParams.sort_field}
@@ -101,14 +106,14 @@ export default function index({ auth, admins, users, queryParams = null, success
                       >
                         البريد الالكتروني
                       </TableHeading>
-                      <TableHeading
+                      {/* <TableHeading
                         name='center'
                         sort_field={queryParams.sort_field}
                         sort_direction={queryParams.sort_direction}
                         sortChanged={sortChanged}
                       >
                         المركز
-                      </TableHeading>
+                      </TableHeading> */}
                       <TableHeading
                         name='kind'
                         sort_field={queryParams.sort_field}
@@ -124,6 +129,11 @@ export default function index({ auth, admins, users, queryParams = null, success
                         sortChanged={sortChanged}
                       >
                         حالة الحساب
+                      </TableHeading>
+                      <TableHeading
+                        sortable={false}
+                      >
+                        الصلاحيات
                       </TableHeading>
                       <TableHeading
                         name='created_by'
@@ -150,7 +160,7 @@ export default function index({ auth, admins, users, queryParams = null, success
                   </thead>
                   <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400 border-b-2 border-gray-500">
                     <tr className="text-nowrap">
-                      {/* <th className="px-3 py-3"></th> */}
+                      <th className="px-3 py-3"></th>
                       <th className="px-3 py-3">
                         <TextInput
                           className="w-full text-sm font-medium"
@@ -171,7 +181,7 @@ export default function index({ auth, admins, users, queryParams = null, success
                         >
                         </TextInput>
                       </th>
-                      <th className="px-3 py-3"></th>
+                      {/* <th className="px-3 py-3"></th> */}
                       <th className="px-3 py-3">
                         <SelectInput
                           className="w-full text-sm font-medium"
@@ -180,8 +190,8 @@ export default function index({ auth, admins, users, queryParams = null, success
                         >
                           <option value="">اختر نوع الحساب</option>
                           <option value="admin">مدير نظام</option>
-                          <option value="super_user">مركز توزيع</option>
-                          <option value="user">مركز بيع</option>
+                          <option value="super_user">حساب تاجر مميز</option>
+                          <option value="user">مركز بيع عادي</option>
                         </SelectInput>
                       </th>
                       <th className="px-3 py-3">
@@ -195,6 +205,7 @@ export default function index({ auth, admins, users, queryParams = null, success
                           <option value="inactive">غير فعال</option>
                         </SelectInput>
                       </th>
+                      <th className="px-3 py-3"></th>
                       <th className="px-3 py-3">
                         <SelectInput
                           className="w-full text-sm font-medium"
@@ -214,10 +225,10 @@ export default function index({ auth, admins, users, queryParams = null, success
                   <tbody className="text-center">
                     {users.data.map((user) => (
                       <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700" key={user.id}>
-                        {/* <td className="px-3 py-2">{user.id}</td> */}
+                        <td className="px-3 py-2 flex justify-center items-center"><img src={user.image} className="rounded-full w-[50px] h-[50px] ml-2 border-2 border-gray-300" /></td>
                         <td className="px-3 py-2 text-nowrap">{user.name}</td>
                         <td className="px-3 py-2">{user.email}</td>
-                        <td className="px-3 py-2">{user.center}</td>
+                        {/* <td className="px-3 py-2">{user.center}</td> */}
                         <td className="px-3 py-2 text-center">
                           <span className={" px-2 py-0 cursor-pointer rounded text-white text-nowrap " +
                             KIND_CLASS_MAP[user.kind]} >
@@ -230,15 +241,16 @@ export default function index({ auth, admins, users, queryParams = null, success
                             {STATUS_TEXT_MAP[user.status]}
                           </span>
                         </td>
+                        <td className="px-3 py-2 text-nowrap">
+                            {user.category_permissions.map((permission)=> 
+                            <h2 className="text-md font-normal text-nowrap">{permission.category_name}</h2>
+                            )}
+                        </td>
                         <td className="px-3 py-2 text-nowrap">{user.createdBy}</td>
                         <td className="px-3 py-2 text-nowrap">{user.created_at}</td>
                         <td className="px-3 py-2 text-nowrap">
-                        <PrimaryButton onClick={e => editUser(user)}>تعديل</PrimaryButton>
-                          {/* <button
-                            onClick={e => deleteUser(user)}
-                            className="font-medium text-red-600 dark:text-red-500 hover:underline mx-1">
-                            حذف
-                          </button> */}
+                          <PrimaryButton onClick={e => editUser(user)}>تعديل</PrimaryButton>
+                          <PrimaryButton onClick={e => editPermission(user)}>الصلاحيات</PrimaryButton>
                         </td>
                       </tr>
                     ))}

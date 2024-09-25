@@ -31,7 +31,7 @@ class ProjectCotroller extends Controller
     }
 
     // Apply
-    $projects = $query->orderBy($sortField, $sortDirection)->paginate(10)->onEachSide(1);
+    $projects = $query->orderBy($sortField, $sortDirection)->paginate(25)->onEachSide(1);
     return inertia("Project/Index", [
       "projects"    => ProjectResource::collection($projects),
       'queryParams' => request()->query() ?: null,
@@ -76,7 +76,7 @@ class ProjectCotroller extends Controller
       $query->where("priority", request("priority"));
     }
 
-    $tasks = $query->orderBy($sortField, $sortDirection)->paginate(10)->onEachSide(1);
+    $tasks = $query->orderBy($sortField, $sortDirection)->paginate(25)->onEachSide(1);
     return inertia("Project/Show", [
       'project'     => new ProjectResource($project),
       'tasks'       => TaskResource::collection($tasks),

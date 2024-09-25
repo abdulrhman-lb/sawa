@@ -7,6 +7,12 @@ import Modal from "@/Components/Modal";
 import TextInput from "@/Components/TextInput";
 import PrimaryButton from "@/Components/Buttons/PrimaryButton";
 import DeleteButton from "@/Components/Buttons/DeleteButton";
+import AcceptButton from "@/Components/Buttons/AcceptButton";
+import RejectButton from "@/Components/Buttons/RejectButton copy";
+import InputError from "@/Components/InputError";
+import ScrollBar from "@/Components/ScrollBar";
+import SuccessMessage from "@/Components/SuccessMessage";
+import Title from "@/Components/Title";
 
 export default function index({
   auth,
@@ -16,6 +22,7 @@ export default function index({
   total_profit_all,
   final_balance_all,
   queryParams = null,
+  message,
   success }) {
 
   queryParams = queryParams || {}
@@ -23,6 +30,7 @@ export default function index({
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [add, setAdd] = useState(0);
   const [statment, setStatment] = useState(null);
+  const [addError, setAddError] = useState('');
 
   const sortChanged = (name) => {
     if (name === queryParams.sort_field) {
@@ -42,33 +50,42 @@ export default function index({
   }
 
   const handleEdit = () => {
-    router.post(route('product-balance.update', selectedProduct), {
-      product_id: selectedProduct.product.id,
-      add: add,
-      statment: statment,
-      _method: 'PUT'
-    });
-    setShowEditModal(false);
-    setStatment('');
-    setAdd(0);
+    if (add <= 0) {
+      setAddError('القيمة يجب أن تكون أكبر من الصفر');
+    } else {
+      setAddError('');
+    }
+    if ((add > 0)) {
+      router.post(route('product-balance.update', selectedProduct), {
+        product_id: selectedProduct.product.id,
+        add: add,
+        statment: statment || '-',
+        _method: 'PUT'
+      });
+      setShowEditModal(false);
+      setStatment('');
+      setAdd(0);
+      setAddError(0);
+    }
   }
-
 
   const deleteProductBalance = (product_balance) => {
     if (!window.confirm('هل تريد بالتأكيد حذف هذا الايداع ؟')) {
       return;
     }
-    router.delete(route('product-balance.destroy', product_balance.id))
+    router.post(route('product-balance.destroy', product_balance.id),{
+      _method: 'DELETE',
+    })
   }
 
   return (
     <AuthenticatedLayout
       user={auth.user}
+      message={message}
       header={
         <div className="flex justify-between items-center">
-          <h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            حركة رصيد المنتج: {product_balance.data[0].product.category.name} / {product_balance.data[0].product.name}
-          </h2>
+          <Title>حركة رصيد المنتج: {product_balance.data[0].product.category.name} / {product_balance.data[0].product.name}</Title>
+          <ScrollBar message={message}/>
         </div>
       }
     >
@@ -85,8 +102,10 @@ export default function index({
               placeholder="المبلغ"
               value={add}
               onChange={(e) => setAdd(e.target.value)}
+              lang="en"
             />
           </div>
+          <InputError message={addError} className="mt-2" />
           <div>
             <TextInput
               className="mt-4"
@@ -96,19 +115,17 @@ export default function index({
             />
           </div>
           <div className="mt-6 flex justify-end">
-            <button onClick={handleEdit} className="bg-token1 dark:bg-token2 py-1 px-3 text-white rounded shadow transition-all hover:bg-emerald-600">موافق</button>
-            <button onClick={() => (setShowEditModal(false), setAdd(0), setStatment(''))} className="bg-gray-300 mx-4 py-1 px-3 text-gray-800 rounded shadow transition-all hover:bg-gray-200">إلغاء</button>
+            <AcceptButton onClick={handleEdit}>موافق</AcceptButton>
+            <RejectButton onClick={() => (setShowEditModal(false), setAdd(0), setStatment(''))}>إلغاء</RejectButton>
           </div>
         </div>
       </Modal>
 
-      <div className="py-6">
+      <div className="py-2">
         <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
-          {success && (<div className="bg-emerald-500 py-2 px-4 text-white rounded mb-4">
-            {success}
-          </div>)}
+        {success && (<SuccessMessage message={success} />)}
           <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
-            <div className="p-6 text-gray-900 dark:text-gray-100">
+            <div className="p-2 text-gray-900 dark:text-gray-100">
               <div className="overflow-auto">
                 <table className="w-full text-md font-semibold rtl:text-right text-gray-800 dark:text-gray-200">
                   <thead className="text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400 border-b-2 border-gray-500">
@@ -172,11 +189,11 @@ export default function index({
                     {product_balance.data.map((product_balanc) => (
                       <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700" key={product_balanc.id}>
                         <td className="px-3 py-2">{product_balanc.created_at}</td>
-                        <td className="px-3 py-2">{product_balanc.add.toLocaleString()}</td>
-                        <td className="px-3 py-2">{product_balanc.reduce.toLocaleString()}</td>
-                        <td className="px-3 py-2">{product_balanc.profit.toLocaleString()}</td>
+                        <td className="px-3 py-2">{product_balanc.add.toLocaleString('en-US')}</td>
+                        <td className="px-3 py-2">{product_balanc.reduce.toLocaleString('en-US')}</td>
+                        <td className="px-3 py-2">{product_balanc.profit.toLocaleString('en-US')}</td>
                         <td className="px-3 py-2">{product_balanc.statment}</td>
-                        <td className="px-3 py-2">{product_balanc.order ? (product_balanc.order.user.name + " / " + product_balanc.order.service.name + " / " + product_balanc.order.amount_kind.kindName.name) : '-'}</td>
+                        <td className="px-3 py-2">{product_balanc.order ? (product_balanc.order.user.name + " / " + product_balanc.order.service.name + " / " + product_balanc.order.amount_kind.kindName.name + " / الرقم " + product_balanc.order.data_kind_1) : '-'}</td>
                         <td className="px-3 py-2 text-nowrap">
                           {!product_balanc.order ? (
                             <>

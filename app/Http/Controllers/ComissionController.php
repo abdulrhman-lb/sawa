@@ -13,6 +13,7 @@ use App\Http\Resources\ServiceResource;
 use App\Http\Resources\UserResource;
 use App\Models\AmountKind;
 use App\Models\Category;
+use App\Models\Message;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\Service;
@@ -22,14 +23,14 @@ class ComissionController extends Controller
 {
   public function index()
   {
-    $currentUserId = auth()->id(); // الحصول على معرف المستخدم الحالي
+    $currentUserId = auth()->id();
 
     $query = Comission::query();
 
 
     if (auth()->user()->kind != "admin") {
-      $query->where('user_id', '!=', $currentUserId); // استثناء المستخدم الحالي من قائمة المستخدمين
-      $query->where('officer_id', '=', $currentUserId); // لغير الادمن عرض المستخدمين المنشأين من قبل المستخدم الحالي
+      $query->where('user_id', '!=', $currentUserId); 
+      $query->where('officer_id', '=', $currentUserId); 
       $admins = User::where('id', $currentUserId)->get();
       $users = User::where('created_by', $currentUserId)->orderBy('name', 'asc')->get();
     } else {
@@ -54,19 +55,21 @@ class ComissionController extends Controller
     }
 
     // Apply
-    $comissions = $query->orderBy($sortField, $sortDirection)->paginate(10)->onEachSide(1);
+    $comissions = $query->orderBy($sortField, $sortDirection)->paginate(25)->onEachSide(1);
+    $message    = Message::first();
     return inertia("Admin/Dashboard/Comission/Index", [
       "comissions"  => ComissionResource::collection($comissions),
       "users"       => UserResource::collection($users),
       "admins"      => $admins,
       'queryParams' => request()->query() ?: null,
       'success'     => session('success'),
+      'message'     => $message
     ]);
   }
 
   public function create()
   {
-    $currentUserId = auth()->id(); // الحصول على معرف المستخدم الحالي
+    $currentUserId = auth()->id(); 
 
     if (auth()->user()->kind != "admin") {
       $admins = User::where('id', $currentUserId)->get();
@@ -83,6 +86,7 @@ class ComissionController extends Controller
     $categories   = Category::orderBy('name', 'asc')->get();
     $products     = Product::orderBy('name', 'asc')->get();
     $comissions   = Comission::all();
+    $message      = Message::first();
     return inertia("Admin/Dashboard/Comission/Create", [
       "users"       => UserResource::collection($users),
       "admins"      => $admins,
@@ -91,6 +95,7 @@ class ComissionController extends Controller
       'categories'  => CategoryResource::collection($categories),
       'comissions'  => ComissionResource::collection($comissions),
       'products'    => ProductResource::collection($products),
+      'message'     => $message
     ]);
   }
 
@@ -113,7 +118,7 @@ class ComissionController extends Controller
   public function edit(Comission $comission)
   {
 
-    $currentUserId = auth()->id(); // الحصول على معرف المستخدم الحالي
+    $currentUserId = auth()->id(); 
 
     if (auth()->user()->kind != "admin") {
       $admins = User::where('id', $currentUserId)->get();
@@ -131,6 +136,7 @@ class ComissionController extends Controller
     $categories   = Category::orderBy('name', 'asc')->get();
     $products     = Product::orderBy('name', 'asc')->get();
     $comissions   = Comission::all();
+    $message      = Message::first();
     return inertia("Admin/Dashboard/Comission/Edit", [
       'comission'   => new ComissionResource($comission),
       "users"       => UserResource::collection($users),
@@ -140,6 +146,7 @@ class ComissionController extends Controller
       'categories'  => CategoryResource::collection($categories),
       'comissions'  => ComissionResource::collection($comissions),
       'products'    => ProductResource::collection($products),
+      'message'     => $message
     ]);
   }
 

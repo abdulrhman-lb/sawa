@@ -4,7 +4,9 @@ import TableHeading from "@/Components/TableHeading";
 import CustomDatePicker from "@/Components/CustomDatePicker";
 import { useState } from "react";
 import SecondaryButton from "@/Components/Buttons/SecondaryButton";
-import { format } from "date-fns";
+import { format, parse } from "date-fns";
+import ScrollBar from "@/Components/ScrollBar";
+import Title from "@/Components/Title";
 
 export default function index({
   auth,
@@ -18,15 +20,20 @@ export default function index({
   total_productN,
   total_boxN,
   queryParams = null,
+  message
 }) {
 
   const total = total_centerN - total_productN - total_boxN;
   queryParams = queryParams || {}
+console.log(queryParams['date']);
 
-  const [selectedDate, setSelectedDate] = useState((queryParams['date'] && format(queryParams['date'], "dd-MM-yyyy")) || new Date());
+const [selectedDate, setSelectedDate] = useState(
+  (queryParams['date'] && parse(queryParams['date'], "dd/MM/yyyy", new Date())) || new Date()
+);
+
 
   const searchFieldChanged = () => {
-    queryParams['date'] = (selectedDate && format(selectedDate, "dd-MM-yyyy"));
+    queryParams['date'] = (selectedDate && format(selectedDate, "dd/MM/yyyy"));
     router.get(route('box.home'), queryParams);
   };
 
@@ -39,13 +46,13 @@ export default function index({
   return (
     <AuthenticatedLayout
       user={auth.user}
+      message={message}
       header={
         <div className="flex justify-between items-center">
-          <h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            حركة الصندوق اليومية
-          </h2>
+          <Title>حركة الصندوق اليومية</Title>
+          <ScrollBar message={message}/>
           <div className="flex justify-between items-center">
-            <h2 className="text-black dark:text-white font-semibold mx-2 mt-1">اختر التاريخ</h2>
+            <h2 className="text-black dark:text-white font-semibold mx-2 mt-1 text-nowrap">اختر التاريخ</h2>
             <CustomDatePicker
               className="w-[110px] h-[35px] mt-1"
               selected={selectedDate}
@@ -64,7 +71,7 @@ export default function index({
     >
       <Head title="حركة الصندوق اليومية" />
 
-      <div className="py-6">
+      <div className="py-2">
         <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
           <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
             <div className="p-1 text-gray-900 dark:text-gray-100">
@@ -82,7 +89,7 @@ export default function index({
                       <tbody className="text-center">
                         {centers.map((item) => (
                           <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700" key={item.id}>
-                            <td className="px-3 py-2">{item.add.toLocaleString()}</td>
+                            <td className="px-3 py-2">{item.add.toLocaleString('en-US')}</td>
                             <td className="px-3 py-2">{item.user_name}</td>
                           </tr>
                         ))}
@@ -109,14 +116,14 @@ export default function index({
                       <tbody className="text-center">
                         {products.map((item) => (
                           <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700" key={item.id}>
-                            <td className="px-3 py-2">{item.add.toLocaleString()}</td>
+                            <td className="px-3 py-2">{item.add.toLocaleString('en-US')}</td>
                             <td className="px-3 py-2">{item.product_name}</td>
                           </tr>
                         ))}
                       </tbody>
                       <tfoot className="text-center">
                         <tr>
-                          <th className="px-3 py-3">{total_product.toLocaleString()}</th>
+                          <th className="px-3 py-3">{total_product.toLocaleString('en-US')}</th>
                         </tr>
                       </tfoot>
                     </table>
@@ -136,7 +143,7 @@ export default function index({
                       <tbody className="text-center">
                         {boxs.map((item) => (
                           <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700" key={item.id}>
-                            <td className="px-3 py-2">{item.amount.toLocaleString()}</td>
+                            <td className="px-3 py-2">{item.amount.toLocaleString('en-US')}</td>
                             <td className="px-3 py-2">{item.statment}</td>
                           </tr>
                         ))}
@@ -155,7 +162,7 @@ export default function index({
               <div className={`mt-6 text-center ${(total > 0) ? 'bg-emerald-200' : 'bg-red-200'} rounded-md py-2 text-black`}>
                 <h4 className="text-xl font-semibold">إجمالي الصندوق</h4>
                 <p className="text-lg font-bold">
-                  {`${(total).toLocaleString()}`}
+                  {`${(total).toLocaleString('en-US')}`}
                 </p>
               </div>
 

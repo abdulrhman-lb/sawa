@@ -8,8 +8,11 @@ import SearchableDropdown from "@/Components/SearchableDropdown";
 import PrimaryButton from "@/Components/Buttons/PrimaryButton";
 import DeleteButton from "@/Components/Buttons/DeleteButton";
 import AddButton from "@/Components/Buttons/AddButton";
+import ScrollBar from "@/Components/ScrollBar";
+import SuccessMessage from "@/Components/SuccessMessage";
+import Title from "@/Components/Title";
 
-export default function index({ auth, comissions, users, admins, queryParams = null, success }) {
+export default function index({ auth, comissions, users, admins, queryParams = null, success, message }) {
   queryParams = queryParams || {}
 
   const handleSelectOfficer = (selectedOfficer) => {
@@ -49,7 +52,9 @@ export default function index({ auth, comissions, users, admins, queryParams = n
     if (!window.confirm('هل تريد بالتأكيد حذف هذا العمولة؟')) {
       return;
     }
-    router.delete(route('comission.destroy', comission.id))
+    router.post(route('comission.destroy', comission.id),{
+      _method: 'DELETE',
+    })
   }
 
   const editComission = (comission) => {
@@ -63,23 +68,21 @@ export default function index({ auth, comissions, users, admins, queryParams = n
   return (
     <AuthenticatedLayout
       user={auth.user}
+      message={message}
       header={
         <div className="flex justify-between items-center">
-          <h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            نسبة العمولة
-          </h2>
+          <Title>نسبة العمولة</Title>
+          <ScrollBar message={message} />
           <AddButton onClick={e => addComission()}>إضافة</AddButton>
         </div>
       }
     >
       <Head title="نسبة العمولة" />
-      <div className="py-6">
+      <div className="py-2">
         <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
-          {success && (<div className="bg-emerald-500 py-2 px-4 text-white rounded mb-4">
-            {success}
-          </div>)}
+          {success && (<SuccessMessage message={success} />)}
           <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
-            <div className="p-6 text-gray-900 dark:text-gray-100">
+            <div className="p-2 text-gray-900 dark:text-gray-100">
               <div className="overflow-auto">
                 <table className="w-full text-md font-semibold rtl:text-right text-gray-800 dark:text-gray-200">
                   <thead className="text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400 border-b-2 border-gray-500">
@@ -98,7 +101,7 @@ export default function index({ auth, comissions, users, admins, queryParams = n
                         sort_direction={queryParams.sort_direction}
                         sortChanged={sortChanged}
                       >
-                        المستخدم
+                        المركز
                       </TableHeading>
                       <TableHeading
                         name='amount_kind_id'
@@ -137,13 +140,11 @@ export default function index({ auth, comissions, users, admins, queryParams = n
                           name="user_id"
                           selectedItem={users.data.find((user) => user.id === queryParams.user_id)}
                           onSelectItem={handleSelectUser}
-                          placeholder="اختر المستخدم"
+                          placeholder="اختر المركز"
                           queryParams={queryParams}
                         />
                       </th>
                       <th className="px-3 py-3"></th>
-
-                      {/* {JSON.stringify(admins)} */}
                       <th className="px-3 py-3 relative">
                         <SearchableDropdown
                           items={admins}

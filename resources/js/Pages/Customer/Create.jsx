@@ -1,18 +1,23 @@
+import AcceptButton from "@/Components/Buttons/AcceptButton";
+import RejectButton from "@/Components/Buttons/RejectButton copy";
 import InputError from "@/Components/InputError";
 import InputLabel from "@/Components/InputLabel";
+import ScrollBar from "@/Components/ScrollBar";
 import SelectInput from "@/Components/SelectInput";
 import TextAreaInput from "@/Components/TextAreaInput";
 import TextInput from "@/Components/TextInput";
+import Title from "@/Components/Title";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { Head, Link, useForm } from "@inertiajs/react";
 
 
-export default function Create({ auth }) {
+export default function Create({ auth, message }) {
   const { data, setData, post, errors, reset } = useForm({
     name: '',
     phone: '',
     mobile: '',
     notes: '',
+    created_by: auth.user.id
   })
 
   const onSubmit = (e) => {
@@ -23,16 +28,16 @@ export default function Create({ auth }) {
   return (
     <AuthenticatedLayout
       user={auth.user}
+      message={message}
       header={
         <div className="flex justify-between items-center">
-          <h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            إنشاء زبون جديد
-          </h2>
+          <Title>إنشاء زبون جديد</Title>
+          <ScrollBar message={message}/>
         </div>
       }
     >
       <Head title="الزبائن" />
-      <div className="py-6">
+      <div className="py-2">
         <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
           <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
             <form onSubmit={onSubmit} className="p-4 sm:p-8 bg-white dark:bg-gray-800 shadow sm:rounded-lg">
@@ -97,9 +102,9 @@ export default function Create({ auth }) {
                 <InputError message={errors.notes} className="mt-2" />
               </div>
               <div className="mt-4 text-right ">
-                <button className="bg-token1 dark:bg-token2 py-1 px-3 text-white rounded shadow transition-all hover:bg-emerald-600">موافق</button>
-                <Link href={route('customer.index')} className="bg-gray-300 mx-4 py-1 px-3 text-gray-800 rounded shadow transition-all hover:bg-gray-200 mr-2">
-                  إلغاء الأمر
+                <AcceptButton className="w-28 justify-center">موافق</AcceptButton>
+                <Link href={route('customer.index')} >
+                  <RejectButton className="w-28 justify-center">إلغاء الأمر</RejectButton>
                 </Link>
               </div>
             </form>

@@ -8,6 +8,7 @@ use App\Http\Requests\UpdateProductBalanceRequest;
 use App\Http\Resources\ProductBalanceResource;
 use App\Http\Resources\ProductResource;
 use App\Models\Category;
+use App\Models\Message;
 use App\Models\Product;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -21,7 +22,7 @@ class ProductBalanceController extends Controller
     $query->where("product_id", request("product_id"));
     $query->orderBy("created_at", "desc");
 
-    $product_balance = $query->paginate(10)->onEachSide(1);
+    $product_balance = $query->paginate(25)->onEachSide(1);
     $balance = DB::table('product_balances')
       ->where('product_id', request("product_id"))
       ->select(
@@ -31,6 +32,7 @@ class ProductBalanceController extends Controller
       )
       ->first();
     $remainingBalance = $balance->total_add - $balance->total_reduce;
+    $message      = Message::first();
     return inertia("Admin/Financial/ProductBalance/Index", [
       "product_balance"   => ProductBalanceResource::collection($product_balance),
       'total_add_all'     => number_format($balance->total_add),
@@ -38,6 +40,7 @@ class ProductBalanceController extends Controller
       'total_profit_all'  => number_format($balance->total_profit),
       'final_balance_all' => number_format($remainingBalance),
       'success'           => session('success'),
+      'message'           => $message
     ]);
   }
 
@@ -87,8 +90,8 @@ class ProductBalanceController extends Controller
     $query = Product::with(['productBalances', 'category']);
 
     // Sorting
-    $sortField = request('sort_field', 'created_at');
-    $sortDirection = request('sort_direction', 'desc');
+    $sortField = request('sort_field', 'category_id');
+    $sortDirection = request('sort_direction', 'asc');
 
     if ($productId) {
       $query->where('id', $productId);
@@ -96,7 +99,7 @@ class ProductBalanceController extends Controller
     if ($categoryId) {
       $query->where('category_id', $categoryId);
     }
-    $products_paginated = $query->orderBy($sortField, $sortDirection)->paginate(10);
+    $products_paginated = $query->orderBy($sortField, $sortDirection)->paginate(25);
     $product_balances = $products_paginated->getCollection()->map(function ($product) {
       $balances = $product->productBalances ?? collect(); 
       $total_add = $balances->sum('add');
@@ -106,8 +109,8 @@ class ProductBalanceController extends Controller
 
       return [
         'product' => $product,
-        'total_add' => number_format($total_add),
-        'total_reduce' => number_format($total_reduce),
+        'total_add' => $total_add,
+        'total_reduce' => $total_reduce,
         'total_profit' => number_format($total_profilt),
         'final_balance' => number_format($final_balance),
         'all_balance' => number_format($final_balance + $total_profilt),
@@ -145,6 +148,7 @@ class ProductBalanceController extends Controller
     );
     $categories = Category::orderBy('name', 'asc')->get();
     $products = Product::orderBy('name', 'asc')->get();
+    $message      = Message::first();
     return inertia("Admin/Financial/ProductBalance/IndexAll", [
       "product_balances" => $paginated_product_balances,
       "products"         => ProductResource::collection($products),
@@ -156,6 +160,7 @@ class ProductBalanceController extends Controller
       'final_balance_all' => number_format($final_balance_all),
       'all_balance_all' => number_format($all_balance_all),
       'success'          => session('success'),
+      'message'     => $message
     ]);
   }
 }

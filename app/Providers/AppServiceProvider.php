@@ -26,15 +26,21 @@ class AppServiceProvider extends ServiceProvider
     Inertia::share([
       'user_balance' => function () {
         if (Auth::check()) {
-          $center_balance = DB::table('center_balance_virtuals')
+          $center_balance = DB::table('center_balances')
             ->where('user_id', auth()->user()->id)
             ->select(DB::raw('SUM(`add`) as total_add'), DB::raw('SUM(`reduce`) as total_reduce'))
             ->first();
           $remainingBalanceCenter = $center_balance->total_add - $center_balance->total_reduce;
           $user = Auth::user();
-          $user->user_balance = $remainingBalanceCenter;
-          $user->save(); // حفظ التغييرات في قاعدة البيانات
-          return number_format(Auth::user()->user_balance);
+          if ($user->user_balance === 0) {
+            $balance = $remainingBalanceCenter;
+          } else {
+            $balance = -($user->user_balance + $remainingBalanceCenter);
+          }
+          if ($remainingBalanceCenter > 0) {
+            $balance = $remainingBalanceCenter;
+          }
+          return $balance;
         }
         return 0;
       },

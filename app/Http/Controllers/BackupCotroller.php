@@ -13,28 +13,28 @@ class BackupController extends Controller
 {
     public function downloadBackup()
     {
-        try {
-            // إنشاء نسخة احتياطية
-            Artisan::call('backup:run --only-db');
+        // try {
+        //     // إنشاء نسخة احتياطية
+        //     Artisan::call('backup:run --only-db');
 
-            // تحديد مسار النسخة الاحتياطية
-            $path = storage_path('app/' . now()->format('Y-m-d-H-i-s') . '-backup.zip');
+        //     // تحديد مسار النسخة الاحتياطية
+        //     $path = storage_path('app/' . now()->format('Y-m-d-H-i-s') . '-backup.zip');
 
-            // العثور على أحدث ملف نسخة احتياطية
-            $files = Storage::files('backups');
-            $latestBackup = end($files);
+        //     // العثور على أحدث ملف نسخة احتياطية
+        //     $files = Storage::files('backups');
+        //     $latestBackup = end($files);
 
-            // تنزيل النسخة الاحتياطية
-            if (File::exists(storage_path('app/' . $latestBackup))) {
-                return response()->download(storage_path('app/' . $latestBackup));
-            } else {
-                return response()->json(['message' => 'Backup file not found.'], 404);
-            }
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to create or download backup: ' . $e->getMessage(),
-            ], 500);
-        }
+        //     // تنزيل النسخة الاحتياطية
+        //     if (File::exists(storage_path('app/' . $latestBackup))) {
+        //         return response()->download(storage_path('app/' . $latestBackup));
+        //     } else {
+        //         return response()->json(['message' => 'Backup file not found.'], 404);
+        //     }
+        // } catch (\Exception $e) {
+        //     return response()->json([
+        //         'success' => false,
+        //         'message' => 'Failed to create or download backup: ' . $e->getMessage(),
+        //     ], 500);
+        // }
     }
 }

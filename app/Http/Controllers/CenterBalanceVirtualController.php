@@ -24,7 +24,7 @@ class CenterBalanceVirtualController extends Controller
 
     $center_balance = $query->get();
 
-    $center_balance = $query->paginate(10)->onEachSide(1);
+    $center_balance = $query->paginate(25)->onEachSide(1);
     $balance = DB::table('center_balance_virtuals')
       ->where('user_id', request("center_id"))
       ->select(
@@ -140,7 +140,7 @@ class CenterBalanceVirtualController extends Controller
     if ($officerId) {
       $query->where('created_by', $officerId);
     }
-    $centers_paginated = $query->paginate(10);
+    $centers_paginated = $query->paginate(25);
     $center_balances = $centers_paginated->getCollection()->map(function ($center) {
       $centers = $center->centerBalanceVirtuals ?? collect(); // إذا كانت null، نعين Collection فارغ
       $total_add = $centers->sum('add');

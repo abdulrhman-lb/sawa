@@ -1,22 +1,11 @@
-import ApplicationLogo from '@/Components/ApplicationLogo';
-import DarkMode from '@/Pages/Navbar/DarkMode';
-import { Link } from '@inertiajs/react';
 
 export default function Guest({ children }) {
   return (
-    <div className="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 bg-gray-100 dark:bg-gray-900">
-      <div className='fixed inline-flex left-7 top-7'>
-        <DarkMode />
-      </div>
-      <div>
-        <Link href="/">
-          <ApplicationLogo className="w-20 h-20 fill-current text-gray-500" />
-        </Link>
-      </div>
+<div className="min-h-screen flex justify-center items-center bg-gradient-to-r from-red-200 to-blue-300 dark:bg-gray-900">
+  <div className="w-[50vw] h-[50vw] max-w-[500px] max-h-[500px] min-w-[370px] min-h-[370px] px-6 py-4 bg-emerald-700/50 dark:bg-gray-800 shadow-md overflow-hidden rounded-full border-4 border-emerald-800/50">
+    {children}
+  </div>
+</div>
 
-      <div className="w-full sm:max-w-md mt-6 px-6 py-4 bg-white dark:bg-gray-800 shadow-md overflow-hidden sm:rounded-lg">
-        {children}
-      </div>
-    </div>
   );
 }

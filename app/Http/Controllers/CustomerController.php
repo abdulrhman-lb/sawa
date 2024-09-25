@@ -6,13 +6,15 @@ use App\Models\Customer;
 use App\Http\Requests\StoreCustomerRequest;
 use App\Http\Requests\UpdateCustomerRequest;
 use App\Http\Resources\CustomerResource;
+use App\Models\Message;
+use Illuminate\Support\Facades\Auth;
 
 class CustomerController extends Controller
 {
   public function index()
   { {
       $query = Customer::query();
-
+      $query->where("created_by", Auth()->user()->id);
       // Sorting
       $sortField = request('sort_field', 'created_at');
       $sortDirection = request('sort_direction', 'desc');
@@ -23,19 +25,23 @@ class CustomerController extends Controller
       }
 
       // Apply
-      $customers = $query->orderBy($sortField, $sortDirection)->paginate(10)->onEachSide(1);
-
+      $customers = $query->orderBy($sortField, $sortDirection)->paginate(25)->onEachSide(1);
+      $message      = Message::first();
       return inertia("Customer/Index", [
         "customers"   => CustomerResource::collection($customers),
         'queryParams' => request()->query() ?: null,
         'success'     => session('success'),
+        'message'     => $message
       ]);
     }
   }
 
   public function create()
   {
-    return inertia("Customer/Create");
+    $message      = Message::first();
+    return inertia("Customer/Create", [
+      'message'     => $message
+    ]);
   }
 
   public function store(StoreCustomerRequest $request)
@@ -53,8 +59,10 @@ class CustomerController extends Controller
 
   public function edit(Customer $customer)
   {
+    $message      = Message::first();
     return inertia("Customer/Edit", [
-      'customer' => new CustomerResource($customer)
+      'customer' => new CustomerResource($customer),
+      'message'     => $message
     ]);
   }
 

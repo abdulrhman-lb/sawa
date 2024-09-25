@@ -12,6 +12,7 @@ use App\Http\Resources\ProductResource;
 use App\Http\Resources\ServiceResource;
 use App\Models\Category;
 use App\Models\Kind;
+use App\Models\Message;
 use App\Models\Product;
 use App\Models\Service;
 
@@ -35,20 +36,23 @@ class AmountKindController extends Controller
     }
 
     // Apply
-    $amount_kinds = $query->orderBy($sortField, $sortDirection)->paginate(10)->onEachSide(1);
+    $amount_kinds = $query->orderBy($sortField, $sortDirection)->paginate(25)->onEachSide(1);
     $kinds        = Kind::orderBy('name', 'asc')->get();
     $services     = Service::orderBy('name', 'asc')->get();
+    $message = Message::first();
     return inertia("Admin/Dashboard/AmountKind/Index", [
       "amount_kinds" => AmountKindResource::collection($amount_kinds),
       'kinds'       => KindResource::collection($kinds),
       'services'    => ServiceResource::collection($services),
       'queryParams' => request()->query() ?: null,
       'success'     => session('success'),
+      'message'     => $message
     ]);
   }
 
   public function create()
   {
+    $message      = Message::first();
     $kinds        = Kind::orderBy('name', 'asc')->get();
     $services     = Service::orderBy('name', 'asc')->get();
     $categories   = Category::orderBy('name', 'asc')->get();
@@ -58,6 +62,7 @@ class AmountKindController extends Controller
       'services'    => ServiceResource::collection($services),
       'categories'  => CategoryResource::collection($categories),
       'products'    => ProductResource::collection($products),
+      'message'     => $message
     ]);
   }
 
@@ -65,6 +70,9 @@ class AmountKindController extends Controller
   {
     $data = $request->validated();
     AmountKind::create($data);
+    $service = Service::where('id', $data['service_id'])->first();
+    $service->kind = $data['kind'];
+    $service->update();
     return to_route('amountkind.index')->with('success', 'تم إضافة السعر بنجاح');
   }
 
@@ -77,6 +85,7 @@ class AmountKindController extends Controller
 
   public function edit(AmountKind $amountkind)
   {
+    $message      = Message::first();
     $kinds        = Kind::orderBy('name', 'asc')->get();
     $services     = Service::orderBy('name', 'asc')->get();
     $products     = Product::orderBy('name', 'asc')->get();
@@ -87,6 +96,7 @@ class AmountKindController extends Controller
       'services'    => ServiceResource::collection($services),
       'products'    => ProductResource::collection($products),
       'categories'  => CategoryResource::collection($categories),
+      'message'     => $message
     ]);
   }
 

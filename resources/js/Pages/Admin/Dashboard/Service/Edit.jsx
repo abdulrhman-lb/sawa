@@ -1,13 +1,17 @@
+import AcceptButton from "@/Components/Buttons/AcceptButton";
+import RejectButton from "@/Components/Buttons/RejectButton copy";
 import InputError from "@/Components/InputError";
 import InputLabel from "@/Components/InputLabel";
+import ScrollBar from "@/Components/ScrollBar";
 import SelectInput from "@/Components/SelectInput";
 import TextAreaInput from "@/Components/TextAreaInput";
 import TextInput from "@/Components/TextInput";
+import Title from "@/Components/Title";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { Head, Link, useForm } from "@inertiajs/react";
 
 
-export default function Edit({ auth, service, products, data_kinds }) {
+export default function Edit({ auth, service, products, data_kinds, message }) {
   const { data, setData, post, errors, reset } = useForm({
     image: '',
     name: service.name || "",
@@ -27,94 +31,111 @@ export default function Edit({ auth, service, products, data_kinds }) {
   return (
     <AuthenticatedLayout
       user={auth.user}
+      message={message}
       header={
         <div className="flex justify-between items-center">
-          <h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            تعديل المنتج "{service.name}"
-          </h2>
+          <Title>تعديل المنتج "{service.name}"</Title>
+          <ScrollBar message={message}/>
         </div>
       }
     >
       <Head title="المنتجات" />
-      <div className="py-12">
+      <div className="py-2">
         <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
           <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
-          <form onSubmit={onSubmit} className="p-4 sm:p-8 bg-white dark:bg-gray-800 shadow sm:rounded-lg">
-            <div className="mt-4">
-                <InputLabel
-                  htmlFor="name"
-                  value="اسم الخدمة"
-                />
-                <TextInput
-                  id="name"
-                  type="text"
-                  name="name"
-                  value={data.name}
-                  isFocused={true}
-                  className="mt-1 block w-full"
-                  onChange={e => setData('name', e.target.value)}
-                />
-                <InputError message={errors.name} className="mt-2" />
+          <form onSubmit={onSubmit} className="px-4 sm:px-8 pt-4 bg-white dark:bg-gray-800 shadow sm:rounded-lg">
+              <div className="grid lg:grid-cols-3 sm:grid-cols-1 gap-4">
+                <div>
+                  <InputLabel
+                    htmlFor="name"
+                    value="اسم الخدمة"
+                  />
+                  <TextInput
+                    id="name"
+                    type="text"
+                    name="name"
+                    value={data.name}
+                    isFocused={true}
+                    className="mt-1 block w-full"
+                    onChange={e => setData('name', e.target.value)}
+                  />
+                  <InputError message={errors.name} className="mt-2" />
+                </div>
+                <div>
+                  <InputLabel
+                    htmlFor="product_id"
+                    value="المنتج"
+                  />
+                  <SelectInput
+                    id="product_id"
+                    name="product_id"
+                    className="mt-1 block w-full"
+                    onChange={e => setData('product_id', e.target.value)}
+                    value={data.product_id}
+                  >
+                    <option value="0">اختر المنتج</option>
+                    {products.data.map((category) => (
+                      <option value={category.id} key={category.id}>{category.name}</option>
+                    ))}
+                  </SelectInput>
+                  <InputError message={errors.product_id} className="mt-2" />
+                </div>
+                <div>
+                  <InputLabel
+                    htmlFor="status"
+                    value="الحالة"
+                  />
+                  <SelectInput
+                    id="status"
+                    name="status"
+                    className="mt-1 block w-full"
+                    onChange={e => setData('status', e.target.value)}
+                    value={data.status}
+                  >
+                    <option value="active">فعال</option>
+                    <option value="inactive">غير فعال</option>
+                  </SelectInput>
+                  <InputError message={errors.status} className="mt-2" />
+                </div>
+                <div>
+                  <InputLabel
+                    htmlFor="data_kind_id_1"
+                    value="نوع البيانات الأول"
+                  />
+                  <SelectInput
+                    id="data_kind_id_1"
+                    name="data_kind_id_1"
+                    className="mt-1 block w-full"
+                    onChange={e => setData('data_kind_id_1', e.target.value)}
+                    value={data.data_kind_id_1}
+                  >
+                    <option value="">اختر نوع البيانات الأول</option>
+                    {data_kinds.data.map((data_kind) => (
+                      <option value={data_kind.id} key={data_kind.id}>{data_kind.name}</option>
+                    ))}
+                  </SelectInput>
+                  <InputError message={errors.data_kind_id_1} className="mt-2" />
+                </div>
+                <div>
+                  <InputLabel
+                    htmlFor="data_kind_id_2"
+                    value="نوع البيانات الثاني"
+                  />
+                  <SelectInput
+                    id="data_kind_id_2"
+                    name="data_kind_id_2"
+                    className="mt-1 block w-full"
+                    onChange={e => setData('data_kind_id_2', e.target.value)}
+                    value={data.data_kind_id_2}
+                  >
+                    <option value="">اختر نوع البيانات الثاني</option>
+                    {data_kinds.data.map((data_kind) => (
+                      <option value={data_kind.id} key={data_kind.id}>{data_kind.name}</option>
+                    ))}
+                  </SelectInput>
+                  <InputError message={errors.data_kind_id_2} className="mt-2" />
+                </div>
               </div>
-              <div className="mt-4">
-                <InputLabel
-                  htmlFor="product_id"
-                  value="المنتج"
-                />
-                <SelectInput
-                  id="product_id"
-                  name="product_id"
-                  className="mt-1 block w-full"
-                  value={data.product_id}
-                  onChange={e => setData('product_id', e.target.value)}
-                >
-                  <option value="">اختر المنتج</option>
-                  {products.data.map((product) => (
-                    <option value={product.id} key={product.id}>{product.name}</option>
-                  ))}
-                </SelectInput>
-                <InputError message={errors.product_id} className="mt-2" />
-              </div>
-              <div className="mt-4">
-                <InputLabel
-                  htmlFor="data_kind_id_1"
-                  value="نوع البيانات الأول"
-                />
-                <SelectInput
-                  id="data_kind_id_1"
-                  name="data_kind_id_1"
-                  className="mt-1 block w-full"
-                  value={data.data_kind_id_1}
-                  onChange={e => setData('data_kind_id_1', e.target.value)}
-                >
-                  <option value="">اختر نوع البيانات الأول</option>
-                  {data_kinds.data.map((data_kind) => (
-                    <option value={data_kind.id} key={data_kind.id}>{data_kind.name}</option>
-                  ))}
-                </SelectInput>
-                <InputError message={errors.data_kind_id_1} className="mt-2" />
-              </div>
-              <div className="mt-4">
-                <InputLabel
-                  htmlFor="data_kind_id_2"
-                  value="نوع البيانات الثاني"
-                />
-                <SelectInput
-                  id="data_kind_id_2"
-                  name="data_kind_id_2"
-                  className="mt-1 block w-full"
-                  value={data.data_kind_id_2}
-                  onChange={e => setData('data_kind_id_2', e.target.value)}
-                >
-                  <option value="">اختر نوع البيانات الثاني</option>
-                  {data_kinds.data.map((data_kind) => (
-                    <option value={data_kind.id} key={data_kind.id}>{data_kind.name}</option>
-                  ))}
-                </SelectInput>
-                <InputError message={errors.data_kind_id_2} className="mt-2" />
-              </div>
-              
-              
               <div className="mt-4">
                 <InputLabel
                   htmlFor="notes"
@@ -129,28 +150,10 @@ export default function Edit({ auth, service, products, data_kinds }) {
                 />
                 <InputError message={errors.notes} className="mt-2" />
               </div>
-              <div className="mt-4">
-                <InputLabel
-                  htmlFor="status"
-                  value="الحالة"
-                />
-                <SelectInput
-                  id="status"
-                  name="status"
-                  className="mt-1 block w-full"
-                  value={data.status}
-                  onChange={e => setData('status', e.target.value)}
-                >
-                  <option value="active">فعال</option>
-                  <option value="inactive">غير فعال</option>
-                </SelectInput>
-                <InputError message={errors.status} className="mt-2" />
-              </div>
-
-              <div className="mt-4 text-right ">
-                <button className="bg-token1 dark:bg-token2 py-1 px-3 text-white rounded shadow transition-all hover:bg-emerald-600">موافق</button>
-                <Link href={route('service.index')} className="bg-gray-300 mx-4 py-1 px-3 text-gray-800 rounded shadow transition-all hover:bg-gray-200 mr-2">
-                  إلغاء الأمر
+              <div className="text-center py-4">
+                <AcceptButton className="w-28 justify-center">موافق</AcceptButton>
+                <Link href={route('service.index')} >
+                  <RejectButton className="w-28 justify-center">إلغاء الأمر</RejectButton>
                 </Link>
               </div>
             </form>

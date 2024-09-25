@@ -19,7 +19,7 @@ class CategoryResource extends JsonResource
     return [
       'id'          => $this->id,
       'name'        => $this->name,
-      'image'       => Storage::url($this->image),
+      'image'       => url($this->image),
       'status'      => $this->status,
       'notes'       => $this->notes,
     ];

@@ -12,12 +12,18 @@ import PrimaryButton from "@/Components/Buttons/PrimaryButton";
 import DeleteButton from "@/Components/Buttons/DeleteButton";
 import RejectButton from "@/Components/Buttons/RejectButton copy";
 import AcceptButton from "@/Components/Buttons/AcceptButton";
+import InputError from "@/Components/InputError";
+import ScrollBar from "@/Components/ScrollBar";
+import SuccessMessage from "@/Components/SuccessMessage";
+import WarningMessage from "@/Components/WarningMessage";
+import Title from "@/Components/Title";
 
-export default function index({ auth, users, customers, orders, queryParams = null, success = ['0', ''] }) {
+export default function index({ auth, users, message, orders, queryParams = null, success = ['0', ''] }) {
   const [showApproveModal, setShowApproveModal] = useState(false);
   const [showRejectModal, setShowRejectModal] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [rejectReason, setRejectReason] = useState("");
+  const [rejectReasonError, setRejectReasonError] = useState("");
 
   queryParams = queryParams || {}
 
@@ -33,7 +39,6 @@ export default function index({ auth, users, customers, orders, queryParams = nu
   }
 
   const handleApprove = () => {
-    console.log(selectedOrder);
     router.post(route('order.update', selectedOrder.id), {
       status: 'completed',
       _method: 'PUT'
@@ -42,20 +47,24 @@ export default function index({ auth, users, customers, orders, queryParams = nu
   }
 
   const handleReject = () => {
-    router.post(route('order.update', selectedOrder.id), {
-      status: 'reject',
-      reject_reson: rejectReason,
-      _method: 'PUT'
-    });
-    setShowRejectModal(false);
+    if (rejectReason === '') {
+      setRejectReasonError('الرجاء إدخال سبب الرفض');
+    } else {
+      setRejectReasonError('');
+    }
+    if (rejectReason != '') {
+      router.post(route('order.update', selectedOrder.id), {
+        status: 'reject',
+        reject_reson: rejectReason,
+        _method: 'PUT'
+      });
+      setShowRejectModal(false);
+      setRejectReasonError('')
+    }
   }
 
   const handleSelectUser = (selectedUser) => {
     searchFieldChanged('user_id', selectedUser.id);
-  };
-
-  const handleSelectCustomer = (selectedCustomer) => {
-    searchFieldChanged('customer_id', selectedCustomer.id);
   };
 
   const onKeyPress = (name, e) => {
@@ -91,11 +100,11 @@ export default function index({ auth, users, customers, orders, queryParams = nu
   return (
     <AuthenticatedLayout
       user={auth.user}
+      message={message}
       header={
         <div className="flex justify-between items-center">
-          <h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            الطلبات قيد المعالجة
-          </h2>
+          <Title>الطلبات قيد المعالجة</Title>
+          <ScrollBar message={message} />
         </div>
       }
     >
@@ -106,8 +115,8 @@ export default function index({ auth, users, customers, orders, queryParams = nu
           <h2 className="text-lg font-medium">تأكيد الموافقة</h2>
           <p className="mt-4">هل أنت متأكد أنك تريد الموافقة على هذا الطلب؟</p>
           <div className="mt-6 flex justify-end">
-            <button onClick={handleApprove} className="bg-token1 dark:bg-token2 py-1 px-3 text-white rounded shadow transition-all hover:bg-emerald-600">موافق</button>
-            <button onClick={() => setShowApproveModal(false)} className="bg-gray-300 mx-4 py-1 px-3 text-gray-800 rounded shadow transition-all hover:bg-gray-200">إلغاء</button>
+            <AcceptButton onClick={handleApprove}>موافق</AcceptButton>
+            <RejectButton onClick={() => setShowApproveModal(false)}>إلغاء</RejectButton>
           </div>
         </div>
       </Modal>
@@ -123,31 +132,25 @@ export default function index({ auth, users, customers, orders, queryParams = nu
             value={rejectReason}
             onChange={(e) => setRejectReason(e.target.value)}
           />
+          <InputError message={rejectReasonError} className="mt-2" />
           <div className="mt-6 flex justify-end">
-            <button onClick={handleReject} className="bg-token1 dark:bg-token2 py-1 px-3 text-white rounded shadow transition-all hover:bg-emerald-600">موافق</button>
-            <button onClick={() => setShowRejectModal(false)} className="bg-gray-300 mx-4 py-1 px-3 text-gray-800 rounded shadow transition-all hover:bg-gray-200">إلغاء</button>
+            <AcceptButton onClick={handleReject}>موافق</AcceptButton>
+            <RejectButton onClick={() => setShowRejectModal(false)}>إلغاء</RejectButton>
           </div>
         </div>
       </Modal>
 
-      <div className="py-6">
+      <div className="py-2">
         <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
           {success && (
-            (success[0] === '0' ? (
-              <div className="bg-emerald-500 py-2 px-4 text-white rounded mb-4">
-                {success[1]}
-              </div>)
-              : (
-                <div className="bg-red-500 py-2 px-4 text-white rounded mb-4">
-                  {success[1]}
-                </div>
-              )
+            (success[0] === '0' ? (<SuccessMessage message={success[0]} />)
+              : (<WarningMessage message={success[1]} />)
             )
           )
           }
 
           <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
-            <div className="p-6 text-gray-900 dark:text-gray-100">
+            <div className="p-2 text-gray-900 dark:text-gray-100">
               <div className="overflow-auto">
                 <table className="w-full text-md font-semibold rtl:text-right text-gray-800 dark:text-gray-200">
                   <thead className="text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400 border-b-2 border-gray-500">
@@ -168,14 +171,6 @@ export default function index({ auth, users, customers, orders, queryParams = nu
                       >
                         المركز
                       </TableHeading>
-                      {/* <TableHeading
-                        name='customer_id'
-                        sort_field={queryParams.sort_field}
-                        sort_direction={queryParams.sort_direction}
-                        sortChanged={sortChanged}
-                      >
-                        الزبون
-                      </TableHeading> */}
                       <TableHeading
                         sortable={false}
                       >
@@ -221,16 +216,6 @@ export default function index({ auth, users, customers, orders, queryParams = nu
                           queryParams={queryParams}
                         />
                       </th>
-                      {/* <th className="px-3 py-3 relative">
-                        <SearchableDropdown
-                          items={customers.data}
-                          name="customer_id"
-                          selectedItem={customers.data.find((customer) => customer.id === queryParams.customer_id)}
-                          onSelectItem={handleSelectCustomer}
-                          placeholder="اختر الزيون"
-                          queryParams={queryParams}
-                        />
-                      </th> */}
                       <th className="px-3 py-3">
                         <TextInput
                           className="w-full text-sm font-medium"
@@ -245,20 +230,7 @@ export default function index({ auth, users, customers, orders, queryParams = nu
                       <th className="px-3 py-3"></th>
                       <th className="px-3 py-3"></th>
                       <th className="px-3 py-3"></th>
-                      {/* <th className="px-3 py-3">
-                        <SelectInput
-                          className="w-full text-sm font-medium"
-                          defaultValue={queryParams.status}
-                          onChange={e => searchFieldChanged('status', e.target.value)}
-                        >
-                          <option value="">اختر الحالة</option>
-                          <option value="in_progress">قيد المعالجة </option>
-                          <option value="completed">مقبول</option>
-                          <option value="reject">مرفوض</option>
-                        </SelectInput>
-                      </th> */}
                       <th className="px-3 py-3"></th>
-
                     </tr>
                   </thead>
                   <tbody className="text-center">
@@ -266,7 +238,6 @@ export default function index({ auth, users, customers, orders, queryParams = nu
                       <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700" key={order.id}>
                         <td className="px-3 py-2 text-nowrap">{order.created_at}</td>
                         <td className="px-3 py-2">{order.user.name}</td>
-                        {/* <td className="px-3 py-2">{order.customer.name}</td> */}
                         <td className="px-3 py-2 text-nowrap">{order.service.product.category.name} /
                           {order.service.product.name} /
                           {order.service.name} /

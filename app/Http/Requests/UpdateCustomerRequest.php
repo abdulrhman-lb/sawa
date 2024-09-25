@@ -26,6 +26,7 @@ class UpdateCustomerRequest extends FormRequest
       'notes'       => ['nullable'],
       'mobile'      => ['nullable'],
       'phone'       => ['nullable'],
+      'created_by'  => ['required', 'exists:users,id'],
     ];
   }
 }

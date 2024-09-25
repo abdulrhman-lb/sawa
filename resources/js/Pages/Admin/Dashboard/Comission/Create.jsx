@@ -1,13 +1,17 @@
+import AcceptButton from "@/Components/Buttons/AcceptButton";
+import RejectButton from "@/Components/Buttons/RejectButton copy";
 import InputError from "@/Components/InputError";
 import InputLabel from "@/Components/InputLabel";
+import ScrollBar from "@/Components/ScrollBar";
 import SearchableDropdownForm from "@/Components/SearchableDropdownForm";
 import TextAreaInput from "@/Components/TextAreaInput";
 import TextInput from "@/Components/TextInput";
+import Title from "@/Components/Title";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { Head, Link, useForm } from "@inertiajs/react";
 import { useState, useEffect } from "react";
 
-export default function Create({ auth, comissions, categories, products, services, amount_kinds, users }) {
+export default function Create({ auth, comissions, categories, products, services, amount_kinds, users, message }) {
   const { data, setData, post, errors, reset } = useForm({
     user_id: '',
     amount_kind_id: '',
@@ -21,7 +25,7 @@ export default function Create({ auth, comissions, categories, products, service
   const [service_id, setServiceId] = useState('');
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [filteredServices, setFilteredServices] = useState([]);
-  const [filteredAmountKins, setFilteredAmountKinds] = useState([]);
+  const [filteredAmountKinds, setFilteredAmountKinds] = useState([]);
   const [disabled, setDisabled] = useState(false);
 
   // Update products based on selected category_id
@@ -57,18 +61,24 @@ export default function Create({ auth, comissions, categories, products, service
   // Update amount kinds based on selected service_id
   useEffect(() => {
     if (service_id) {
+
       const amount_kind_S = amount_kinds.data.filter(amount_kind => {
         const isServiceMatch = amount_kind.service_id === service_id;
-        const comissionData = comissions.data.find(comm =>
-          (comm.user_id === auth.user.id && comm.amount_kind_id === amount_kind.id) || (auth.user.kind === 'admin')
-        );
-        return isServiceMatch && comissionData;
+        if (auth.user.kind === 'admin') {
+          return isServiceMatch;
+        } else {
+          const comissionData = comissions.data.find(comm =>
+            (comm.user_id === auth.user.id && comm.amount_kind_id === amount_kind.id)
+          );
+          return isServiceMatch && comissionData;
+        }
       });
       const amount_kind = amount_kind_S
         .map(amount_kind => ({
           ...amount_kind,
           kindName: amount_kind.kindName.name // Create a new field with the linked kind name
         }));
+
 
       if (amount_kind.length > 0) {
         setFilteredAmountKinds(amount_kind);
@@ -83,26 +93,25 @@ export default function Create({ auth, comissions, categories, products, service
 
   const onSubmit = (e) => {
     e.preventDefault();
-    console.log('bb');
     post(route("comission.store"));
   };
 
   return (
     <AuthenticatedLayout
       user={auth.user}
+      message={message}
       header={
         <div className="flex justify-between items-center">
-          <h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            إنشاء عمولة جديد
-          </h2>
+          <Title>إنشاء عمولة جديد</Title>
+          <ScrollBar message={message} />
         </div>
       }
     >
       <Head title="العمولات" />
-      <div className="py-6">
+      <div className="py-2">
         <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
           <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
-            <form onSubmit={onSubmit} className=" p-4 sm:p-8 bg-white dark:bg-gray-800 shadow sm:rounded-lg">
+            <form onSubmit={onSubmit} className="px-4 sm:px-8 pt-4 bg-white dark:bg-gray-800 shadow sm:rounded-lg">
               <div className="grid lg:grid-cols-3 sm:grid-cols-1">
                 <div className="mt-4 px-3">
                   <InputLabel
@@ -157,7 +166,7 @@ export default function Create({ auth, comissions, categories, products, service
                     value="تفاصيل الخدمة"
                   />
                   <SearchableDropdownForm
-                    items={filteredAmountKins}
+                    items={filteredAmountKinds}
                     value={data.amount_kind_id}
                     onChange={(value) => setData('amount_kind_id', value)}
                     placeholder="اختر تفاصيل الخدمة"
@@ -165,18 +174,18 @@ export default function Create({ auth, comissions, categories, products, service
                     valueKey="id"
                     disabled={!product_id} // Disable if no product selected
                   />
-                  <InputError message={errors.kind_id} className="mt-2" />
+                  <InputError message={errors.amount_kind_id} className="mt-2" />
                 </div>
                 <div className="mt-4 px-3">
                   <InputLabel
                     htmlFor="user_id"
-                    value="المستخدم"
+                    value="المركز"
                   />
                   <SearchableDropdownForm
                     items={users.data}
                     value={data.user_id}
                     onChange={(value) => setData('user_id', value)}
-                    placeholder="اختر المستخدم"
+                    placeholder="اختر المركز"
                     labelKey="name"
                     valueKey="id"
                     disabled={false} // Disable if no product selected
@@ -191,11 +200,13 @@ export default function Create({ auth, comissions, categories, products, service
                   <TextInput
                     id="comission_admin"
                     type="number"
+                    min="0"
                     name="comission_admin"
                     value={data.comission_admin}
                     className=" block w-full h-[40px]"
                     disabled={disabled}
                     onChange={e => setData('comission_admin', e.target.value)}
+                    lang="en"
                   />
                   <InputError message={errors.comission_admin} className="mt-2" />
                 </div>
@@ -214,10 +225,10 @@ export default function Create({ auth, comissions, categories, products, service
                 />
                 <InputError message={errors.notes} className="mt-2" />
               </div>
-              <div className="mt-4 text-right px-3">
-                <button className="bg-token1 dark:bg-token2 py-1 px-3 text-white rounded shadow transition-all hover:bg-emerald-600">موافق</button>
-                <Link href={route('comission.index')} className="bg-gray-300 mx-4 py-1 px-3 text-gray-800 rounded shadow transition-all hover:bg-gray-200 mr-2">
-                  إلغاء الأمر
+              <div className="text-center py-8">
+                <AcceptButton className="w-28 justify-center">موافق</AcceptButton>
+                <Link href={route('comission.index')} >
+                  <RejectButton className="w-28 justify-center">إلغاء الأمر</RejectButton>
                 </Link>
               </div>
             </form>

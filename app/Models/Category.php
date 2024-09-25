@@ -14,4 +14,8 @@ class Category extends Model
       return $this->hasMany(Product::class);
     }
 
+    public function category_permissions(){
+      return $this->hasMany(CategoryPermission::class, 'category_id');
+    }
+
 }

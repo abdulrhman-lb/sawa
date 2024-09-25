@@ -27,7 +27,7 @@ class CenterBalanceResource extends JsonResource
       'user'        => new UserResource($this->user),
       'order_id'    => $this->order_id,
       'order'       => new OrderResource($this->order),
-      'created_at'      => (new Carbon($this->created_at))->format('Y-m-d'),
+      'created_at'      => (new Carbon($this->created_at))->format('Y/m/d'),
     ];
   }
 }

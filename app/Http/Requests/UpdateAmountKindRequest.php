@@ -23,7 +23,7 @@ class UpdateAmountKindRequest extends FormRequest
   public function rules(): array
   {
     return [
-      'amount'      => ['required', 'integer'],
+      'amount'      => ['required', 'integer', 'min:0'],
       'kind'        => ['required', Rule::in(['const', 'var'])],
       'kind_id'     => ['required', 'exists:kinds,id'],
       'service_id'  => ['required', 'exists:services,id'],

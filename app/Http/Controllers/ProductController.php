@@ -8,6 +8,7 @@ use App\Http\Requests\UpdateProductRequest;
 use App\Http\Resources\CategoryResource;
 use App\Http\Resources\ProductResource;
 use App\Models\Category;
+use App\Models\Message;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -20,7 +21,7 @@ class ProductController extends Controller
 
     // Sorting
     $sortField = request('sort_field', 'created_at');
-    $sortDirection = request('sort_direction', 'desc');
+    $sortDirection = request('sort_direction', 'asc');
 
     // Search
     if (request("name")) {
@@ -36,21 +37,25 @@ class ProductController extends Controller
     }
 
     // Apply
-    $products = $query->orderBy($sortField, $sortDirection)->paginate(10)->onEachSide(1);
+    $products = $query->orderBy($sortField, $sortDirection)->paginate(25)->onEachSide(1);
     $categories = Category::orderBy('name', 'asc')->get();
+    $message = Message::first();
     return inertia("Admin/Dashboard/Product/Index", [
       "products"    => ProductResource::collection($products),
       'categories' => $categories,
       'queryParams' => request()->query() ?: null,
       'success'     => session('success'), 
+      'message'     => $message
     ]);
   }
 
   public function create()
   {
+    $message = Message::first();
     $categories = Category::query()->orderBy('name')->get();
     return inertia("Admin/Dashboard/Product/Create", [
-      'categories'  => CategoryResource::collection($categories)
+      'categories'  => CategoryResource::collection($categories),
+      'message'     => $message
     ]);
   }
 
@@ -60,7 +65,9 @@ class ProductController extends Controller
     /** @var image Illuminate\Http\UploadedFile */
     $image = $data['image'] ?? null;
     if ($image) {
-      $data['image'] = $image->store('product/' . Str::random(), 'public');
+      $NewImageName = Str::random() . '.' . $request->image->extension();
+      $request -> image ->move(public_path('/images/products/'), $NewImageName);
+      $data['image'] = '/images/products/'.$NewImageName;
     };
     Product::create($data);
     return to_route('product.index')->with('success', 'تم إضافة المنتج بنجاح');
@@ -68,17 +75,21 @@ class ProductController extends Controller
 
   public function show(Product $product)
   {
+    $message = Message::first();
     return inertia("Admin/Dashboard/Product/Show", [
       'product'=> new ProductResource($product),
+      'message'     => $message
     ]);
   }
 
   public function edit(Product $product)
   {
+    $message = Message::first();
     $categories = Category::query()->orderBy('name')->get();
     return inertia("Admin/Dashboard/Product/Edit", [
       'product'     => new ProductResource($product),
-      'categories'  => CategoryResource::collection($categories)
+      'categories'  => CategoryResource::collection($categories),
+      'message'     => $message
     ]);
   }
 
@@ -87,12 +98,13 @@ class ProductController extends Controller
     $data = $request->validated();
     $image = $data['image'] ?? null;
     if ($image) {
-      if ($product->image) {
-        Storage::disk('public')->deleteDirectory(dirname($product->image));
+      if ($product->image && file_exists(public_path($product->image))) {
+        unlink(public_path($product->image));
       }
-      $data['image'] = $image->store('product/' . Str::random(), 'public');
-    }
-    else {
+      $NewImageName = Str::random() . '.' . $request->image->extension();
+      $request -> image ->move(public_path('/images/products/'), $NewImageName);
+      $data['image'] = '/images/products/'.$NewImageName;
+    } else {
       $data['image'] = $product['image'];
     }
     $product->update($data);
@@ -118,12 +130,14 @@ class ProductController extends Controller
 
   public function indexToHome(Request $category)
   {
+    $message = Message::first();
     $query = Product::query();
     $query->where("status", "active");
     $query->where("category_id", $category->id);
     $products = $query->orderBy('id', 'asc')->get();
     return inertia("Product/Index", [
       "products"  => ProductResource::collection($products),
-    ]);
+      'message'     => $message
+    ]); 
   }
 }

@@ -4,8 +4,10 @@ import CountUp from "react-countup";
 import { useEffect } from "react";
 import AOS from "aos";
 import "aos/dist/aos.css";
+import ScrollBar from "@/Components/ScrollBar";
+import Title from "@/Components/Title";
 
-export default function Home({ auth, total_product, total_center, total_box }) {
+export default function Home({ auth, total_product, total_center, total_box, message }) {
   useEffect(() => {
     AOS.init({ duration: 1000 });
   }, []);
@@ -13,11 +15,11 @@ export default function Home({ auth, total_product, total_center, total_box }) {
   return (
     <AuthenticatedLayout
       user={auth.user}
+      message={message}
       header={
         <div className="flex justify-between items-center">
-          <h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            إجمالي البيان المالي
-          </h2>
+          <Title>إجمالي البيان المالي</Title>
+          <ScrollBar message={message}/>
         </div>
       }
     >

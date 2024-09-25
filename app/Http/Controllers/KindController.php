@@ -6,6 +6,7 @@ use App\Models\Kind;
 use App\Http\Requests\StoreKindRequest;
 use App\Http\Requests\UpdateKindRequest;
 use App\Http\Resources\KindResource;
+use App\Models\Message;
 
 class KindController extends Controller
 {
@@ -23,17 +24,22 @@ class KindController extends Controller
     }
 
     // Apply
-    $kinds = $query->orderBy($sortField, $sortDirection)->paginate(10)->onEachSide(1);
+    $kinds = $query->orderBy($sortField, $sortDirection)->paginate(25)->onEachSide(1);
+    $message = Message::first();
     return inertia("Admin/Dashboard/Kind/Index", [
       "kinds"    => KindResource::collection($kinds),
       'queryParams' => request()->query() ?: null,
       'success'     => session('success'),
+      'message'     => $message
     ]);
   }
 
   public function create()
   {
-    return inertia("Admin/Dashboard/Kind/Create");
+    $message = Message::first();
+    return inertia("Admin/Dashboard/Kind/Create",[
+      'message'     => $message
+    ]);
   }
 
   public function store(StoreKindRequest $request)
@@ -50,8 +56,10 @@ class KindController extends Controller
 
   public function edit(Kind $kind)
   {
+    $message = Message::first();
     return inertia("Admin/Dashboard/Kind/Edit", [
-      'kind' => new KindResource($kind)
+      'kind' => new KindResource($kind),
+      'message'     => $message
     ]);
   }
 

@@ -3,12 +3,12 @@ import ReactDOM from 'react-dom';
 import TextInput from "@/Components/TextInput";
 
 export default function SearchableDropdownForm({
-  items = [],               // قائمة العناصر التي سيتم عرضها في القائمة المنسدلة
-  value,                    // القيمة الحالية للحقل (يمكن أن تكون ID أو أي قيمة)
-  onChange,                 // الدالة التي سيتم استدعاؤها عند تغيير القيمة
-  placeholder = "اختر عنصرًا", // النص الافتراضي للزر
-  labelKey = "name",        // المفتاح المستخدم لعرض الاسم في القائمة (مثل "name" أو "label")
-  valueKey = "id"           // المفتاح المستخدم لقيمة العنصر (مثل "id" أو "value")
+  items = [],               
+  value,                    
+  onChange,                 
+  placeholder = "اختر عنصرًا", 
+  labelKey = "name",        
+  valueKey = "id"           
 }) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');

@@ -15,8 +15,8 @@ export const KIND_CLASS_MAP ={
 } 
 
 export const KIND_TEXT_MAP ={
-  'user'        : 'مركز بيع',
-  'super_user'  : 'مركز توزيع',
+  'user'        : 'مركز بيع عادي',
+  'super_user'  : 'حساب تاجر مميز',
   'admin'       : 'مدير نظام',
 } 
 

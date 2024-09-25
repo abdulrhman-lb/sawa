@@ -6,9 +6,7 @@ use App\Models\Box;
 use App\Http\Requests\StoreBoxRequest;
 use App\Http\Requests\UpdateBoxRequest;
 use App\Http\Resources\BoxResource;
-use App\Http\Resources\CenterBalanceResource;
-use App\Models\CenterBalance;
-use App\Models\User;
+use App\Models\Message;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -38,18 +36,23 @@ class BoxController extends Controller
     }
     $totals_query = $query;
     $totalAmount = $totals_query->sum('amount');
-    $boxs = $query->orderBy($sortField, $sortDirection)->paginate(10)->onEachSide(1);
+    $boxs = $query->orderBy($sortField, $sortDirection)->paginate(25)->onEachSide(1);
+    $message          = Message::first();
     return inertia("Admin/Financial/Box/Index", [
       "boxs"  => BoxResource::collection($boxs),
       'queryParams' => request()->query() ?: null,
       'success'     => session('success'),
-      'totalAmount' => $totalAmount
+      'totalAmount' => $totalAmount,
+      'message'           => $message
     ]);
   }
 
   public function create()
   {
-    return inertia("Admin/Financial/Box/Create");
+    $message          = Message::first();
+    return inertia("Admin/Financial/Box/Create", [
+      'message'           => $message
+    ]);
   }
 
   public function store(StoreBoxRequest $request)
@@ -66,8 +69,10 @@ class BoxController extends Controller
 
   public function edit(Box $box)
   {
+    $message          = Message::first();
     return inertia("Admin/Financial/Box/Edit", [
       'box' => new BoxResource($box),
+      'message'           => $message
     ]);
   }
 
@@ -86,14 +91,13 @@ class BoxController extends Controller
 
   public function indexAll(Request $request)
   {
-    $start_date = request('date') ? Carbon::parse(request('date'))->startOfDay() : now()->startOfDay();
-    $end_date = request('date') ? Carbon::parse(request('date'))->endOfDay() : now()->endOfDay();
+    $start_date = request('date') ? Carbon::createFromFormat('d/m/Y', request('date'))->startOfDay() : now()->startOfDay();
+    $end_date = request('date') ? Carbon::createFromFormat('d/m/Y', request('date'))->endOfDay() : now()->endOfDay();
 
-    // بيانات ايرادات المراكز اليومية
     $center_balance_query = DB::table('center_balances')
       ->join('users', 'users.id', '=', 'center_balances.user_id')
       ->where('users.created_by', Auth::id())
-      ->where('order_id', "=" , null)
+      ->where('order_id', "=", null)
       ->whereBetween('center_balances.created_at', [$start_date, $end_date])
       ->select('center_balances.*', 'users.name as user_name')
       ->orderBy('center_balances.created_at', 'desc');
@@ -110,7 +114,7 @@ class BoxController extends Controller
     $product_balance_query = DB::table('product_balances')
       ->join('products', 'products.id', '=', 'product_balances.product_id')
       ->whereBetween('product_balances.created_at', [$start_date, $end_date])
-      ->where('order_id', "=" , null)
+      ->where('order_id', "=", null)
       ->select('product_balances.*', 'products.name as product_name')
       ->orderBy('product_balances.created_at', 'desc');
     $product_balance = $product_balance_query->get();
@@ -131,7 +135,8 @@ class BoxController extends Controller
       ->whereBetween('created_at', [$start_date, $end_date])
       ->select(DB::raw('SUM(`amount`) as total_add'))
       ->first();
-
+    $message          = Message::first();
+    // $request['date'] = $start_date;
     return inertia("Admin/Financial/Box/IndexAll", [
       "centers"       => $center_balance,
       "products"      => $product_balance,
@@ -139,10 +144,11 @@ class BoxController extends Controller
       'total_center'  => number_format($centers_balance->total_add),
       'total_centerN' => $centers_balance->total_add,
       'total_product' => number_format($products_balance->total_add),
-      'total_productN'=> $products_balance->total_add,
+      'total_productN' => $products_balance->total_add,
       'total_box'     => number_format($boxs->total_add),
       'total_boxN'    => $boxs->total_add,
       'queryParams'   => request()->query() ?: null,
+      'message'           => $message
     ]);
   }
 }

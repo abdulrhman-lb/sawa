@@ -22,6 +22,8 @@ class CustomerResource extends JsonResource
       'mobile'      => $this->mobile,
       'phone'       => $this->phone,
       'notes'       => $this->notes,
+      'created_by'  => $this->created_by,
+      'createdBy'   => $this->createdBy,
     ];
   }
 }

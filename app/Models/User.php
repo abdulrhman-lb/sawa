@@ -29,8 +29,11 @@ class User extends Authenticatable implements MustVerifyEmail
     'center',
     'kind',
     'status',
+    'user_balance',
+    'add_balance',
     'email_verified_at',
-    'created_by'
+    'created_by',
+    'image'
   ];
 
 
@@ -51,32 +54,58 @@ class User extends Authenticatable implements MustVerifyEmail
 
   public function officers()
   {
-      return $this->hasMany(User::class, 'created_by');
+    return $this->hasMany(User::class, 'created_by');
   }
 
-  public function comission_user(){
+  public function customers()
+  {
+    return $this->hasMany(Customer::class, 'created_by');
+  }
+
+  public function comission_user()
+  {
     return $this->hasMany(Comission::class, "user_id");
   }
 
-  public function comission_officer(){
+  public function comission_new_user()
+  {
+    return $this->hasMany(ComissionNew::class, "user_id");
+  }
+
+  public function comission_new_officer()
+  {
+    return $this->hasMany(ComissionNew::class, "officer_id");
+  }
+
+  public function comission_officer()
+  {
     return $this->hasMany(Comission::class, "officer_id");
   }
 
-  public function products(){
-      return $this->hasMany(Product::class);
-    }
+  public function products()
+  {
+    return $this->hasMany(Product::class);
+  }
 
-    public function orders(){
-      return $this->hasMany(Order::class, 'user_id');
-    }
+  public function orders()
+  {
+    return $this->hasMany(Order::class, 'user_id');
+  }
 
-    public function centerBalances(){
-      return $this->hasMany(CenterBalance::class, 'user_id');
-    }
+  public function category_permissions()
+  {
+    return $this->hasMany(CategoryPermission::class, 'user_id');
+  }
 
-    public function centerBalanceVirtuals(){
-      return $this->hasMany(CenterBalanceVirtual::class, 'user_id');
-    }
+  public function centerBalances()
+  {
+    return $this->hasMany(CenterBalance::class, 'user_id');
+  }
+
+  public function centerBalanceVirtuals()
+  {
+    return $this->hasMany(CenterBalanceVirtual::class, 'user_id');
+  }
   /**
    * Get the attributes that should be cast.
    *

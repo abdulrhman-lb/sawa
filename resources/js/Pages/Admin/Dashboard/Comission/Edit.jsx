@@ -1,13 +1,17 @@
+import AcceptButton from "@/Components/Buttons/AcceptButton";
+import RejectButton from "@/Components/Buttons/RejectButton copy";
 import InputError from "@/Components/InputError";
 import InputLabel from "@/Components/InputLabel";
+import ScrollBar from "@/Components/ScrollBar";
 import SearchableDropdownForm from "@/Components/SearchableDropdownForm";
 import TextAreaInput from "@/Components/TextAreaInput";
 import TextInput from "@/Components/TextInput";
+import Title from "@/Components/Title";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { Head, Link, useForm } from "@inertiajs/react";
 import { useState, useEffect } from "react";
 
-export default function Edit({ auth, comission, comissions, categories, products, services, amount_kinds, users }) {
+export default function Edit({ auth, comission, comissions, categories, products, services, amount_kinds, users, message }) {
   const { data, setData, put, errors, reset } = useForm({
     user_id: comission.user_id || '',
     amount_kind_id: comission.amount_kind_id || '',
@@ -73,19 +77,19 @@ export default function Edit({ auth, comission, comissions, categories, products
   return (
     <AuthenticatedLayout
       user={auth.user}
+      message={message}
       header={
         <div className="flex justify-between items-center">
-          <h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            تعديل عمولة
-          </h2>
+          <Title>تعديل عمولة</Title>
+          <ScrollBar message={message}/>
         </div>
       }
     >
       <Head title="تعديل العمولة" />
-      <div className="py-6">
+      <div className="py-2">
         <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
           <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
-            <form onSubmit={onSubmit} className=" p-4 sm:p-8 bg-white dark:bg-gray-800 shadow sm:rounded-lg">
+          <form onSubmit={onSubmit} className="px-4 sm:px-8 pt-4 bg-white dark:bg-gray-800 shadow sm:rounded-lg">
               <div className="grid lg:grid-cols-3 sm:grid-cols-1">
                 <div className="mt-4 px-3">
                   <InputLabel
@@ -146,60 +150,44 @@ export default function Edit({ auth, comission, comissions, categories, products
                     placeholder="اختر تفاصيل الخدمة"
                     labelKey='kindName'
                     valueKey="id"
-                    disabled={!service_id} // Disable if no service selected
+                    disabled={!product_id} // Disable if no product selected
                   />
-                  <InputError message={errors.kind_id} className="mt-2" />
+                  <InputError message={errors.amount_kind_id} className="mt-2" />
                 </div>
                 <div className="mt-4 px-3">
                   <InputLabel
                     htmlFor="user_id"
-                    value="المستخدم"
+                    value="المركز"
                   />
                   <SearchableDropdownForm
                     items={users.data}
                     value={data.user_id}
                     onChange={(value) => setData('user_id', value)}
-                    placeholder="اختر المستخدم"
+                    placeholder="اختر المركز"
                     labelKey="name"
                     valueKey="id"
+                    disabled={false} // Disable if no product selected
                   />
                   <InputError message={errors.user_id} className="mt-2" />
                 </div>
-                {auth.user.kind === 'admin' ? (
-                  <div className="mt-4 px-3">
-                    <InputLabel
-                      htmlFor="comission_admin"
-                      value="العمولة"
-                    />
-                    <TextInput
-                      id="comission_admin"
-                      type="number"
-                      name="comission_admin"
-                      value={data.comission_admin}
-                      className=" block w-full h-[40px]"
-                      disabled={disabled}
-                      onChange={e => setData('comission_admin', e.target.value)}
-                    />
-                    <InputError message={errors.comission_admin} className="mt-2" />
-                  </div>
-                ) : (
-                  <div className="mt-4 px-3">
-                    <InputLabel
-                      htmlFor="comission_super"
-                      value="العمولة"
-                    />
-                    <TextInput
-                      id="comission_super"
-                      type="number"
-                      name="comission_super"
-                      value={data.comission_super}
-                      className=" block w-full h-[40px]"
-                      disabled={disabled}
-                      onChange={e => setData('comission_super', e.target.value)}
-                    />
-                    <InputError message={errors.comission_super} className="mt-2" />
-                  </div>
-                )}
+                <div className="mt-4 px-3">
+                  <InputLabel
+                    htmlFor="comission_admin"
+                    value="العمولة"
+                  />
+                  <TextInput
+                    id="comission_admin"
+                    type="number"
+                    min="0"
+                    name="comission_admin"
+                    value={data.comission_admin}
+                    className=" block w-full h-[40px]"
+                    disabled={disabled}
+                    onChange={e => setData('comission_admin', e.target.value)}
+                    lang="en"
+                  />
+                  <InputError message={errors.comission_admin} className="mt-2" />
+                </div>
               </div>
               <div className="mt-4 px-3">
                 <InputLabel
@@ -215,10 +203,10 @@ export default function Edit({ auth, comission, comissions, categories, products
                 />
                 <InputError message={errors.notes} className="mt-2" />
               </div>
-              <div className="mt-4 text-right px-3">
-                <button className="bg-token1 dark:bg-token2 py-1 px-3 text-white rounded shadow transition-all hover:bg-emerald-600">موافق</button>
-                <Link href={route('comission.index')} className="bg-gray-300 mx-4 py-1 px-3 text-gray-800 rounded shadow transition-all hover:bg-gray-200 mr-2">
-                  إلغاء الأمر
+              <div className="text-center py-8">
+                <AcceptButton className="w-28 justify-center">موافق</AcceptButton>
+                <Link href={route('comission.index')} >
+                  <RejectButton className="w-28 justify-center">إلغاء الأمر</RejectButton>
                 </Link>
               </div>
             </form>
