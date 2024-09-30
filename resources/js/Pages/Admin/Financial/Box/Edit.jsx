@@ -9,9 +9,11 @@ import Title from "@/Components/Title";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { Head, Link, useForm } from "@inertiajs/react";
 import { useState } from "react";
+import { FaBorderNone } from "react-icons/fa";
+import { GiExpense } from "react-icons/gi";
 
 
-export default function Edit({ auth, box, message }) {
+export default function Edit({ auth, box, message, initialNotifications }) {
   const { data, setData, post, errors, reset } = useForm({
     amount: box.amount || "",
     statment: box.statment || "",
@@ -45,10 +47,15 @@ export default function Edit({ auth, box, message }) {
     <AuthenticatedLayout
       user={auth.user}
       message={message}
+      notification={initialNotifications}
       header={
         <div className="flex justify-between items-center">
-          <Title>تعديل نفقات ومصاريف</Title>
-          <ScrollBar message={message}/>
+          <ScrollBar message={message}>
+            <Title className="flex">
+              <GiExpense className="ml-4 -mx-1 rounded-full border-4 size-7 border-teal-100 bg-teal-200 text-teal-800 dark:border-teal-900 dark:bg-teal-800 dark:text-teal-400" />
+              تعديل نفقات ومصاريف
+            </Title>
+          </ScrollBar>
         </div>
       }
     >

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\BalanceRequest;
 use App\Models\User;
 use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UpdateUserRequest;
@@ -16,25 +17,18 @@ class UserController extends Controller
 {
   public function index()
   {
-    $currentUserId = auth()->id();
-
-    $admins = User::where('kind', 'super_user')
-      ->orWhere('kind', 'admin')
-      ->orderBy('name')
-      ->get();
-
+    $currentUserId  = auth()->id();
+    $admins         = User::where('kind', 'super_user')
+                          ->orWhere('kind', 'admin')
+                          ->orderBy('name')
+                          ->get();
     $query = User::query();
-
     $query->where('id', '!=', $currentUserId);
-
     if (auth()->user()->kind != "admin") {
       $query->where('created_by', '=', $currentUserId);
     }
-    // Sorting
-    $sortField = request('sort_field', 'created_at');
-    $sortDirection = request('sort_direction', 'desc');
-
-    // Search
+    $sortField      = request('sort_field', 'created_at');
+    $sortDirection  = request('sort_direction', 'desc');
     if (request("name")) {
       $query->where("name", "like", "%" . request("name") . "%");
     }
@@ -46,73 +40,79 @@ class UserController extends Controller
     }
     if (request("status")) {
       $query->where("status", request("status"));
+    } else {
+      $query->where('status', 'active');
     }
-
     if (request("created_by")) {
       $query->where("created_by", request("created_by"));
     }
-    // Include category permissions
     $query->with(['category_permissions' => function ($query) {
       $query->select('category_permissions.*', 'categories.name as category_name')
-        ->join('categories', 'category_permissions.category_id', '=', 'categories.id')
-        ->where('category_permissions.status', true);
+            ->join('categories', 'category_permissions.category_id', '=', 'categories.id')
+            ->where('category_permissions.status', true);
     }]);
 
-    // Apply
-    $users = $query->orderBy($sortField, $sortDirection)->paginate(25)->onEachSide(1);
-    $message      = Message::first();
+    if (request("col")) {
+      $col = request("col");
+    } else {
+      $col = 25;
+    }
+    $users    = $query->orderBy($sortField, $sortDirection)->paginate($col)->onEachSide(1);
+    $message  = Message::first();
     return inertia("User/Index", [
-      "users"       => UserCrudResource::collection($users),
-      "admins"      => $admins,
-      'queryParams' => request()->query() ?: null,
-      'success'     => session('success'),
-      'message'     => $message
+      "users"                 => UserCrudResource::collection($users),
+      "admins"                => $admins,
+      'queryParams'           => request()->query() ?: null,
+      'success'               => session('success'),
+      'message'               => $message,
+      'initialNotifications'  => auth()->user()->unreadNotifications,
     ]);
   }
 
   public function create()
   {
-    $message      = Message::first();
+    $message = Message::first();
     return inertia("User/Create", [
-      'message'     => $message
+      'message'               => $message,
+      'initialNotifications'  => auth()->user()->unreadNotifications,
     ]);
   }
 
   public function store(StoreUserRequest $request)
   {
-    $data = $request->validated();
-    $data['password'] = bcrypt($data['password']);
-    $data['email_verified_at'] = time();
-    $newUser = User::create($data);
+    $data                       = $request->validated();
+    $data['password']           = bcrypt($data['password']);
+    $data['email_verified_at']  = time();
+    if (auth()->user()->kind === 'super_user') {
+      $data['process_order'] = auth()->user()->process_order;
+    } 
+    $newUser    = User::create($data);
     $categories = Category::get();
     foreach ($categories as $category) {
-      $category_permission['user_id'] = $newUser->id;
+      $category_permission['user_id']     = $newUser->id;
       $category_permission['category_id'] = $category->id;
-      $category_permission['status'] = false;
+      $category_permission['status']      = false;
       CategoryPermission::create($category_permission);
     }
     return to_route('category-permission.edit', $newUser->id)->with('success', 'تم إنشاء المركز بنجاح يمكنك إضافة الصلاحيات');
   }
 
-  public function show(User $user)
-  {
-    //
-  }
-
   public function edit(User $user)
   {
-    $currentUser = auth()->id();
+    $currentUser  = auth()->id();
     $message      = Message::first();
     if (auth()->user()->kind === "admin") {
       return inertia("User/Edit", [
-        'user' => new UserCrudResource($user),
-        'message'     => $message
+        'user'                  => new UserCrudResource($user),
+        'message'               => $message,
+        'initialNotifications'  => auth()->user()->unreadNotifications,
       ]);
     } else {
       if (auth()->id() === $user->created_by) {
         return inertia("User/Edit", [
-          'user' => new UserCrudResource($user),
-          'message'     => $message
+          'user'                  => new UserCrudResource($user),
+          'message'               => $message,
+          'initialNotifications'  => auth()->user()->unreadNotifications,
         ]);
       } else {
         return to_route('user.index')->with('success', 'ليس لديك صلاحيات لعرض الصفحة');
@@ -122,7 +122,8 @@ class UserController extends Controller
 
   public function update(UpdateUserRequest $request, User $user)
   {
-    $data = $request->validated();
+    $data     = $request->validated();
+    $name     = $user->name;
     $password = $data['password'] ?? null;
     if ($password) {
       $data['password'] = bcrypt($password);
@@ -130,7 +131,14 @@ class UserController extends Controller
       unset($data['password']);
     }
     $user->update($data);
-    return to_route('user.index')->with('success', "تم تحديث بيانات المركز \"$user->name\" بنجاح");
+    if (auth()->user()->kind === 'admin' && $data['kind'] === 'super_user') {
+      $users = User::where('created_by', $user->id)->get();
+      foreach ($users as $user) {
+        $user->process_order = $data['process_order'];
+        $user->update();
+      }
+    }
+    return to_route('user.index')->with('success', "تم تحديث بيانات المركز \"$name\" بنجاح");
   }
 
   public function destroy(User $user)
@@ -147,7 +155,11 @@ class UserController extends Controller
   public function updateBalance(Request $request)
   {
     $user = User::where('id', $request->user_id)->first();
-    $user->user_balance = $request->addBalance;
+    if ($request->addBalance) {
+      $user->user_balance = $user->user_balance + $request->addBalance;
+    } else {
+      $user->user_balance = $user->user_balance - $request->minusBalance;
+    }
     $user->save();
     return to_route('center.balances.home')->with('success', 'تم تغذية الرصيد بنجاح');
   }
@@ -174,6 +186,7 @@ class UserController extends Controller
     $user = User::where('id', Auth::user()->id)->first();
     $user->add_balance = $request->addBalance;
     $user->save();
-    return redirect()->back();
+    event(new BalanceRequest($user));
+    return redirect()->back(); 
   }
 }

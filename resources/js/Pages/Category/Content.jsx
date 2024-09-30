@@ -1,7 +1,5 @@
 
 import { Link } from "@inertiajs/react";
-import { useState } from "react";
-import { HiOutlineChevronDoubleRight } from "react-icons/hi";
 
 const Content = ({ image, name, id }) => {
   return (

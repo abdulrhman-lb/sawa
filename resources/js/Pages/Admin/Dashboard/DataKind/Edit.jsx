@@ -7,9 +7,11 @@ import TextInput from "@/Components/TextInput";
 import Title from "@/Components/Title";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { Head, Link, useForm } from "@inertiajs/react";
+import { AiOutlineDatabase } from "react-icons/ai";
+import { FaBorderNone } from "react-icons/fa";
 
 
-export default function Create({ auth, dataKind, message }) {
+export default function Create({ auth, dataKind, message, initialNotifications }) {
   const { data, setData, post, errors, reset } = useForm({
     name: dataKind.name || "",
     _method: 'PUT'
@@ -24,10 +26,15 @@ export default function Create({ auth, dataKind, message }) {
     <AuthenticatedLayout
       user={auth.user}
       message={message}
+      notification={initialNotifications}
       header={
         <div className="flex justify-between items-center">
-          <Title>تعديل بيانات خدمة  "{dataKind.name}"</Title>
-          <ScrollBar message={message}/>
+          <ScrollBar message={message}>
+            <Title className="flex">
+              <AiOutlineDatabase className="ml-4 -mx-1 rounded-full border-4 size-7 border-teal-100 bg-teal-200 text-teal-800 dark:border-teal-900 dark:bg-teal-800 dark:text-teal-400" />
+              تعديل بيانات خدمة  "{dataKind.name}"
+            </Title>
+          </ScrollBar>
         </div>
       }
     >
@@ -36,7 +43,7 @@ export default function Create({ auth, dataKind, message }) {
         <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
           <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
             <form onSubmit={onSubmit} className="p-4 sm:p-8 bg-white dark:bg-gray-800 shadow sm:rounded-lg">
-            <div className="grid lg:grid-cols-3 sm:grid-cols-1">
+              <div className="grid lg:grid-cols-3 sm:grid-cols-1">
                 <div className="">
                   <InputLabel
                     htmlFor="name"
@@ -60,7 +67,7 @@ export default function Create({ auth, dataKind, message }) {
                   </Link>
                 </div>
               </div>
-            
+
             </form>
           </div>
         </div>

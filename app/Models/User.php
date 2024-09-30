@@ -33,7 +33,8 @@ class User extends Authenticatable implements MustVerifyEmail
     'add_balance',
     'email_verified_at',
     'created_by',
-    'image'
+    'image',
+    'process_order'
   ];
 
 

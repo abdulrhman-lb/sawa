@@ -4,24 +4,20 @@ namespace App\Http\Controllers;
 
 use App\Models\Message;
 use App\Http\Requests\StoreMessageRequest;
-use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Illuminate\Support\Str;
 
 
 class MessageController extends Controller
 {
-  public function index() {}
-  public function create() {}
-  public function store(StoreMessageRequest $request) {}
-  public function show(Message $message) {}
   public function edit(Message $message)
   {
     $message = Message::first();
     return Inertia::render('Admin/Dashboard/Settings/Edit', [
-      'success' => session('success'),
-      'updated' => session('updated'),
-      'message' => $message
+      'success'               => session('success'),
+      'updated'               => session('updated'),
+      'message'               => $message,
+      'initialNotifications'  => auth()->user()->unreadNotifications,
     ]);
   }
   public function updateMessage()
@@ -37,8 +33,8 @@ class MessageController extends Controller
   }
   public function updateImage()
   {
-    $message = Message::first();
-    $image = request('image');
+    $message  = Message::first();
+    $image    = request('image');
     if ($message->image) {
       if ($message->image && file_exists(public_path($message->image))) {
         unlink(public_path($message->image));
@@ -61,6 +57,4 @@ class MessageController extends Controller
       return to_route('settings.edit')->with('success', 'فشل التعديل لا يمكن أن يكون رقم الدعم الفني فارغ');
     }
   }
-
-  public function destroy(Message $message) {}
 }

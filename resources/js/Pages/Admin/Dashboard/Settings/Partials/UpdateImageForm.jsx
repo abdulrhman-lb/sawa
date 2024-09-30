@@ -1,11 +1,13 @@
 import PrimaryButton from '@/Components/Buttons/PrimaryButton';
-import TextInput from '@/Components/TextInput';
 import { useForm } from '@inertiajs/react';
 import { Transition } from '@headlessui/react';
-import SuccessMessage from '@/Components/SuccessMessage';
 import { useState } from 'react';
 
-export default function UpdateImageForm({ className = '', success, message }) {
+export default function UpdateImageForm({ 
+  className = '', 
+  success, 
+  message 
+}) {
 
   const { data, setData, post, errors, processing, recentlySuccessful } = useForm({
     image: message.image,
@@ -30,7 +32,6 @@ export default function UpdateImageForm({ className = '', success, message }) {
       <header>
         <h2 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">لوغو التطبيق</h2>
       </header>
-
       <form onSubmit={submit} className='space-y-6'>
         <div className='flex justify-center'>
           <div className="relative inline-block items-center justify-end">

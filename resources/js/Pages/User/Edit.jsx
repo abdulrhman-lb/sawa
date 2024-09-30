@@ -1,16 +1,22 @@
 import AcceptButton from "@/Components/Buttons/AcceptButton";
 import RejectButton from "@/Components/Buttons/RejectButton copy";
 import InputError from "@/Components/InputError";
-import InputLabel from "@/Components/InputLabel"; 
+import InputLabel from "@/Components/InputLabel";
 import ScrollBar from "@/Components/ScrollBar";
 import SelectInput from "@/Components/SelectInput";
 import TextInput from "@/Components/TextInput";
 import Title from "@/Components/Title";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { Head, Link, useForm } from "@inertiajs/react";
+import { HiUser } from "react-icons/hi";
 
+export default function Create({ 
+  auth, 
+  user, 
+  message, 
+  initialNotifications
+ }) {
 
-export default function Create({ auth, user, message }) {
   const { data, setData, post, errors, reset } = useForm({
     name: user.name || "",
     email: user.email || "",
@@ -21,13 +27,16 @@ export default function Create({ auth, user, message }) {
     center: user.center || "",
     kind: user.kind || "",
     status: user.status || "",
+    process_order: user.process_order,
     created_by: user.created_by,
     password: "",
     password_confirmation: "",
     _method: 'PUT'
   })
+
   const onSubmit = (e) => {
     e.preventDefault();
+    console.log(data)
     post(route("user.update", user.id))
   }
 
@@ -35,10 +44,15 @@ export default function Create({ auth, user, message }) {
     <AuthenticatedLayout
       user={auth.user}
       message={message}
+      notification={initialNotifications}
       header={
         <div className="flex justify-between items-center">
-          <Title>تعديل بيانات المركز  "{user.name}"</Title>
-          <ScrollBar message={message}/>
+          <ScrollBar message={message}>
+            <Title className="flex">
+              <HiUser className="ml-4 -mx-1 rounded-full border-4 size-7 border-teal-100 bg-teal-200 text-teal-800 dark:border-teal-900 dark:bg-teal-800 dark:text-teal-400" />
+              تعديل بيانات المركز  "{user.name}"
+            </Title>
+          </ScrollBar>
         </div>
       }
     >
@@ -47,7 +61,7 @@ export default function Create({ auth, user, message }) {
         <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
           <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
             <form onSubmit={onSubmit} className="p-3 bg-white dark:bg-gray-800 shadow sm:rounded-lg">
-              <div className="space-y-1 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">                
+              <div className="space-y-1 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
                 <div className="mt-1">
                   <InputLabel
                     htmlFor="email"
@@ -129,14 +143,29 @@ export default function Create({ auth, user, message }) {
                     htmlFor="mobile"
                     value="رقم الموبايل"
                   />
-                  <TextInput
-                    id="mobile"
-                    type="text"
-                    name="mobile"
-                    value={data.mobile}
-                    className="mt-1 block w-full"
-                    onChange={e => setData('mobile', e.target.value)}
-                  />
+                  <div class=" w-full flex h-11">
+                    <TextInput
+                      id="mobile"
+                      type="text"
+                      name="mobile"
+                      value={data.mobile}
+                      placeholder='9xxxxxxxx'
+                      className="mt-1 block w-full rounded-e-none border-l-0 border border-gray-300 ml-0 text-left"
+                      onChange={e => setData('mobile', e.target.value)}
+                    />
+                    <div
+                      class=" mt-1 h-10 flex-shrink-0 inline-flex items-center py-2.5 px-4 font-medium text-center text-gray-900 bg-gray-100 border border-gray-300 rounded-e-lg focus:ring-4 focus:outline-none focus:ring-gray-100 dark:bg-gray-700 dark:focus:ring-gray-700 dark:text-white dark:border-gray-600"
+                      type="button">
+                      <svg fill="none" aria-hidden="true" class="h-4 w-4 me-2" viewBox="0 0 20 15">
+                        <rect width="19.6" height="5" y="0" fill="#D02F44" />
+                        <rect width="19.6" height="5" y="5" fill="#FFFFFF" />
+                        <rect width="19.6" height="5" y="10" fill="#000000" />
+                        <polygon fill="#008000" points="6,6 6.87,8.15 9.13,8.15 7.13,9.5 7.87,11.65 6,10.5 4.13,11.65 4.87,9.5 2.87,8.15 5.13,8.15" />
+                        <polygon fill="#008000" points="14,6 14.87,8.15 17.13,8.15 15.13,9.5 15.87,11.65 14,10.5 12.13,11.65 12.87,9.5 10.87,8.15 13.13,8.15" />
+                      </svg>
+                      963+
+                    </div>
+                  </div>
                   <InputError message={errors.mobile} className="mt-2" />
                 </div>
                 <div className="mt-4">
@@ -170,7 +199,6 @@ export default function Create({ auth, user, message }) {
                   />
                   <InputError message={errors.center} className="mt-2" />
                 </div>
-
                 <div>
                   <InputLabel htmlFor="kind" value="نوع المركز" />
                   <SelectInput
@@ -184,7 +212,6 @@ export default function Create({ auth, user, message }) {
                   </SelectInput>
                   <InputError className="mt-2" message={errors.kind} />
                 </div>
-
                 <div>
                   <InputLabel htmlFor="status" value="حالة المركز" />
                   <SelectInput
@@ -197,6 +224,20 @@ export default function Create({ auth, user, message }) {
                   </SelectInput>
                   <InputError className="mt-2" message={errors.status} />
                 </div>
+                {(auth.user.kind === "admin" && user.kind === "super_user") ?
+                  <div>
+                    <InputLabel htmlFor="status" value="طريقة معالجة الطلبات" />
+                    <SelectInput
+                      className="mt-1 block w-full"
+                      defaultValue={data.process_order}
+                      onChange={(e) => setData('process_order', e.target.value)}
+                    >
+                      <option value="0">تحويل الطلبات إلى مدير النظام لمعالجتها</option>
+                      <option value="1">تحويل الطلبات إلى {data.name} لمعالجتها</option>
+                    </SelectInput>
+                    <InputError className="mt-2" message={errors.status} />
+                  </div>
+                  : null}
                 <div className="text-center pt-8">
                   <AcceptButton className="w-28 justify-center">موافق</AcceptButton>
                   <Link href={route('user.index')} >

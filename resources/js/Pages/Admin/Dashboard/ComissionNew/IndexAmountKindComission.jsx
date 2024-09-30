@@ -5,12 +5,22 @@ import TableHeading from "@/Components/TableHeading";
 import SuccessMessage from "@/Components/SuccessMessage";
 import Title from "@/Components/Title";
 import TextInput from "@/Components/TextInput";
+import { FaBorderNone, FaCreativeCommonsZero } from "react-icons/fa";
+import ScrollBar from "@/Components/ScrollBar";
 
-export default function Index({ auth, users, comissionData, queryParams = null, success, message }) {
+export default function Index({ 
+  auth, 
+  users, 
+  comissionData, 
+  queryParams = null, 
+  success, 
+  message, 
+  initialNotifications
+ }) {
+
   queryParams = queryParams || {}
 
   const { post } = useForm();
-  console.log(comissionData[0]);
   const [comissionInputs, setComissionInputs] = useState(
     comissionData.map((user) => ({
       user_id: users.id,
@@ -23,7 +33,6 @@ export default function Index({ auth, users, comissionData, queryParams = null, 
     }))
   );
 
-  // عند تغيير قيمة الحقول
   const handleInputChange = (index, field, value) => {
     const newInputs = [...comissionInputs];
     newInputs[index][field] = value;
@@ -32,7 +41,8 @@ export default function Index({ auth, users, comissionData, queryParams = null, 
 
   const handleSubmit = () => {
     router.get(route("comission.addorupdate", {
-      data: comissionInputs
+      data: comissionInputs,
+      user: comissionData[0]
     }));
   };
 
@@ -52,23 +62,28 @@ export default function Index({ auth, users, comissionData, queryParams = null, 
     <AuthenticatedLayout
       user={auth.user}
       message={message}
+      notification={initialNotifications}
       header={
         <div className="flex justify-between items-center">
-          <Title>نسبة العمولة للمركز:
-            {comissionData[0].user_name}
-            <span className="text-red-700 text-2xl mx-2">|</span>
-            <button onClick={e => goCategory(comissionData[0])}>
-              {comissionData[0].category}
-            </button>
-            <span className="text-red-700 text-2xl mx-2">|</span>
-            <button onClick={e => goProduct(comissionData[0])}>
-              {comissionData[0].product}
-            </button>
-            <span className="text-red-700 text-2xl mx-2">|</span>
-            <button onClick={e => goService(comissionData[0])}>
-              {comissionData[0].service}
-            </button>
-          </Title>
+          <ScrollBar message={message}>
+            <Title className="flex">
+              <FaCreativeCommonsZero className="ml-4 -mx-1 rounded-full border-4 size-7 border-teal-100 bg-teal-200 text-teal-800 dark:border-teal-900 dark:bg-teal-800 dark:text-teal-400" />
+              نسبة العمولة للمركز:
+              {comissionData[0].user_name}
+              <span className="text-red-700 text-2xl mx-2">|</span>
+              <button onClick={e => goCategory(comissionData[0])}>
+                {comissionData[0].category}
+              </button>
+              <span className="text-red-700 text-2xl mx-2">|</span>
+              <button onClick={e => goProduct(comissionData[0])}>
+                {comissionData[0].product}
+              </button>
+              <span className="text-red-700 text-2xl mx-2">|</span>
+              <button onClick={e => goService(comissionData[0])}>
+                {comissionData[0].service}
+              </button>
+            </Title>
+          </ScrollBar>
         </div>
       }
     >
@@ -86,10 +101,9 @@ export default function Index({ auth, users, comissionData, queryParams = null, 
                       <TableHeading sortable={false}>نسب العمولة</TableHeading>
                     </tr>
                   </thead>
-
                   <tbody className="text-center">
                     {comissionData.map((user, index) => (
-                      <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700" key={user.id}>
+                      <tr className="   border-b" key={user.id}>
                         <td className="px-3 py-2 text-nowrap">{user.amount_kind_name}</td>
                         <td className="px-3 py-2 text-center">
                           <TextInput
@@ -98,7 +112,7 @@ export default function Index({ auth, users, comissionData, queryParams = null, 
                             min="0"
                             name={`comission_admin_${index}`}
                             value={user.has_commission ? comissionInputs[index].comission : 'يجب طلب نسبة عمولة من مدير النظام لتتمكن من توزيع العمولة على المراكز'}
-                            className={`block w-full h-[40px] ${comissionInputs[index].comission === 0 ? "bg-red-400" : "bg-emerald-400"}`}
+                            className={`block w-full h-[40px] ${comissionInputs[index].comission === 0 ? "bg-red-400 dark:bg-red-900" : "bg-emerald-400 dark:bg-emerald-900"}`}
                             onChange={(e) => handleInputChange(index, 'comission', e.target.value)}
                             lang="en"
                             disabled={!user.has_commission}
@@ -121,7 +135,6 @@ export default function Index({ auth, users, comissionData, queryParams = null, 
               حفظ التعديلات
             </button>
           </div>
-
         </div>
       </div>
     </AuthenticatedLayout>

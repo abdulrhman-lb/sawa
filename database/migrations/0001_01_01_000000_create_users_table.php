@@ -24,6 +24,7 @@ return new class extends Migration
             $table->string('center')->nullable();
             $table->integer('user_balance')->default(0);
             $table->integer('add_balance')->default(0);
+            $table->integer('process_order')->default(0);
             $table->enum('kind',['admin', 'super_user', 'user']);
             $table->enum('status',['active', 'inactive']);
             $table->string('image')->nullable();

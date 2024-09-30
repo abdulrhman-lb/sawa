@@ -9,14 +9,18 @@ import Title from "@/Components/Title";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { Head, Link, router, useForm } from "@inertiajs/react";
 import { useState } from "react";
+import { IoCashOutline } from "react-icons/io5";
 
+export default function Create({
+  auth,
+  message,
+  initialNotifications
+}) {
 
-export default function Create({ auth, message }) {
   const { data, setData, post, errors, reset } = useForm({
     amount: '',
     statment: '',
   })
-
   const [amoutError, setAmountError] = useState('');
   const [statmentError, setStatmentError] = useState('');
 
@@ -41,10 +45,15 @@ export default function Create({ auth, message }) {
     <AuthenticatedLayout
       user={auth.user}
       message={message}
+      notification={initialNotifications}
       header={
         <div className="flex justify-between items-center">
-          <Title>إضافة رأس مال</Title>
-          <ScrollBar message={message}/>
+          <ScrollBar message={message}>
+            <Title className="flex">
+              <IoCashOutline className="ml-4 -mx-1 rounded-full border-4 size-7 border-teal-100 bg-teal-200 text-teal-800 dark:border-teal-900 dark:bg-teal-800 dark:text-teal-400" />
+              إضافة رأس مال
+            </Title>
+          </ScrollBar>
         </div>
       }
     >

@@ -1,7 +1,5 @@
 
 import { Link } from "@inertiajs/react";
-import { useState } from "react";
-import { HiOutlineChevronDoubleRight } from "react-icons/hi";
 
 const Content = ({ image, name, id, phone }) => {
   
@@ -11,7 +9,7 @@ const Content = ({ image, name, id, phone }) => {
       <Link
           href={route("service.home", { id })}
         >
-        <div className="overflow-hidden pt-2">
+        <div className="overflow-hidden pt-1">
           <img src={image} alt=""
             className="mx-auto h-[150px] w-[150px] border-4 p-1 border-token1 dark:border-token2 rounded-full object-cover group-hover:scale-105 duration-300"
           />

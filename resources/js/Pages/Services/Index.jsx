@@ -8,8 +8,8 @@ import InputError from '@/Components/InputError';
 import ScrollBar from '@/Components/ScrollBar';
 import SuccessMessage from '@/Components/SuccessMessage';
 import Title from '@/Components/Title';
-import PrimaryButton from '@/Components/Buttons/PrimaryButton';
 import AcceptButton from '@/Components/Buttons/AcceptButton';
+import { GrServicePlay } from 'react-icons/gr';
 
 export default function Index({
   auth,
@@ -20,8 +20,10 @@ export default function Index({
   remainingBalanceProduct,
   remainingBalanceCenter,
   success,
-  message
+  message,
+  initialNotifications
 }) {
+
   const { data, setData, post, errors, reset } = useForm({
     customer_id: 1,
     user_id: auth.user.id,
@@ -55,7 +57,6 @@ export default function Index({
 
   useEffect(() => {
     if (selectedService) {
-      
       resetFields();
       const filteredKinds = amountKinds.data.filter(kind => {
         const isServiceMatch = kind.service_id === selectedService.id;
@@ -159,21 +160,26 @@ export default function Index({
     <AuthenticatedLayout
       user={auth.user}
       message={message}
+      notification={initialNotifications}
       header={
         <div className='flex justify-between items-center'>
-          <nav className="text-me text-gray-800 dark:text-gray-200 flex justify-between items-center">
-            <Title>الخدمات</Title>
-            <Link href="/" className="hover:underline p-2"> التصنيفات </Link> &nbsp;&gt;&nbsp;&nbsp;&nbsp;
-            {selectedService && (
-              <>
-                <Link href={`/products?id=${selectedService.product.category.id}`} className="hover:underline text-nowrap">
-                  {selectedService.product.category.name}
-                </Link> &nbsp;&nbsp;&nbsp;&gt;&nbsp;
-                <span className="text-gray-500 p-2 text-nowrap">{selectedService.product.name}</span>
-              </>
-            )}
-          </nav>
-          <ScrollBar message={message} />
+          <ScrollBar message={message}>
+            <nav className="text-me text-gray-800 dark:text-gray-200 flex justify-between items-center">
+              <Title className="flex">
+                <GrServicePlay className="ml-4 -mx-1 rounded-full border-4 size-7 border-teal-100 bg-teal-200 text-teal-800 dark:border-teal-900 dark:bg-teal-800 dark:text-teal-400" />
+                الخدمات
+              </Title>
+              <Link href="/" className="hover:underline p-2"> التصنيفات </Link> &nbsp;&gt;&nbsp;&nbsp;&nbsp;
+              {selectedService && (
+                <>
+                  <Link href={`/products?id=${selectedService.product.category.id}`} className="hover:underline text-nowrap">
+                    {selectedService.product.category.name}
+                  </Link> &nbsp;&nbsp;&nbsp;&gt;&nbsp;
+                  <span className="text-gray-500 p-2 text-nowrap">{selectedService.product.name}</span>
+                </>
+              )}
+            </nav>
+          </ScrollBar>
         </div>
       }
     >
@@ -184,8 +190,7 @@ export default function Index({
           {(balanceProduct || balanceCenter) && (<div className="bg-red-500 py-2 px-4 text-white rounded mx-2 mt-2">
             {balanceProduct} - {balanceCenter}
           </div>)}
-
-          <div className="grid grid-cols-1 lg:grid-cols-10 gap-6 bg-gray-100 dark:bg-gray-900 dark:text-white max-w-7xl mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-10 gap-6 dark:text-white max-w-7xl mx-auto">
             {services.data.length > 0 ? (
               <div className="lg:col-span-3 flex flex-col space-y-1 ">
                 {services.data.map((service) => (
@@ -201,7 +206,6 @@ export default function Index({
                 <p className="text-center text-gray-500">لا يوجد خدمات متوفرة.</p>
               </div>
             )}
-
             {selectedService && (
               <div className="lg:col-span-7 p-2 bg-gray-200 dark:bg-gray-800 shadow-lg mb-6 ml-3 rounded-lg">
                 <form onSubmit={onSubmit} className="p-2 sm:p-2 bg-white dark:bg-gray-800 shadow sm:rounded-lg">

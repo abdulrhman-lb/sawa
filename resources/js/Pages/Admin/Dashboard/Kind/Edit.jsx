@@ -7,9 +7,15 @@ import TextInput from "@/Components/TextInput";
 import Title from "@/Components/Title";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { Head, Link, useForm } from "@inertiajs/react";
+import { TbListDetails } from "react-icons/tb";
 
-
-export default function Create({ auth, kind, message }) {
+export default function Create({ 
+  auth, 
+  kind, 
+  message, 
+  initialNotifications
+ }) {
+  
   const { data, setData, post, errors, reset } = useForm({
     name: kind.name || "",
     _method: 'PUT'
@@ -24,10 +30,15 @@ export default function Create({ auth, kind, message }) {
     <AuthenticatedLayout
       user={auth.user}
       message={message}
+      notification={initialNotifications}
       header={
         <div className="flex justify-between items-center">
-          <Title>تعديل تفصيل خدمات  "{kind.name}"</Title>
-          <ScrollBar message={message} />
+          <ScrollBar message={message}>
+            <Title className="flex">
+              <TbListDetails className="ml-4 -mx-1 rounded-full border-4 size-7 border-teal-100 bg-teal-200 text-teal-800 dark:border-teal-900 dark:bg-teal-800 dark:text-teal-400" />
+              تعديل تفصيل خدمات "{kind.name}"
+            </Title>
+          </ScrollBar>
         </div>
       }
     >

@@ -30,13 +30,14 @@ class UpdateUserRequest extends FormRequest
       'password'    => ['nullable', Password::min(8), 'confirmed'],
       'user_name'   => ['nullable', 'string', 'lowercase', 'max:255', Rule::unique('users')->ignore($user->id)],
       'phone'       => ['nullable', 'string', 'max:255'],
-      'mobile'      => ['nullable', 'string', 'max:255'],
+      'mobile'      => ['required', 'string', 'size:9'],
       'address'     => ['nullable', 'string', 'max:255'],
       'center'      => ['nullable', 'string', 'max:255'],
       'kind'        => ['required', Rule::in(['admin', 'super_user', 'user'])],
       'status'      => ['required', Rule::in(['active', 'inactive'])],
       'created_by'  => ['required', 'exists:users,id'],
       'image'       => ['nullable', 'image'],
+      'process_order'       => ['required'],
     ];
   }
 }

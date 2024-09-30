@@ -19,7 +19,7 @@ class AmountKind extends Model
     }
 
     public function comissions(){
-      return $this->hasMany(Comission::class);
+      return $this->hasMany(ComissionNew::class);
     }
 
     public function orders(){

@@ -17,27 +17,27 @@ class CategoryController extends Controller
   public function index()
   {
     $query = Category::query();
-
-    // Sorting
     $sortField = request('sort_field', 'created_at');
     $sortDirection = request('sort_direction', 'desc');
-
-    // Search
     if (request("name")) {
       $query->where("name", "like", "%" . request("name") . "%");
     }
     if (request("status")) {
       $query->where("status", request("status"));
     }
-
-    // Apply
-    $categories = $query->orderBy($sortField, $sortDirection)->paginate(25)->onEachSide(1);
-    $message = Message::first();
+    if (request("col")) {
+      $col = request("col");
+    } else {
+      $col = 25;
+    }
+    $categories = $query->orderBy($sortField, $sortDirection)->paginate($col)->onEachSide(1);
+    $message    = Message::first();
     return inertia("Admin/Dashboard/Category/Index", [
-      "categories"  => CategoryResource::collection($categories),
-      'queryParams' => request()->query() ?: null,
-      'success'     => session('success'),
-      'message'     => $message
+      "categories"            => CategoryResource::collection($categories),
+      'queryParams'           => request()->query() ?: null,
+      'success'               => session('success'),
+      'message'               => $message,
+      'initialNotifications'  => auth()->user()->unreadNotifications,
     ]);
   }
 
@@ -45,7 +45,8 @@ class CategoryController extends Controller
   {
     $message = Message::first();
     return inertia("Admin/Dashboard/Category/Create", [
-      'message'     => $message
+      'message'               => $message,
+      'initialNotifications'  => auth()->user()->unreadNotifications,
     ]);
   }
 
@@ -67,8 +68,9 @@ class CategoryController extends Controller
   {
     $message = Message::first();
     return inertia("Admin/Dashboard/Category/Show", [
-      'category'=> new CategoryResource($category),
-      'message'     => $message
+      'category'              => new CategoryResource($category),
+      'message'               => $message,
+      'initialNotifications'  => auth()->user()->unreadNotifications,
     ]);
   }
 
@@ -76,8 +78,9 @@ class CategoryController extends Controller
   {
     $message = Message::first();
     return inertia("Admin/Dashboard/Category/Edit", [
-      'category' => new CategoryResource($category),
-      'message'     => $message
+      'category'              => new CategoryResource($category),
+      'message'               => $message,
+      'initialNotifications'  => auth()->user()->unreadNotifications,
     ]);
   }
 
@@ -101,37 +104,32 @@ class CategoryController extends Controller
 
   public function destroy(Category $category)
   {
-    // التحقق إذا كان هناك مهام مرتبطة بالتصنيف
     if ($category->products()->count() > 0) {
       return to_route('category.index')->with('success', "لايمكن حذف التصنيف  \"$category->name\" لوجود منتجات مرتبطة به");
     }
-
     $name = $category->name;
     $category->delete();
-
     if ($category->image) {
       Storage::disk('public')->deleteDirectory(dirname($category->image));
     }
-
     return to_route('category.index')->with('success', "تم حذف التصنيف  \"$name\" بنجاح");
   }
 
   public function indexToHome()
   {
-    $message = Message::first();
-    $userId = Auth::id();
-
-    $query = Category::query();
+    $message  = Message::first();
+    $userId   = Auth::id();
+    $query    = Category::query();
     $query->where("status", "active");
-    
     $query->whereHas('category_permissions', function ($q) use ($userId) {
         $q->where('user_id', $userId);
         $q->where('status', true);
     });
-    $categories = $query->orderBy('id', 'asc')->paginate(25)->onEachSide(1);
+    $categories = $query->orderBy('id', 'asc')->paginate(100)->onEachSide(1);
     return inertia("Category/Index", [
-      "categories"  => CategoryResource::collection($categories),
-      'message'     => $message
+      "categories"            => CategoryResource::collection($categories),
+      'message'               => $message,
+      'initialNotifications'  => auth()->user()->unreadNotifications,
     ]);
   }
 }

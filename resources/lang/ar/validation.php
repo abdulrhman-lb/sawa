@@ -13,6 +13,9 @@ return [
   'exists' => 'حقل :attribute غير صالح.',
   'current_password' => 'كلمة المرور غير صحيحة',
   'unique' => 'هذا :attribute مستخدم بالفعل',
+  'size' => [
+    'string'=> 'رقم :attribute يجب أن يكون 9 أرقام'
+  ],
   
 
   'attributes' => [
@@ -32,6 +35,7 @@ return [
     'support_number'  => 'رقم الدعم الفني',
     'password'        => 'كلمة المرور',
     'data_kind_1'     => 'البيانات',
-    'current_password'=> 'كلمة المرور الحالية'
+    'current_password'=> 'كلمة المرور الحالية',
+    'mobile'=> 'الموبايل'
   ],
 ];

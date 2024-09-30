@@ -10,7 +10,7 @@ export default function AddButton({ className = '', disabled, children, ...props
                 } ` + className
             }
             disabled={disabled}
-        >
+        > 
             {children}
             <MdOutlineAddCircleOutline   style={{ marginRight: '8px' }} size={15} />
         </button>

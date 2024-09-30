@@ -21,32 +21,31 @@ class AmountKindController extends Controller
   public function index()
   {
     $query = AmountKind::query();
-
-    // Sorting
     $sortField = request('sort_field', 'created_at');
     $sortDirection = request('sort_direction', 'desc');
-
-    // Search
     if (request("service_id")) {
       $query->where("service_id", request("service_id"));
     }
-
     if (request("kind_id")) {
       $query->where("kind_id", request("kind_id"));
     }
-
-    // Apply
-    $amount_kinds = $query->orderBy($sortField, $sortDirection)->paginate(25)->onEachSide(1);
+    if (request("col")) {
+      $col = request("col");
+    } else {
+      $col = 25;
+    }
+    $amount_kinds = $query->orderBy($sortField, $sortDirection)->paginate($col)->onEachSide(1);
     $kinds        = Kind::orderBy('name', 'asc')->get();
     $services     = Service::orderBy('name', 'asc')->get();
-    $message = Message::first();
+    $message      = Message::first();
     return inertia("Admin/Dashboard/AmountKind/Index", [
-      "amount_kinds" => AmountKindResource::collection($amount_kinds),
-      'kinds'       => KindResource::collection($kinds),
-      'services'    => ServiceResource::collection($services),
-      'queryParams' => request()->query() ?: null,
-      'success'     => session('success'),
-      'message'     => $message
+      "amount_kinds"          => AmountKindResource::collection($amount_kinds),
+      'kinds'                 => KindResource::collection($kinds),
+      'services'              => ServiceResource::collection($services),
+      'queryParams'           => request()->query() ?: null,
+      'success'               => session('success'),
+      'message'               => $message,
+      'initialNotifications'  => auth()->user()->unreadNotifications,
     ]);
   }
 
@@ -58,11 +57,12 @@ class AmountKindController extends Controller
     $categories   = Category::orderBy('name', 'asc')->get();
     $products     = Product::orderBy('name', 'asc')->get();
     return inertia("Admin/Dashboard/AmountKind/Create", [
-      'kinds'       => KindResource::collection($kinds),
-      'services'    => ServiceResource::collection($services),
-      'categories'  => CategoryResource::collection($categories),
-      'products'    => ProductResource::collection($products),
-      'message'     => $message
+      'kinds'                 => KindResource::collection($kinds),
+      'services'              => ServiceResource::collection($services),
+      'categories'            => CategoryResource::collection($categories),
+      'products'              => ProductResource::collection($products),
+      'message'               => $message,
+      'initialNotifications'  => auth()->user()->unreadNotifications,
     ]);
   }
 
@@ -91,32 +91,29 @@ class AmountKindController extends Controller
     $products     = Product::orderBy('name', 'asc')->get();
     $categories   = Category::orderBy('name', 'asc')->get();
     return inertia("Admin/Dashboard/AmountKind/Edit", [
-      'amount_kind' => new AmountKindResource($amountkind),
-      'kinds'       => KindResource::collection($kinds),
-      'services'    => ServiceResource::collection($services),
-      'products'    => ProductResource::collection($products),
-      'categories'  => CategoryResource::collection($categories),
-      'message'     => $message
+      'amount_kind'           => new AmountKindResource($amountkind),
+      'kinds'                 => KindResource::collection($kinds),
+      'services'              => ServiceResource::collection($services),
+      'products'              => ProductResource::collection($products),
+      'categories'            => CategoryResource::collection($categories),
+      'message'               => $message,
+      'initialNotifications'  => auth()->user()->unreadNotifications,
     ]);
   }
 
   public function update(UpdateAmountKindRequest $request, AmountKind $amountkind)
   {
     $data = $request->validated();
-
     $amountkind->update($data);
     return to_route('amountkind.index')->with('success', "تم التعديل على السعر بنجاح");
   }
 
   public function destroy(AmountKind $amountkind)
   {
-    // التحقق إذا كان هناك سجلات مرتبطة
     if ($amountkind->comissions()->count() > 0) {
       return to_route('amountkind.index')->with('success', "لايمكن الحذف لوجود سجلات مرتبطة");
     }
-
     $amountkind->delete();
-
     return to_route('amountkind.index')->with('success', "تم حذف السعر بنجاح");
   }
 }

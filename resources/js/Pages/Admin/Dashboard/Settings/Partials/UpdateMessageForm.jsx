@@ -1,13 +1,13 @@
-import InputError from '@/Components/InputError';
-import InputLabel from '@/Components/InputLabel';
 import PrimaryButton from '@/Components/Buttons/PrimaryButton';
 import TextInput from '@/Components/TextInput';
-import { Link, useForm, usePage } from '@inertiajs/react';
+import { useForm, usePage } from '@inertiajs/react';
 import { Transition } from '@headlessui/react';
-import SelectInput from '@/Components/SelectInput';
-import SuccessMessage from '@/Components/SuccessMessage';
 
-export default function UpdateMessageForm({ className = '' , success, message}) {
+export default function UpdateMessageForm({ 
+  className = '' , 
+  success, 
+  message
+}) {
 
   const { data, setData, put, errors, processing, recentlySuccessful } = useForm({
     messages: message.messages,
@@ -24,7 +24,6 @@ export default function UpdateMessageForm({ className = '' , success, message}) 
       <header>
         <h2 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">رسالة الإدارة</h2>
       </header>
-
       <form onSubmit={submit} className='space-y-6'>
         <div className='mt-4'>
           <TextInput

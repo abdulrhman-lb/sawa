@@ -30,6 +30,7 @@ class UserCrudResource extends JsonResource
       'add_balance' => $this->add_balance,
       'status'      => $this->status,
       'created_by'  => $this->created_by,
+      'process_order' => $this->process_order,
       'created_at'  => (new Carbon($this->created_at))->format('Y/m/d'),
       'createdBy'   => $this->createdBy ? $this->createdBy->name : null,
       'image'       => $this->image ? url($this->image) : url('images/profiles/noimage.jpg'),

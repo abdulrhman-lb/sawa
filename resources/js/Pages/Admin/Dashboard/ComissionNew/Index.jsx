@@ -7,8 +7,19 @@ import PrimaryButton from "@/Components/Buttons/PrimaryButton";
 import ScrollBar from "@/Components/ScrollBar";
 import SuccessMessage from "@/Components/SuccessMessage";
 import Title from "@/Components/Title";
+import { FaCreativeCommonsZero } from "react-icons/fa6";
+import SelectInput from "@/Components/SelectInput";
 
-export default function index({ auth, users, admins, queryParams = null, success, message }) {
+export default function index({
+  auth,
+  users,
+  admins,
+  queryParams = null,
+  success,
+  message,
+  initialNotifications
+}) {
+
   queryParams = queryParams || {}
 
   const handleSelectOfficer = (selectedOfficer) => {
@@ -44,6 +55,12 @@ export default function index({ auth, users, admins, queryParams = null, success
     router.get(route('comission-new.index'), queryParams)
   }
 
+  const colChanged = (name, value) => {
+    queryParams[name] = value;
+    queryParams.page = 1;
+    router.get(route('comission-new.index'), queryParams)
+  }
+
   const editComission = (user) => {
     router.get(route("comission.category", user))
   }
@@ -52,10 +69,15 @@ export default function index({ auth, users, admins, queryParams = null, success
     <AuthenticatedLayout
       user={auth.user}
       message={message}
+      notification={initialNotifications}
       header={
         <div className="flex justify-between items-center">
-          <Title>نسبة العمولة</Title>
-          <ScrollBar message={message} />
+          <ScrollBar message={message}>
+            <Title className="flex">
+              <FaCreativeCommonsZero className="ml-4 -mx-1 rounded-full border-4 size-7 border-teal-100 bg-teal-200 text-teal-800 dark:border-teal-900 dark:bg-teal-800 dark:text-teal-400" />
+              نسبة العمولة
+            </Title>
+          </ScrollBar>
         </div>
       }
     >
@@ -69,6 +91,11 @@ export default function index({ auth, users, admins, queryParams = null, success
                 <table className="w-full text-md font-semibold rtl:text-right text-gray-800 dark:text-gray-200">
                   <thead className="text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400 border-b-2 border-gray-500">
                     <tr className="text-nowrap">
+                      <TableHeading
+                        sortable={false}
+                      >
+                        #
+                      </TableHeading>
                       <TableHeading
                         name='name'
                         sort_field={queryParams.sort_field}
@@ -99,6 +126,7 @@ export default function index({ auth, users, admins, queryParams = null, success
                   </thead>
                   <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400 border-b-2 border-gray-500">
                     <tr className="text-nowrap">
+                      <th className="px-3 py-3"></th>
                       <th className="px-3 py-3 relative">
                         <SearchableDropdown
                           items={users.data}
@@ -123,10 +151,10 @@ export default function index({ auth, users, admins, queryParams = null, success
                       <th className="px-3 py-3"></th>
                     </tr>
                   </thead>
-
                   <tbody className="text-center">
-                    {users.data.map((user) => (
+                    {users.data.map((user, index) => (
                       <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700" key={user.id}>
+                        <td className="px-3 py-2">{index + 1}</td>
                         <td className="px-3 py-2 text-nowrap">{user.name}</td>
                         <td className="px-3 py-2 text-nowrap">
                           <div className="flex justify-center">
@@ -146,7 +174,24 @@ export default function index({ auth, users, admins, queryParams = null, success
                   </tbody>
                 </table>
               </div>
-              <Pagination links={users.meta.links} queryParams={queryParams} />
+              <div className="flex px-4">
+                <SelectInput
+                  className="text-sm font-medium mt-4"
+                  defaultValue={queryParams.col}
+                  onChange={e => colChanged('col', e.target.value)}
+                >
+                  <option value="25">25</option>
+                  <option value="50">50</option>
+                  <option value="75">75</option>
+                  <option value="100">100</option>
+                </SelectInput>
+                <div className="flex mx-auto">
+                  <Pagination links={users.meta.links} queryParams={queryParams} />
+                </div>
+                <div className="mt-4">
+                  <h3>إجمالي السجلات : {users.data.length}</h3>
+                </div>
+              </div>
             </div>
           </div>
         </div>

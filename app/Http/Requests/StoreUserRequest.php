@@ -29,7 +29,7 @@ class StoreUserRequest extends FormRequest
       'password'    => ['required', Password::min(8), 'confirmed'],
       'user_name'   => ['nullable', 'string', 'lowercase', 'max:255', 'unique:users,user_name'],
       'phone'       => ['nullable', 'string', 'max:255'],
-      'mobile'      => ['nullable', 'string', 'max:255'],
+      'mobile'      => ['required', 'string', 'size:9'],
       'address'     => ['nullable', 'string', 'max:255'],
       'center'      => ['nullable', 'string', 'max:255'],
       'created_by'  => ['required', 'integer'],
@@ -37,6 +37,7 @@ class StoreUserRequest extends FormRequest
       'status'      => ['required', Rule::in(['active', 'inactive'])],
       'created_by'  => ['required', 'exists:users,id'],
       'image'       => ['nullable', 'image'],
+      'process_order'       => ['required'],
     ];
   }
 }

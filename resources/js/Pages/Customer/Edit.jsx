@@ -3,15 +3,21 @@ import RejectButton from "@/Components/Buttons/RejectButton copy";
 import InputError from "@/Components/InputError";
 import InputLabel from "@/Components/InputLabel";
 import ScrollBar from "@/Components/ScrollBar";
-import SelectInput from "@/Components/SelectInput";
 import TextAreaInput from "@/Components/TextAreaInput";
 import TextInput from "@/Components/TextInput";
 import Title from "@/Components/Title";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { Head, Link, useForm } from "@inertiajs/react";
+import { FaUserTie } from "react-icons/fa";
 
 
-export default function Edit({ auth, customer, message }) {
+export default function Edit({ 
+  auth, 
+  customer, 
+  message, 
+  initialNotifications
+ }) {
+  
   const { data, setData, post, errors, reset } = useForm({
     name: customer.name || "",
     phone: customer.phone || "",
@@ -30,10 +36,15 @@ export default function Edit({ auth, customer, message }) {
     <AuthenticatedLayout
       user={auth.user}
       message={message}
+      notification={initialNotifications}
       header={
         <div className="flex justify-between items-center">
-          <Title>تعديل بيانات الزبون  "{customer.name}"</Title>
-          <ScrollBar message={message}/>
+          <ScrollBar message={message}>
+            <Title className="flex">
+              <FaUserTie className="ml-4 -mx-1 rounded-full border-4 size-7 border-teal-100 bg-teal-200 text-teal-800 dark:border-teal-900 dark:bg-teal-800 dark:text-teal-400" />
+              تعديل بيانات الزبون  "{customer.name}"
+            </Title>
+          </ScrollBar>
         </div>
       }
     >

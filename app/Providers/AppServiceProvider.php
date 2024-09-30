@@ -32,14 +32,14 @@ class AppServiceProvider extends ServiceProvider
             ->first();
           $remainingBalanceCenter = $center_balance->total_add - $center_balance->total_reduce;
           $user = Auth::user();
-          if ($user->user_balance === 0) {
-            $balance = $remainingBalanceCenter;
-          } else {
+          if ($remainingBalanceCenter < 0) {
             $balance = -($user->user_balance + $remainingBalanceCenter);
+          } else {
+            $balance = ($user->user_balance + $remainingBalanceCenter);
           }
-          if ($remainingBalanceCenter > 0) {
-            $balance = $remainingBalanceCenter;
-          }
+          // if ($remainingBalanceCenter > 0) {
+          //   $balance = $remainingBalanceCenter;
+          // }
           return $balance;
         }
         return 0;

@@ -7,6 +7,9 @@ import SecondaryButton from "@/Components/Buttons/SecondaryButton";
 import { format, parse } from "date-fns";
 import ScrollBar from "@/Components/ScrollBar";
 import Title from "@/Components/Title";
+import { FaBorderNone } from "react-icons/fa";
+import { LuCalendarDays } from "react-icons/lu";
+import { HiMiniCalendarDays } from "react-icons/hi2";
 
 export default function index({
   auth,
@@ -20,57 +23,54 @@ export default function index({
   total_productN,
   total_boxN,
   queryParams = null,
-  message
+  message,
+  initialNotifications
 }) {
 
-  const total = total_centerN - total_productN - total_boxN;
   queryParams = queryParams || {}
-console.log(queryParams['date']);
 
-const [selectedDate, setSelectedDate] = useState(
-  (queryParams['date'] && parse(queryParams['date'], "dd/MM/yyyy", new Date())) || new Date()
-);
-
+  const total = total_centerN - total_productN - total_boxN;
+  const [selectedDate, setSelectedDate] = useState(
+    (queryParams['date'] && parse(queryParams['date'], "dd/MM/yyyy", new Date())) || new Date()
+  );
 
   const searchFieldChanged = () => {
     queryParams['date'] = (selectedDate && format(selectedDate, "dd/MM/yyyy"));
     router.get(route('box.home'), queryParams);
   };
 
-  const tablesData = [
-    { id: 1, title: 'جدول المراكز', data: centers, total: total_center },
-    { id: 2, title: 'جدول المنتجات', data: centers, total: total_center },
-    { id: 3, title: 'جدول الصناديق', data: centers, total: total_center }
-  ];
-
   return (
     <AuthenticatedLayout
       user={auth.user}
       message={message}
+      notification={initialNotifications}
       header={
         <div className="flex justify-between items-center">
-          <Title>حركة الصندوق اليومية</Title>
-          <ScrollBar message={message}/>
-          <div className="flex justify-between items-center">
-            <h2 className="text-black dark:text-white font-semibold mx-2 mt-1 text-nowrap">اختر التاريخ</h2>
-            <CustomDatePicker
-              className="w-[110px] h-[35px] mt-1"
-              selected={selectedDate}
-              onChange={(date) => setSelectedDate(date)}
-            />
-            <SecondaryButton
-              className="mx-2 h-9 mt-1"
-              onClick={searchFieldChanged}
-              disabled={!selectedDate}
-            >
-              تصفية
-            </SecondaryButton>
-          </div>
+          <ScrollBar message={message}>
+            <Title className="flex">
+              <HiMiniCalendarDays className="ml-4 -mx-1 rounded-full border-4 size-7 border-teal-100 bg-teal-200 text-teal-800 dark:border-teal-900 dark:bg-teal-800 dark:text-teal-400" />
+              حركة الصندوق اليومية
+            </Title>
+            <div className="flex justify-between items-center">
+              <h2 className="text-black dark:text-white font-semibold mx-2 mt-1 text-nowrap">اختر التاريخ</h2>
+              <CustomDatePicker
+                className="w-[110px] h-[35px] mt-1"
+                selected={selectedDate}
+                onChange={(date) => setSelectedDate(date)}
+              />
+              <SecondaryButton
+                className="mx-2 h-9 mt-1"
+                onClick={searchFieldChanged}
+                disabled={!selectedDate}
+              >
+                تصفية
+              </SecondaryButton>
+            </div>
+          </ScrollBar>
         </div>
       }
     >
       <Head title="حركة الصندوق اليومية" />
-
       <div className="py-2">
         <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
           <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
@@ -102,7 +102,6 @@ const [selectedDate, setSelectedDate] = useState(
                     </table>
                   </div>
                 </div>
-
                 <div className="w-1/3 min-w-[300px] overflow-auto">
                   <h3 className="text-lg font-semibold mb-1 text-center justify-center">مدفوعات المنتجات</h3>
                   <div className="overflow-auto h-[300px]">
@@ -129,7 +128,6 @@ const [selectedDate, setSelectedDate] = useState(
                     </table>
                   </div>
                 </div>
-
                 <div className="w-1/3 min-w-[300px] overflow-auto">
                   <h3 className="text-lg font-semibold mb-1 text-center justify-center">النفقات والمصاريف</h3>
                   <div className="overflow-auto h-[300px]">
@@ -157,15 +155,12 @@ const [selectedDate, setSelectedDate] = useState(
                   </div>
                 </div>
               </div>
-
-              {/* إضافة إجمالي تحت الجداول الثلاث */}
               <div className={`mt-6 text-center ${(total > 0) ? 'bg-emerald-200' : 'bg-red-200'} rounded-md py-2 text-black`}>
                 <h4 className="text-xl font-semibold">إجمالي الصندوق</h4>
                 <p className="text-lg font-bold">
                   {`${(total).toLocaleString('en-US')}`}
                 </p>
               </div>
-
             </div>
           </div>
         </div>

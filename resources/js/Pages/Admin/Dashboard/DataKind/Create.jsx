@@ -7,9 +7,14 @@ import TextInput from "@/Components/TextInput";
 import Title from "@/Components/Title";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { Head, Link, useForm } from "@inertiajs/react";
+import { AiOutlineDatabase } from "react-icons/ai";
 
-
-export default function Create({ auth, message }) {
+export default function Create({ 
+  auth, 
+  message, 
+  initialNotifications
+ }) {
+  
   const { data, setData, post, errors, reset } = useForm({
     name: '',
   })
@@ -23,10 +28,15 @@ export default function Create({ auth, message }) {
     <AuthenticatedLayout
       user={auth.user}
       message={message}
+      notification={initialNotifications}
       header={
         <div className="flex justify-between items-center">
-          <Title>إنشاء نوع بيانات خدمة جديد</Title>
-          <ScrollBar message={message} />
+          <ScrollBar message={message}>
+            <Title className="flex">
+              <AiOutlineDatabase className="ml-4 -mx-1 rounded-full border-4 size-7 border-teal-100 bg-teal-200 text-teal-800 dark:border-teal-900 dark:bg-teal-800 dark:text-teal-400" />
+              إنشاء نوع بيانات خدمة جديد
+            </Title>
+          </ScrollBar>
         </div>
       }
     >

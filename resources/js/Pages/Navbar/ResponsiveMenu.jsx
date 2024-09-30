@@ -50,7 +50,6 @@ const ResponsiveMenu = ({ showMenu, Links, toggleMenu, user }) => {
   return (
     <>
       <div className={`${showMenu ? "right-0" : "right-[-100%]"} fixed bottom-0 top-0 w-[65%] transition-all duration-300 shadow-md pt-8 px-2 bg-white dark:bg-gray-900 z-50 flex flex-col pb-4`}>
-        {/* User Section */}
         <div className="flex justify-between items-center mx-auto">
           <div className="bg-white px-1 py-2 rounded-xl shadow-md">
             <Link href="/">
@@ -58,15 +57,11 @@ const ResponsiveMenu = ({ showMenu, Links, toggleMenu, user }) => {
             </Link>
           </div>
         </div>
-
-        {/* Menu Section */}
         <nav className="mt-8 px-6">
           <ul className="space-y-2 text-xl">
             {renderLinks(Links)}
           </ul>
         </nav>
-
-        {/* Footer Section */}
         <div className="text-center">
           <h1 className="text-sm text-gray-500 dark:text-gray-400">
             Made by <a href="http://www.token.sy" className="text-blue-600 hover:underline">Token</a>

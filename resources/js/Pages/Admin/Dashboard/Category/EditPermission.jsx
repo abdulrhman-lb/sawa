@@ -3,9 +3,15 @@ import SuccessMessage from "@/Components/SuccessMessage";
 import Title from "@/Components/Title";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { Head, useForm } from "@inertiajs/react";
+import { SiAuthelia } from "react-icons/si";
 
-export default function EditPermission({ auth, category_permissions, message, success }) {
-  // قم بتهيئة useForm لتحتوي على مصفوفة من التصنيفات
+export default function EditPermission({ 
+  auth, 
+  category_permissions, 
+  message, 
+  success, 
+  initialNotifications
+ }) {
   const { data, setData, post, errors, reset } = useForm({
     permissions: category_permissions.data.map((permission) => ({
       category_id: permission.category_id,
@@ -14,7 +20,6 @@ export default function EditPermission({ auth, category_permissions, message, su
     _method: 'PUT'
   });
 
-  // تحديث حالة المصفوفة عند تغيير قيمة checkbox
   const handleCheckboxChange = (index) => {
     const updatedPermissions = [...data.permissions];
     updatedPermissions[index].status = !updatedPermissions[index].status;
@@ -30,10 +35,15 @@ export default function EditPermission({ auth, category_permissions, message, su
     <AuthenticatedLayout
       user={auth.user}
       message={message}
+      notification={initialNotifications}
       header={
         <div className="flex justify-between items-center">
-          <Title>"صلاحيات المستخدم"</Title>
-          <ScrollBar message={message} />
+          <ScrollBar message={message} >
+            <Title className="flex">
+              <SiAuthelia className="ml-4 -mx-1 rounded-full border-4 size-7 border-teal-100 bg-teal-200 text-teal-800 dark:border-teal-900 dark:bg-teal-800 dark:text-teal-400" />
+              صلاحيات المستخدم
+            </Title>
+          </ScrollBar>
         </div>
       }
     >

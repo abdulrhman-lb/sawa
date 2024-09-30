@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\ComissionNew;
 use App\Http\Requests\StoreComissionNewRequest;
 use App\Http\Requests\UpdateComissionNewRequest;
-use App\Http\Resources\AmountKindResource;
 use App\Http\Resources\UserCrudResource;
 use App\Models\AmountKind;
 use App\Models\Category;
@@ -24,44 +23,45 @@ class ComissionNewController extends Controller
       ->orWhere('kind', 'admin')
       ->orderBy('name')
       ->get();
-
     $query = User::query();
     $query->where('id', '!=', $currentUserId);
-
+    $query->where('status', 'active');
     $query->where('created_by', '=', $currentUserId);
-
-    $sortField = request('sort_field', 'created_at');
-    $sortDirection = request('sort_direction', 'desc');
-
+    $sortField      = request('sort_field', 'created_at');
+    $sortDirection  = request('sort_direction', 'desc');
     if (request("name")) {
       $query->where("user.name", "like", "%" . request("name") . "%");
     }
     if (request("created_by")) {
       $query->where("user.created_by", request("created_by"));
     }
-
     $query->with(['comission_new_user' => function ($query) {
       $query->select('comission_news.*', 'amount_kinds.amount as amount')
         ->join('amount_kinds', 'comission_news.amount_kind_id', '=', 'amount_kinds.id');
     }]);
-
-    $users = $query->orderBy($sortField, $sortDirection)->paginate(25)->onEachSide(1);
-    $message      = Message::first();
+    if (request("col")) {
+      $col = request("col");
+    } else {
+      $col = 25;
+    }
+    $users    = $query->orderBy($sortField, $sortDirection)->paginate($col)->onEachSide(1);
+    $message  = Message::first();
     return inertia("Admin/Dashboard/ComissionNew/Index", [
-      "users"       => UserCrudResource::collection($users),
-      "admins"      => $admins,
-      'queryParams' => request()->query() ?: null,
-      'success'     => session('success'),
-      'message'     => $message
+      "users"                 => UserCrudResource::collection($users),
+      "admins"                => $admins,
+      'queryParams'           => request()->query() ?: null,
+      'success'               => session('success'),
+      'message'               => $message,
+      'initialNotifications'  => auth()->user()->unreadNotifications,
     ]);
   }
 
   public function indexComissionCategory(Request $request)
   {
     $request->user_id ?: $request['user_id'] = $request->id;
-    $user = User::where('id', $request->user_id)->first();
-    $categories = Category::select('id', 'name')->get();
-    $comissionData = ComissionNew::where('user_id', $request->user_id)
+    $user           = User::where('id', $request->user_id)->first();
+    $categories     = Category::select('id', 'name')->get();
+    $comissionData  = ComissionNew::where('user_id', $request->user_id)
       ->with([
         'amount_kind.service.product.category' => function ($query) {
           $query->select('categories.id', 'categories.name');
@@ -70,8 +70,8 @@ class ComissionNewController extends Controller
       ->get()
       ->groupBy('amount_kind.service.product.category.id');
 
-    $organizedData = $categories->map(function ($category) use ($comissionData, $request, $user) {
-      $comissions = $comissionData->get($category->id, collect());
+    $organizedData  = $categories->map(function ($category) use ($comissionData, $request, $user) {
+      $comissions   = $comissionData->get($category->id, collect());
       return [
         'user_id'     => $user->id,
         'user_name'   => $user->name,
@@ -85,17 +85,18 @@ class ComissionNewController extends Controller
     $message = Message::first();
 
     return inertia("Admin/Dashboard/ComissionNew/IndexCategoryComission", [
-      "comissionData" => $organizedData,
-      'success' => session('success'),
-      'message' => $message
+      "comissionData"         => $organizedData,
+      'success'               => session('success'),
+      'message'               => $message,
+      'initialNotifications'  => auth()->user()->unreadNotifications,
     ]);
   }
 
   public function indexComissionProduct(Request $request)
   {
-    $user = User::where('id', $request->user_id)->first();
-    $products = Product::where('category_id', $request->category_id)->select('id', 'name')->get();
-    $comissionData = ComissionNew::where('user_id', $request->user_id)
+    $user           = User::where('id', $request->user_id)->first();
+    $products       = Product::where('category_id', $request->category_id)->select('id', 'name')->get();
+    $comissionData  = ComissionNew::where('user_id', $request->user_id)
       ->with([
         'amount_kind.service.product' => function ($query) {
           $query->select('products.id', 'products.name');
@@ -103,33 +104,34 @@ class ComissionNewController extends Controller
       ])
       ->get()
       ->groupBy('amount_kind.service.product.id');
-    $organizedData = $products->map(function ($product) use ($comissionData, $request, $user) {
-      $comissions = $comissionData->get($product->id, collect());
+    $organizedData  = $products->map(function ($product) use ($comissionData, $request, $user) {
+      $comissions   = $comissionData->get($product->id, collect());
       return [
         'user_id'     => $user->id,
         'user_name'   => $user->name,
         'category_id' => $request->category_id,
         'product_id'  => $product->id,
         'category'    => $request->category,
-        'product'    => $product->name,
+        'product'     => $product->name,
         'services'    => $comissions->isNotEmpty()
           ? $comissions->pluck('amount_kind.service.name')->unique()->values()->all()
           : []
       ];
     })->values()->all(); 
-    $message      = Message::first();
+    $message = Message::first();
     return inertia("Admin/Dashboard/ComissionNew/IndexProductComission", [
-      "comissionData" => $organizedData,
-      'success'     => session('success'),
-      'message'     => $message
+      "comissionData"         => $organizedData,
+      'success'               => session('success'),
+      'message'               => $message,
+      'initialNotifications'  => auth()->user()->unreadNotifications,
     ]);
   }
 
   public function indexComissionService(Request $request)
   {
-    $user = User::where('id', $request->user_id)->first();
-    $services = Service::where('product_id', $request->product_id)->select('id', 'name')->get();
-    $comissionData = ComissionNew::where('user_id', $request->user_id)
+    $user           = User::where('id', $request->user_id)->first();
+    $services       = Service::where('product_id', $request->product_id)->select('id', 'name')->get();
+    $comissionData  = ComissionNew::where('user_id', $request->user_id)
       ->with([
         'amount_kind.service' => function ($query) {
           $query->select('services.id', 'services.name');
@@ -148,60 +150,60 @@ class ComissionNewController extends Controller
         'category'    => $request->category,
         'product'     => $request->product,
         'service'     => $service->name,
-        'amount_kinds' => $comissions->isNotEmpty()
+        'amount_kinds'=> $comissions->isNotEmpty()
           ? $comissions->pluck('amount_kind.kindName.name')->unique()->values()->all()
           : []
       ];
     })->values()->all();
-    $message      = Message::first();
+    $message = Message::first();
     return inertia("Admin/Dashboard/ComissionNew/IndexServiceComission", [
-      "comissionData" => $organizedData,
-      'success'     => session('success'),
-      'message'     => $message
+      "comissionData"         => $organizedData,
+      'success'               => session('success'),
+      'message'               => $message,
+      'initialNotifications'  => auth()->user()->unreadNotifications,
     ]);
   }
 
   public function indexComissionAmountKind(Request $request)
   {
-    $user = User::where('id', $request->user_id)->first();
-    $amount_kinds = AmountKind::where('service_id', $request->service_id)
+    $user           = User::where('id', $request->user_id)->first();
+    $amount_kinds   = AmountKind::where('service_id', $request->service_id)
       ->get();
-    $comissionData = ComissionNew::where('user_id', $request->user_id)
+    $comissionData  = ComissionNew::where('user_id', $request->user_id)
       ->get()
       ->groupBy('amount_kind.id');
-    $organizedData = $amount_kinds->map(function ($amount_kind) use ($comissionData, $request, $user) {
+    $organizedData  = $amount_kinds->map(function ($amount_kind) use ($comissionData, $request, $user) {
       $comissions = $comissionData->get($amount_kind->id, collect());
-      $isAdmin = auth()->user()->kind === 'admin'; 
+      $isAdmin    = auth()->user()->kind === 'admin'; 
       $loggedInUserCommissions = ComissionNew::where('user_id', auth()->user()->id)
         ->where('amount_kind_id', $amount_kind->id)
         ->exists();
       $hasCommission = $isAdmin || $loggedInUserCommissions;
       return [
-        'user_id'     => $user->id,
-        'category_id' => $request->category_id,
-        'product_id'  => $request->product_id,
-        'service_id'  => $request->service_id,
-        'user_name'   => $user->name,
-        'amount_kind_id'   => $amount_kind->id,
-        'category'         => $request->category,
-        'product'          => $request->product,
-        'service'          => $request->service,
-        'amount_kinds'     => $amount_kind,
-        'amount_kind_name' => $amount_kind->kindName->name,
-        'comissions'       => $comissions,
-        'has_commission'   => $hasCommission
+        'user_id'           => $user->id,
+        'category_id'       => $request->category_id,
+        'product_id'        => $request->product_id,
+        'service_id'        => $request->service_id,
+        'user_name'         => $user->name,
+        'amount_kind_id'    => $amount_kind->id,
+        'category'          => $request->category,
+        'product'           => $request->product,
+        'service'           => $request->service,
+        'amount_kinds'      => $amount_kind,
+        'amount_kind_name'  => $amount_kind->kindName->name,
+        'comissions'        => $comissions,
+        'has_commission'    => $hasCommission
       ];
     })->values()->all();
-    $message      = Message::first();
+    $message = Message::first();
     return inertia("Admin/Dashboard/ComissionNew/IndexAmountKindComission", [
-      "users" => $user,
-      "comissionData" => $organizedData,
-      'success'     => session('success'),
-      'message'     => $message
+      "users"                 => $user,
+      "comissionData"         => $organizedData,
+      'success'               => session('success'),
+      'message'               => $message,
+      'initialNotifications'  => auth()->user()->unreadNotifications,
     ]);
   }
-
-
 
   public function save(Request $request)
   {
@@ -234,14 +236,4 @@ class ComissionNewController extends Controller
     };
     return back()->with('success', "تم التعديل على العمولة بنجاح");
   }
-
-  public function store(StoreComissionNewRequest $request) {}
-
-  public function show(ComissionNew $comission) {}
-
-  public function edit(ComissionNew $comission) {}
-
-  public function update(UpdateComissionNewRequest $request, ComissionNew $comission) {}
-
-  public function destroy(ComissionNew $comission) {}
 }

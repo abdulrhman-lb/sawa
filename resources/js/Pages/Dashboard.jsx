@@ -17,7 +17,7 @@ export default function Dashboard({
     <AuthenticatedLayout
       user={auth.user}
       header={
-      <Title>Dashboard</Title>
+      <Title >Dashboard</Title>
     }
     >
       <Head title="Dashboard" />

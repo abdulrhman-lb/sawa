@@ -19,12 +19,11 @@ class BoxController extends Controller
     $query = Box::query();
     $sortField = request('sort_field', 'created_at');
     $sortDirection = request('sort_direction', 'desc');
-
-    if (request("start_date") || request("end_date")) {
+    if (request("start_date") || request("end_date")) { 
       $start_date = request("start_date");
       $end_date = request("end_date");
-      $start_date = $start_date ? Carbon::parse($start_date)->startOfDay() : null;
-      $end_date = $end_date ? Carbon::parse($end_date)->endOfDay() : null;
+      $start_date = request('start_date') ? Carbon::createFromFormat('d/m/Y', $start_date)->startOfDay() : now()->startOfDay();
+      $end_date = request('end_date') ? Carbon::createFromFormat('d/m/Y', $end_date)->endOfDay() : now()->endOfDay();
       if (!$start_date) {
         $start_date = $end_date->copy()->startOfDay();
       }
@@ -32,26 +31,32 @@ class BoxController extends Controller
         $end_date = $start_date->copy()->endOfDay();
       }
       $query->whereBetween("created_at", [$start_date, $end_date]);
-      // dd($query->toSql(), $query->getBindings());
     }
     $totals_query = $query;
     $totalAmount = $totals_query->sum('amount');
-    $boxs = $query->orderBy($sortField, $sortDirection)->paginate(25)->onEachSide(1);
-    $message          = Message::first();
+    if (request("col")) {
+      $col = request("col");
+    } else {
+      $col = 25;
+    }
+    $boxs = $query->orderBy($sortField, $sortDirection)->paginate($col)->onEachSide(1);
+    $message = Message::first();
     return inertia("Admin/Financial/Box/Index", [
-      "boxs"  => BoxResource::collection($boxs),
-      'queryParams' => request()->query() ?: null,
-      'success'     => session('success'),
-      'totalAmount' => $totalAmount,
-      'message'           => $message
+      "boxs"                  => BoxResource::collection($boxs),
+      'queryParams'           => request()->query() ?: null,
+      'success'               => session('success'),
+      'totalAmount'           => $totalAmount,
+      'message'               => $message,
+      'initialNotifications'  => auth()->user()->unreadNotifications,
     ]);
   }
 
   public function create()
   {
-    $message          = Message::first();
+    $message = Message::first();
     return inertia("Admin/Financial/Box/Create", [
-      'message'           => $message
+      'message'               => $message,
+      'initialNotifications'  => auth()->user()->unreadNotifications,
     ]);
   }
 
@@ -62,17 +67,13 @@ class BoxController extends Controller
     return to_route('box.index')->with('success', 'تم إضافة النفقات والمصاريف بنجاح');
   }
 
-  public function show(Box $box)
-  {
-    //
-  }
-
   public function edit(Box $box)
   {
-    $message          = Message::first();
+    $message = Message::first();
     return inertia("Admin/Financial/Box/Edit", [
-      'box' => new BoxResource($box),
-      'message'           => $message
+      'box'                   => new BoxResource($box),
+      'message'               => $message,
+      'initialNotifications'  => auth()->user()->unreadNotifications,
     ]);
   }
 
@@ -93,7 +94,6 @@ class BoxController extends Controller
   {
     $start_date = request('date') ? Carbon::createFromFormat('d/m/Y', request('date'))->startOfDay() : now()->startOfDay();
     $end_date = request('date') ? Carbon::createFromFormat('d/m/Y', request('date'))->endOfDay() : now()->endOfDay();
-
     $center_balance_query = DB::table('center_balances')
       ->join('users', 'users.id', '=', 'center_balances.user_id')
       ->where('users.created_by', Auth::id())
@@ -102,15 +102,12 @@ class BoxController extends Controller
       ->select('center_balances.*', 'users.name as user_name')
       ->orderBy('center_balances.created_at', 'desc');
     $center_balance = $center_balance_query->get();
-
     $centers_balance = DB::table('center_balances')
       ->join('users', 'users.id', '=', 'center_balances.user_id')
       ->where('users.created_by', Auth::id())
       ->whereBetween('center_balances.created_at', [$start_date, $end_date])
       ->select(DB::raw('SUM(`add`) as total_add'))
       ->first();
-
-    // بيانات مدفوعات المنتجات اليومية
     $product_balance_query = DB::table('product_balances')
       ->join('products', 'products.id', '=', 'product_balances.product_id')
       ->whereBetween('product_balances.created_at', [$start_date, $end_date])
@@ -118,37 +115,33 @@ class BoxController extends Controller
       ->select('product_balances.*', 'products.name as product_name')
       ->orderBy('product_balances.created_at', 'desc');
     $product_balance = $product_balance_query->get();
-
     $products_balance = DB::table('product_balances')
       ->whereBetween('created_at', [$start_date, $end_date])
       ->select(DB::raw('SUM(`add`) as total_add'))
       ->first();
-
-    // بيانات مدفوعات النفقات اليومية
     $box_query = DB::table('boxes')
       ->whereBetween('boxes.created_at', [$start_date, $end_date])
       ->select('boxes.*')
       ->orderBy('boxes.created_at', 'desc');
     $box = $box_query->get();
-
     $boxs = DB::table('boxes')
       ->whereBetween('created_at', [$start_date, $end_date])
       ->select(DB::raw('SUM(`amount`) as total_add'))
       ->first();
     $message          = Message::first();
-    // $request['date'] = $start_date;
     return inertia("Admin/Financial/Box/IndexAll", [
-      "centers"       => $center_balance,
-      "products"      => $product_balance,
-      "boxs"          => $box,
-      'total_center'  => number_format($centers_balance->total_add),
-      'total_centerN' => $centers_balance->total_add,
-      'total_product' => number_format($products_balance->total_add),
-      'total_productN' => $products_balance->total_add,
-      'total_box'     => number_format($boxs->total_add),
-      'total_boxN'    => $boxs->total_add,
-      'queryParams'   => request()->query() ?: null,
-      'message'           => $message
+      "centers"               => $center_balance,
+      "products"              => $product_balance,
+      "boxs"                  => $box,
+      'total_center'          => number_format($centers_balance->total_add),
+      'total_centerN'         => $centers_balance->total_add,
+      'total_product'         => number_format($products_balance->total_add),
+      'total_productN'        => $products_balance->total_add,
+      'total_box'             => number_format($boxs->total_add),
+      'total_boxN'            => $boxs->total_add,
+      'queryParams'           => request()->query() ?: null,
+      'message'               => $message,
+      'initialNotifications'  => auth()->user()->unreadNotifications,
     ]);
   }
 }

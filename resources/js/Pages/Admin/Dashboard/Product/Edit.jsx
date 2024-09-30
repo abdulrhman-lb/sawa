@@ -10,9 +10,18 @@ import Title from "@/Components/Title";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { Head, Link, useForm } from "@inertiajs/react";
 import { useState } from "react";
+import { AiOutlineProduct } from "react-icons/ai";
 
 
-export default function Edit({ auth, product, categories, users, message }) {
+export default function Edit({ 
+  auth, 
+  product, 
+  categories, 
+  users, 
+  message, 
+  initialNotifications
+}) {
+
   const { data, setData, post, errors, reset } = useForm({
     image: '',
     name: product.name || "",
@@ -22,7 +31,6 @@ export default function Edit({ auth, product, categories, users, message }) {
     category_id: product.category_id || "",
     _method: 'PUT'
   })
-
   const image = (product.image != null && product.image != '') ? product.image : '/images/products/noimage.jpg'
   const [selectedImage, setSelectedImage] = useState(null);
 
@@ -43,10 +51,15 @@ export default function Edit({ auth, product, categories, users, message }) {
     <AuthenticatedLayout
       user={auth.user}
       message={message}
+      notification={initialNotifications}
       header={
         <div className="flex justify-between items-center">
-          <Title>تعديل المنتج "{product.name}"</Title>
-          <ScrollBar message={message}/>
+          <ScrollBar message={message}>
+            <Title className="flex">
+              <AiOutlineProduct className="ml-4 -mx-1 rounded-full border-4 size-7 border-teal-100 bg-teal-200 text-teal-800 dark:border-teal-900 dark:bg-teal-800 dark:text-teal-400" />
+              تعديل المنتج "{product.name}"
+            </Title>
+          </ScrollBar>
         </div>
       }
     >
@@ -115,6 +128,7 @@ export default function Edit({ auth, product, categories, users, message }) {
                     <SelectInput
                       id="status"
                       name="status"
+                      value={data.status}
                       className="mt-1 block w-full"
                       onChange={e => setData('status', e.target.value)}
                     >

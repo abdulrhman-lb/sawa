@@ -1,34 +1,43 @@
 import Pagination from "@/Components/Pagination";
-import SelectInput from "@/Components/SelectInput";
-import TextInput from "@/Components/TextInput";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
-import { Head, Link, router } from "@inertiajs/react";
+import { Head, router } from "@inertiajs/react";
 import TableHeading from "@/Components/TableHeading";
-import { STATUS_CLASS_MAP, STATUS_TEXT_MAP } from "@/constants";
 import PrimaryButton from "@/Components/Buttons/PrimaryButton";
 import DeleteButton from "@/Components/Buttons/DeleteButton";
-import { MdOutlineAddCircleOutline } from "react-icons/md";
 import AddButton from "@/Components/Buttons/AddButton";
 import CustomDatePicker from "@/Components/CustomDatePicker";
 import SecondaryButton from "@/Components/Buttons/SecondaryButton";
 import { useState } from "react";
-import { format } from "date-fns";
+import { format, parse } from "date-fns";
 import ScrollBar from "@/Components/ScrollBar";
 import SuccessMessage from "@/Components/SuccessMessage";
 import Title from "@/Components/Title";
+import { GiExpense } from "react-icons/gi";
 
+export default function index({
+  auth,
+  boxs,
+  queryParams,
+  totalAmount = null,
+  success,
+  message,
+  initialNotifications
+}) {
 
-
-export default function index({ auth, boxs, queryParams, totalAmount = null, success, message }) {
   queryParams = queryParams || {}
-  
-  const [selectedStartDate, setSelectedStartDate] = useState((queryParams['start_date'] && format(queryParams['start_date'], "dd-MM-yyyy")) || null);
-  const [selectedEndDate, setSelectedEndDate] = useState((queryParams['end_date'] && format(queryParams['end_date'], "dd-MM-yyyy")) || null);
 
+  const [selectedStartDate, setSelectedStartDate] = useState(
+    (queryParams['start_date'] && parse(queryParams['start_date'], "dd/MM/yyyy", new Date())) || new Date()
+  );
+
+  const [selectedEndDate, setSelectedEndDate] = useState(
+    (queryParams['end_date'] && parse(queryParams['end_date'], "dd/MM/yyyy", new Date())) || new Date()
+  );
 
   const searchFieldChanged = (name, value) => {
-    queryParams['start_date'] = (selectedStartDate && format(selectedStartDate, "dd-MM-yyyy"));
-    queryParams['end_date'] = (selectedEndDate && format(selectedEndDate, "dd-MM-yyyy"));
+    console.log(selectedStartDate);
+    queryParams['start_date'] = (selectedStartDate && format(selectedStartDate, "dd/MM/yyyy"));
+    queryParams['end_date'] = (selectedEndDate && format(selectedEndDate, "dd/MM/yyyy"));
     router.get(route('box.index'), queryParams)
   }
 
@@ -50,7 +59,7 @@ export default function index({ auth, boxs, queryParams, totalAmount = null, suc
     if (!window.confirm('هل تريد بالتأكيد حذف هذا المصروف ؟')) {
       return;
     }
-    router.post(route('box.destroy', box.id),{
+    router.post(route('box.destroy', box.id), {
       _method: 'DELETE',
     })
   }
@@ -67,32 +76,34 @@ export default function index({ auth, boxs, queryParams, totalAmount = null, suc
     <AuthenticatedLayout
       user={auth.user}
       message={message}
+      notification={initialNotifications}
       header={
         <div className="flex justify-between items-center">
-          <Title>النفقات والمصاريف</Title>
-          <ScrollBar message={message}/>
-          <AddButton onClick={e => addBox()}>إضافة</AddButton>
+          <ScrollBar message={message}>
+            <Title className="flex">
+              <GiExpense className="ml-4 -mx-1 rounded-full border-4 size-7 border-teal-100 bg-teal-200 text-teal-800 dark:border-teal-900 dark:bg-teal-800 dark:text-teal-400" />
+              النفقات والمصاريف
+            </Title>
+            <AddButton onClick={e => addBox()}>إضافة</AddButton>
+          </ScrollBar>
         </div>
       }
     >
       <Head title="النفقات والمصاريف" />
       <div className="py-2">
         <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
-        {success && (<SuccessMessage message={success} />)}
+          {success && (<SuccessMessage message={success} />)}
           <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
             <div className="p-2 text-gray-900 dark:text-gray-100">
               <div className="overflow-auto">
                 <table className="w-full text-md font-semibold rtl:text-right text-gray-800 dark:text-gray-200">
                   <thead className="text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400 border-b-2 border-gray-500">
                     <tr className="text-nowrap">
-                      {/* <TableHeading
-                        name='id'
-                        sort_field={queryParams.sort_field}
-                        sort_direction={queryParams.sort_direction}
-                        sortChanged={sortChanged}
+                      <TableHeading
+                        sortable={false}
                       >
-                        ID
-                      </TableHeading> */}
+                        #
+                      </TableHeading>
                       <TableHeading
                         name='created_at'
                         sort_field={queryParams.sort_field}
@@ -126,6 +137,7 @@ export default function index({ auth, boxs, queryParams, totalAmount = null, suc
                   </thead>
                   <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400 border-b-2 border-gray-500">
                     <tr className="text-nowrap">
+                      <th className="px-3 py-3"></th>
                       <th className="flex px-3 py-3 w-[150px]">
                         <TableHeading
                           sortable={false}
@@ -136,8 +148,6 @@ export default function index({ auth, boxs, queryParams, totalAmount = null, suc
                           className="w-[110px] h-[35px] mt-1"
                           selected={selectedStartDate}
                           onChange={(date) => setSelectedStartDate(date)}
-                          // defaultvalue={queryParams.start_date}
-                          // onBlur={e => searchFieldChanged('start_date', e.target.value)}
                         >
                         </CustomDatePicker>
                         <TableHeading
@@ -149,15 +159,13 @@ export default function index({ auth, boxs, queryParams, totalAmount = null, suc
                           className="flex w-[110px] h-[35px] mt-1"
                           selected={selectedEndDate}
                           onChange={(date) => setSelectedEndDate(date)}
-                          // value={queryParams.end_date}
-                          // onBlur={e => searchFieldChanged('end_date', e.target.value)}
                         >
                         </CustomDatePicker>
                       </th>
                       <th className="px-3 py-3">
-                        <SecondaryButton 
-                        onClick={e => searchFieldChanged()}
-                        disabled={!selectedStartDate && !selectedEndDate}
+                        <SecondaryButton
+                          onClick={e => searchFieldChanged()}
+                          disabled={!selectedStartDate && !selectedEndDate}
                         >تصفية</SecondaryButton>
                       </th>
                       <th className="px-3 py-3"></th>
@@ -165,8 +173,9 @@ export default function index({ auth, boxs, queryParams, totalAmount = null, suc
                     </tr>
                   </thead>
                   <tbody className="text-center">
-                    {boxs.data.map((box) => (
+                    {boxs.data.map((box, index) => (
                       <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700" key={box.id}>
+                        <td className="px-3 py-2">{index + 1}</td>
                         <td className="px-3 py-2">{box.created_at}</td>
                         <td className="px-3 py-2">{box.amount}</td>
                         <td className="px-3 py-2">{box.statment}</td>
@@ -179,6 +188,7 @@ export default function index({ auth, boxs, queryParams, totalAmount = null, suc
                   </tbody>
                   <tfoot className="text-center">
                     <tr>
+                      <th className="px-3 py-3"></th>
                       <th className="px-3 py-3">المجموع</th>
                       <th className="px-3 py-3">{totalAmount}</th>
                       <th className="px-3 py-3"></th>

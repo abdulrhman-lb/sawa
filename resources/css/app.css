@@ -8,18 +8,27 @@
   font-weight: normal;
   font-style: normal;
 }
+
 @keyframes slide {
   0% {
-    transform: translateX(-100%);
+    transform: translateX(-100%); /* تبدأ من يمين الشاشة */
   }
   100% {
-    transform: translateX(100%);
+    transform: translateX(100%); /* تنتهي في اليسار */
   }
 }
-.animate-slide {
-  animation: slide 20s linear infinite;
-  will-change: transform;
+
+.marquee-container {
+  overflow: hidden; /* إخفاء النص عندما يخرج من الحاوية */
+  white-space: nowrap;
 }
+
+.marquee {
+  display: inline-block;
+  padding-left: 100%;
+  animation: slide linear infinite; /* الحركة مستمرة */
+}
+
 
 .custom-file-upload {
   display: inline-block;

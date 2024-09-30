@@ -13,8 +13,9 @@ import AddButton from "@/Components/Buttons/AddButton";
 import ScrollBar from "@/Components/ScrollBar";
 import SuccessMessage from "@/Components/SuccessMessage";
 import Title from "@/Components/Title";
+import { PiCashRegisterThin } from "react-icons/pi";
 
-export default function index({ auth, amount_kinds, services, kinds, queryParams = null, success, message }) {
+export default function index({ auth, amount_kinds, services, kinds, queryParams = null, success, message, initialNotifications }) {
   queryParams = queryParams || {}
 
   const handleSelectKind = (selectedKind) => {
@@ -50,11 +51,17 @@ export default function index({ auth, amount_kinds, services, kinds, queryParams
     router.get(route('amountkind.index'), queryParams)
   }
 
+  const colChanged = (name, value) => {
+    queryParams[name] = value;
+    queryParams.page = 1;
+    router.get(route('amountkind.index'), queryParams)
+  }
+
   const deleteAmountKind = (amount_kind) => {
     if (!window.confirm('هل تريد بالتأكيد حذف هذا السعر؟')) {
       return;
     }
-    router.post(route('amountkind.destroy', amount_kind.id),{
+    router.post(route('amountkind.destroy', amount_kind.id), {
       _method: 'DELETE',
     })
   }
@@ -71,11 +78,16 @@ export default function index({ auth, amount_kinds, services, kinds, queryParams
     <AuthenticatedLayout
       user={auth.user}
       message={message}
+      notification={initialNotifications}
       header={
         <div className="flex justify-between items-center">
-          <Title>أسعار المنتجات</Title>
-          <ScrollBar message={message} />
-          <AddButton onClick={e => addAmountKind()}>إضافة</AddButton>
+          <ScrollBar message={message}>
+            <Title className="flex">
+              <PiCashRegisterThin className="ml-4 -mx-1 rounded-full border-4 size-7 border-teal-100 bg-teal-200 text-teal-800 dark:border-teal-900 dark:bg-teal-800 dark:text-teal-400" />
+              أسعار المنتجات
+            </Title>
+            <AddButton onClick={e => addAmountKind()}>إضافة</AddButton>
+          </ScrollBar>
         </div>
       }
     >
@@ -89,14 +101,11 @@ export default function index({ auth, amount_kinds, services, kinds, queryParams
                 <table className="w-full text-md font-semibold rtl:text-right text-gray-800 dark:text-gray-200">
                   <thead className="text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400 border-b-2 border-gray-500">
                     <tr className="text-nowrap">
-                      {/* <TableHeading
-                        name='id'
-                        sort_field={queryParams.sort_field}
-                        sort_direction={queryParams.sort_direction}
-                        sortChanged={sortChanged}
+                    <TableHeading
+                        sortable={false}
                       >
-                        ID
-                      </TableHeading> */}
+                        #
+                      </TableHeading>
                       <TableHeading
                         name='service_id'
                         sort_field={queryParams.sort_field}
@@ -138,7 +147,7 @@ export default function index({ auth, amount_kinds, services, kinds, queryParams
                   </thead>
                   <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400 border-b-2 border-gray-500">
                     <tr className="text-nowrap">
-                      {/* <th className="px-3 py-3"></th> */}
+                      <th className="px-3 py-3"></th>
                       <th className="px-3 py-3 relative">
                         <SearchableDropdown
                           items={services.data}
@@ -165,9 +174,9 @@ export default function index({ auth, amount_kinds, services, kinds, queryParams
                     </tr>
                   </thead>
                   <tbody className="text-center">
-                    {amount_kinds.data.map((amount_kind) => (
+                    {amount_kinds.data.map((amount_kind, index) => (
                       <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700" key={amount_kind.id}>
-                        {/* <td className="px-3 py-2">{amount_kind.id}</td> */}
+                        <td className="px-3 py-2">{index + 1}</td>
                         <td className="px-3 py-2">{amount_kind.service.product.name} - {amount_kind.service.name}</td>
                         <td className="px-3 py-2">{(amount_kind.kind_id != null ? amount_kind.kindName.name : null)}</td>
                         <td className="px-3 py-2">{KIND_DATA_TEXT_MAP[amount_kind.kind]}</td>
@@ -181,7 +190,24 @@ export default function index({ auth, amount_kinds, services, kinds, queryParams
                   </tbody>
                 </table>
               </div>
-              <Pagination links={amount_kinds.meta.links} queryParams={queryParams} />
+              <div className="flex px-4">
+                <SelectInput
+                  className="text-sm font-medium mt-4"
+                  defaultValue={queryParams.col}
+                  onChange={e => colChanged('col', e.target.value)}
+                >
+                  <option value="25">25</option>
+                  <option value="50">50</option>
+                  <option value="75">75</option>
+                  <option value="100">100</option>
+                </SelectInput>
+                <div className="flex mx-auto">
+                  <Pagination links={amount_kinds.meta.links} queryParams={queryParams} />
+                </div>
+                <div className="mt-4">
+                  <h3>إجمالي السجلات : {amount_kinds.data.length}</h3>
+                </div>
+              </div>
             </div>
           </div>
         </div>

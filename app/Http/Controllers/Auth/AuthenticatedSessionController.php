@@ -22,20 +22,21 @@ class AuthenticatedSessionController extends Controller
    */
   public function create(): Response
   {
-    $message          = Message::first();
+    $message = Message::first();
     return Inertia::render('Auth/Login', [
-      'canResetPassword' => Route::has('password.request'),
-      'status' => session('status'),
+      'canResetPassword'  => Route::has('password.request'),
+      'status'            => session('status'),
       'message'           => $message
     ]);
   }
 
   public function store(LoginRequest $request): RedirectResponse
   {
-    $user = User::where('email', $request->email)->first();
+    $support  = Message::first();
+    $user     = User::where('email', $request->email)->first();
     if (!$user || $user->status === 'inactive') {
       return redirect()->back()->withErrors([
-        'email' => 'حسابك غير مفعل، يرجى التواصل مع الدعم.',
+        'email' => 'حسابك غير مفعل، يرجى التواصل مع الدعم الفني :0'.$support->support_number,
       ]);
     }
     $request->authenticate();

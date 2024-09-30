@@ -12,10 +12,21 @@ import AddButton from "@/Components/Buttons/AddButton";
 import ScrollBar from "@/Components/ScrollBar";
 import SuccessMessage from "@/Components/SuccessMessage";
 import Title from "@/Components/Title";
+import { FaBorderNone } from "react-icons/fa";
+import { BiCategory } from "react-icons/bi";
 
 
-export default function index({ auth, message, categories, queryParams = null, success }) {
+export default function index({
+  auth,
+  message,
+  categories,
+  queryParams = null,
+  success,
+  initialNotifications
+}) {
+
   queryParams = queryParams || {}
+
   const searchFieldChanged = (name, value) => {
     if (value) {
       queryParams[name] = value
@@ -48,7 +59,7 @@ export default function index({ auth, message, categories, queryParams = null, s
     if (!window.confirm('هل تريد بالتأكيد حذف هذا التصنيف ؟')) {
       return;
     }
-    router.post(route('category.destroy', category.id),{
+    router.post(route('category.destroy', category.id), {
       _method: 'DELETE',
     })
   }
@@ -65,11 +76,16 @@ export default function index({ auth, message, categories, queryParams = null, s
     <AuthenticatedLayout
       user={auth.user}
       message={message}
+      notification={initialNotifications}
       header={
         <div className="flex justify-between items-center">
-          <Title>التصنيفات</Title>
-          <ScrollBar message={message} />
-          <AddButton onClick={e => addCategory()}>إضافة</AddButton>
+          <ScrollBar message={message} >
+            <Title className="flex">
+              <BiCategory className="ml-4 -mx-1 rounded-full border-4 size-7 border-teal-100 bg-teal-200 text-teal-800 dark:border-teal-900 dark:bg-teal-800 dark:text-teal-400" />
+              التصنيفات
+            </Title>
+            <AddButton onClick={e => addCategory()}>إضافة</AddButton>
+          </ScrollBar>
         </div>
       }
     >
@@ -83,6 +99,11 @@ export default function index({ auth, message, categories, queryParams = null, s
                 <table className="w-full text-md font-semibold rtl:text-right text-gray-800 dark:text-gray-200">
                   <thead className="text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400 border-b-2 border-gray-500">
                     <tr className="text-nowrap">
+                      <TableHeading
+                        sortable={false}
+                      >
+                        #
+                      </TableHeading>
                       <TableHeading
                         name='image'
                         sortable={false}
@@ -114,7 +135,7 @@ export default function index({ auth, message, categories, queryParams = null, s
                   </thead>
                   <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400 border-b-2 border-gray-500">
                     <tr className="text-nowrap">
-                      {/* <th className="px-3 py-3"></th> */}
+                      <th className="px-3 py-3"></th>
                       <th className="px-3 py-3"></th>
                       <th className="px-3 py-3">
                         <TextInput
@@ -141,8 +162,9 @@ export default function index({ auth, message, categories, queryParams = null, s
                     </tr>
                   </thead>
                   <tbody className="text-center">
-                    {categories.data.map((category) => (
+                    {categories.data.map((category, index) => (
                       <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700" key={category.id}>
+                        <td className="px-3 py-2">{index + 1}</td>
                         <td className="px-3 py-2 flex justify-center items-center"><img src={category.image} className=" rounded-full h-[70px] w-[70px]" /></td>
                         <td className="px-3 py-2 text-nowrap text-gray-800 dark:text-gray-400">
                           <Link href={route("category.show", category.id)}>

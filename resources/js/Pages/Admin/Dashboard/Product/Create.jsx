@@ -10,9 +10,15 @@ import Title from "@/Components/Title";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { Head, Link, useForm } from "@inertiajs/react";
 import { useState } from "react";
+import { AiOutlineProduct } from "react-icons/ai";
 
+export default function Create({ 
+  auth, 
+  categories, 
+  message,
+  initialNotifications
+ }) {
 
-export default function Create({ auth, categories, message }) {
   const { data, setData, post, errors, reset } = useForm({
     image: '',
     name: '',
@@ -41,10 +47,15 @@ export default function Create({ auth, categories, message }) {
     <AuthenticatedLayout
       user={auth.user}
       message={message}
+      notification={initialNotifications}
       header={
         <div className="flex justify-between items-center">
-          <Title>إنشاء منتج جديد</Title>
-          <ScrollBar message={message} />
+          <ScrollBar message={message}>
+            <Title className="flex">
+              <AiOutlineProduct className="ml-4 -mx-1 rounded-full border-4 size-7 border-teal-100 bg-teal-200 text-teal-800 dark:border-teal-900 dark:bg-teal-800 dark:text-teal-400" />
+              إنشاء منتج جديد
+            </Title>
+          </ScrollBar>
         </div>
       }
     >

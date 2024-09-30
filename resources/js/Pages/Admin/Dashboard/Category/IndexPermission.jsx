@@ -1,28 +1,25 @@
 import Pagination from "@/Components/Pagination";
-import TextInput from "@/Components/TextInput";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { Head, router } from "@inertiajs/react";
 import TableHeading from "@/Components/TableHeading";
-import { ORDER_CLASS_MAP, ORDER_TEXT_MAP } from "@/constants";
 import { useState } from "react";
 import SearchableDropdown from "@/Components/SearchableDropdown";
-import Modal from "@/Components/Modal";
-import RejectButton from "@/Components/Buttons/RejectButton copy";
-import AcceptButton from "@/Components/Buttons/AcceptButton";
-import InputError from "@/Components/InputError";
 import ScrollBar from "@/Components/ScrollBar";
 import SuccessMessage from "@/Components/SuccessMessage";
-import WarningMessage from "@/Components/WarningMessage";
 import DeleteButton from "@/Components/Buttons/DeleteButton";
 import AddButton from "@/Components/Buttons/AddButton";
 import Title from "@/Components/Title";
+import { SiAuthelia } from "react-icons/si";
 
-export default function index({ auth, users, message, category_permissions, queryParams = null, success }) {
-  const [showApproveModal, setShowApproveModal] = useState(false);
-  const [showRejectModal, setShowRejectModal] = useState(false);
-  const [selectedOrder, setSelectedOrder] = useState(null);
-  const [rejectReason, setRejectReason] = useState("");
-  const [rejectReasonError, setRejectReasonError] = useState("");
+export default function index({ 
+  auth, 
+  users, 
+  message, 
+  category_permissions, 
+  queryParams = null, 
+  success, 
+  initialNotifications
+ }) {
 
   queryParams = queryParams || {}
 
@@ -55,11 +52,17 @@ export default function index({ auth, users, message, category_permissions, quer
     router.get(route('category-permission.index'), queryParams)
   }
 
+  const colChanged = (name, value) => {
+    queryParams[name] = value;
+    queryParams.page = 1;
+    router.get(route('category-permission.index'), queryParams)
+  }
+
   const deleteCategoryPermission = (category_permission) => {
     if (!window.confirm('هل تريد بالتأكيد حذف هذا صلاحية التصنيف لهذا المركز ؟')) {
       return;
     }
-    router.post(route('category-permission.destroy', category_permission.id),{
+    router.post(route('category-permission.destroy', category_permission.id), {
       _method: 'DELETE',
     })
   }
@@ -72,16 +75,20 @@ export default function index({ auth, users, message, category_permissions, quer
     <AuthenticatedLayout
       user={auth.user}
       message={message}
+      notification={initialNotifications}
       header={
         <div className="flex justify-between items-center">
-          <Title>صلاحيات التصنيفات</Title>
-          <ScrollBar message={message} />
-          <AddButton onClick={e => addCategoryPermission()}>إضافة</AddButton>
+          <ScrollBar message={message}>
+            <Title className="flex">
+              <SiAuthelia className="ml-4 -mx-1 rounded-full border-4 size-7 border-teal-100 bg-teal-200 text-teal-800 dark:border-teal-900 dark:bg-teal-800 dark:text-teal-400" />
+              صلاحيات التصنيفات
+            </Title>
+            <AddButton onClick={e => addCategoryPermission()}>إضافة</AddButton>
+          </ScrollBar>
         </div>
       }
     >
       <Head title="الطلبات قيد المعالجة" />
-
       <div className="py-2">
         <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
           {success && (<SuccessMessage message={success} />)}
@@ -140,7 +147,24 @@ export default function index({ auth, users, message, category_permissions, quer
                   </tbody>
                 </table>
               </div>
-              <Pagination links={category_permissions.meta.links} queryParams={queryParams} />
+              <div className="flex px-4">
+                <SelectInput
+                  className="text-sm font-medium mt-4"
+                  defaultValue={queryParams.col}
+                  onChange={e => colChanged('col', e.target.value)}
+                >
+                  <option value="25">25</option>
+                  <option value="50">50</option>
+                  <option value="75">75</option>
+                  <option value="100">100</option>
+                </SelectInput>
+                <div className="flex mx-auto">
+                  <Pagination links={category_permissions.meta.links} queryParams={queryParams} />
+                </div>
+                <div className="mt-4">
+                  <h3>إجمالي السجلات : {category_permissions.data.length}</h3>
+                </div>
+              </div>
             </div>
           </div>
         </div>

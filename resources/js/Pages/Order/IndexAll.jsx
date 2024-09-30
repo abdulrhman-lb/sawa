@@ -2,22 +2,25 @@ import Pagination from "@/Components/Pagination";
 import SelectInput from "@/Components/SelectInput";
 import TextInput from "@/Components/TextInput";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
-import { Head, Link, router } from "@inertiajs/react";
+import { Head, router } from "@inertiajs/react";
 import TableHeading from "@/Components/TableHeading";
-import { KIND_DATA_TEXT_MAP, ORDER_CLASS_MAP, ORDER_TEXT_MAP, STATUS_CLASS_MAP, STATUS_TEXT_MAP } from "@/constants";
-import { useState } from "react";
+import { ORDER_CLASS_MAP, ORDER_TEXT_MAP } from "@/constants";
 import SearchableDropdown from "@/Components/SearchableDropdown";
-import Modal from "@/Components/Modal";
-import PrimaryButton from "@/Components/Buttons/PrimaryButton";
-import DeleteButton from "@/Components/Buttons/DeleteButton";
-import RejectButton from "@/Components/Buttons/RejectButton copy";
-import AcceptButton from "@/Components/Buttons/AcceptButton";
 import ScrollBar from "@/Components/ScrollBar";
 import SuccessMessage from "@/Components/SuccessMessage";
 import WarningMessage from "@/Components/WarningMessage";
 import Title from "@/Components/Title";
+import { FaBorderNone } from "react-icons/fa";
 
-export default function indexAll({ auth, users, message, orders, queryParams = null, success = ['0', ''] }) {
+export default function indexAll({ 
+  auth, 
+  users, 
+  message, 
+  orders, 
+  queryParams = null, 
+  success = ['0', ''], 
+  initialNotifications
+ }) {
 
   queryParams = queryParams || {}
 
@@ -55,14 +58,25 @@ export default function indexAll({ auth, users, message, orders, queryParams = n
     router.get(route('order.home'), queryParams)
   }
 
+  const colChanged = (name, value) => {
+    queryParams[name] = value;
+    queryParams.page = 1;
+    router.get(route('order.home'), queryParams)
+  }
+
   return (
     <AuthenticatedLayout
       user={auth.user}
       message={message}
+      notification={initialNotifications}
       header={
         <div className="flex justify-between items-center">
-          <Title>الطلبات الكلية</Title>
-          <ScrollBar message={message}/>
+          <ScrollBar message={message}>
+            <Title className="flex">
+              <FaBorderNone className="ml-4 -mx-1 rounded-full border-4 size-7 border-teal-100 bg-teal-200 text-teal-800 dark:border-teal-900 dark:bg-teal-800 dark:text-teal-400" />
+              الطلبات الكلية
+            </Title>
+          </ScrollBar>
         </div>
       }
     >
@@ -70,7 +84,7 @@ export default function indexAll({ auth, users, message, orders, queryParams = n
       <div className="py-2">
         <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
           {success && (
-            (success[0] === '0' ? (<SuccessMessage message={success[0]} />)
+            (success[0] === '0' ? (<SuccessMessage message={success[1]} />)
               : (<WarningMessage message={success[1]} />)
             )
           )
@@ -81,6 +95,11 @@ export default function indexAll({ auth, users, message, orders, queryParams = n
                 <table className="w-full text-md font-semibold rtl:text-right text-gray-800 dark:text-gray-200">
                   <thead className="text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400 border-b-2 border-gray-500">
                     <tr className="text-nowrap">
+                    <TableHeading
+                        sortable={false}
+                      >
+                        #
+                      </TableHeading>
                       <TableHeading
                         name='created_at'
                         sort_field={queryParams.sort_field}
@@ -135,6 +154,7 @@ export default function indexAll({ auth, users, message, orders, queryParams = n
                   <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400 border-b-2 border-gray-500">
                     <tr className="text-nowrap">
                       <th className="px-3 py-3"></th>
+                      <th className="px-3 py-3"></th>
                       <th className="px-3 py-3 relative">
                         <SearchableDropdown
                           items={users.data}
@@ -174,8 +194,9 @@ export default function indexAll({ auth, users, message, orders, queryParams = n
                     </tr>
                   </thead>
                   <tbody className="text-center">
-                    {orders.data.map((order) => (
+                    {orders.data.map((order, index) => (
                       <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700" key={order.id}>
+                        <td className="px-3 py-2">{index + 1}</td>
                         <td className="px-3 py-2 text-nowrap">{order.created_at}</td>
                         <td className="px-3 py-2">{order.user.name}</td>
                         <td className="px-3 py-2 text-nowrap">{order.service.product.category.name} /
@@ -195,13 +216,29 @@ export default function indexAll({ auth, users, message, orders, queryParams = n
                           </span>
                         </td>
                         <td className="px-3 py-2">{order.reject_reson}</td>
-                      
                       </tr>
                     ))}
                   </tbody>
                 </table>
               </div>
-              <Pagination links={orders.meta.links} queryParams={queryParams} />
+              <div className="flex px-4">
+                <SelectInput
+                  className="text-sm font-medium mt-4"
+                  defaultValue={queryParams.col}
+                  onChange={e => colChanged('col', e.target.value)}
+                >
+                  <option value="25">25</option>
+                  <option value="50">50</option>
+                  <option value="75">75</option>
+                  <option value="100">100</option>
+                </SelectInput>
+                <div className="flex mx-auto">
+                  <Pagination links={orders.meta.links} queryParams={queryParams} />
+                </div>
+                <div className="mt-4">
+                  <h3>إجمالي السجلات : {orders.data.length}</h3>
+                </div>
+              </div>
             </div>
           </div>
         </div>

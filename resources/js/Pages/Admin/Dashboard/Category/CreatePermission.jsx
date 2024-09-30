@@ -5,14 +5,20 @@ import InputLabel from "@/Components/InputLabel";
 import ScrollBar from "@/Components/ScrollBar";
 import SearchableDropdownForm from "@/Components/SearchableDropdownForm";
 import SuccessMessage from "@/Components/SuccessMessage";
-import TextAreaInput from "@/Components/TextAreaInput";
-import TextInput from "@/Components/TextInput";
 import Title from "@/Components/Title";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { Head, Link, useForm } from "@inertiajs/react";
-import { useState, useEffect } from "react";
+import { SiAuthelia } from "react-icons/si";
 
-export default function Create({ auth, categories, users, message, success }) {
+export default function Create({ 
+  auth, 
+  categories, 
+  users, 
+  message, 
+  success, 
+  initialNotifications
+ }) {
+
   const { data, setData, post, errors, reset } = useForm({
     user_id: '',
     category_id: '',
@@ -27,17 +33,22 @@ export default function Create({ auth, categories, users, message, success }) {
     <AuthenticatedLayout
       user={auth.user}
       message={message}
+      notification={initialNotifications}
       header={
         <div className="flex justify-between items-center">
-          <Title>إنشاء صلاحيات جديدة</Title>
-          <ScrollBar message={message} />
+          <ScrollBar message={message} >
+            <Title className="flex">
+              <SiAuthelia className="ml-4 -mx-1 rounded-full border-4 size-7 border-teal-100 bg-teal-200 text-teal-800 dark:border-teal-900 dark:bg-teal-800 dark:text-teal-400" />
+              إنشاء صلاحيات جديدة
+            </Title>
+          </ScrollBar>
         </div>
       }
     >
       <Head title="صلاحيات التصنيفات" />
       <div className="py-2">
         <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
-        {success && (<SuccessMessage message={success} />)}
+          {success && (<SuccessMessage message={success} />)}
           <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
             <form onSubmit={onSubmit} className=" p-4 sm:p-8 bg-white dark:bg-gray-800 shadow sm:rounded-lg">
               <div className="grid lg:grid-cols-3 sm:grid-cols-1">
@@ -78,7 +89,6 @@ export default function Create({ auth, categories, users, message, success }) {
                   </Link>
                 </div>
               </div>
-
             </form>
           </div>
         </div>

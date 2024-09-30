@@ -9,8 +9,17 @@ import Title from "@/Components/Title";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { Head, Link, useForm } from "@inertiajs/react";
 import { useState, useEffect } from "react";
+import { PiCashRegisterThin } from "react-icons/pi";
 
-export default function Create({ auth, categories, products, services, kinds, message }) {
+export default function Create({ 
+  auth, 
+  categories, 
+  products, services, 
+  kinds, 
+  message, 
+  initialNotifications 
+}) {
+
   const { data, setData, post, errors, reset } = useForm({
     amount: '0',
     kind: 'const',
@@ -24,7 +33,6 @@ export default function Create({ auth, categories, products, services, kinds, me
   const [filteredServices, setFilteredServices] = useState([]);
   const [disabled, setDisabled] = useState(false);
 
-  // Update products based on selected category_id
   useEffect(() => {
     if (category_id) {
       const product = products.data.filter(product => product.category_id === category_id);
@@ -33,13 +41,12 @@ export default function Create({ auth, categories, products, services, kinds, me
       } else {
         setFilteredProducts([]);
       }
-      setFilteredServices([]); // Reset services when category changes
-      setProductId(''); // Reset selected product
-      setData('service_id', ''); // Reset selected service
+      setFilteredServices([]); 
+      setProductId(''); 
+      setData('service_id', '');
     }
   }, [category_id, categories]);
 
-  // Update services based on selected product_id
   useEffect(() => {
     if (product_id) {
       const service = services.data.filter(service => service.product_id === product_id);
@@ -48,7 +55,7 @@ export default function Create({ auth, categories, products, services, kinds, me
       } else {
         setFilteredServices([]);
       }
-      setData('service_id', ''); // Reset selected service
+      setData('service_id', ''); 
     }
   }, [product_id, filteredProducts]);
 
@@ -61,10 +68,15 @@ export default function Create({ auth, categories, products, services, kinds, me
     <AuthenticatedLayout
       user={auth.user}
       message={message}
+      notification={initialNotifications}
       header={
         <div className="flex justify-between items-center">
-          <Title>إنشاء سعر جديد</Title>
-          <ScrollBar message={message} />
+          <ScrollBar message={message} >
+            <Title className="flex">
+              <PiCashRegisterThin className="ml-4 -mx-1 rounded-full border-4 size-7 border-teal-100 bg-teal-200 text-teal-800 dark:border-teal-900 dark:bg-teal-800 dark:text-teal-400" />
+              إنشاء سعر جديد
+            </Title>
+          </ScrollBar>
         </div>
       }
     >
@@ -101,7 +113,7 @@ export default function Create({ auth, categories, products, services, kinds, me
                     placeholder="اختر المنتج"
                     labelKey="name"
                     valueKey="id"
-                    disabled={!category_id} // Disable if no category selected
+                    disabled={!category_id} 
                   />
                   <InputError message={errors.product_id} className="mt-2" />
                 </div>
@@ -117,7 +129,7 @@ export default function Create({ auth, categories, products, services, kinds, me
                     placeholder="اختر الخدمة"
                     labelKey="name"
                     valueKey="id"
-                    disabled={!product_id} // Disable if no product selected
+                    disabled={!product_id} 
                   />
                   <InputError message={errors.service_id} className="mt-2" />
                 </div>

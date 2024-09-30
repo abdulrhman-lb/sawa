@@ -8,8 +8,14 @@ import TextInput from "@/Components/TextInput";
 import Title from "@/Components/Title";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { Head, Link, useForm } from "@inertiajs/react";
+import { HiOutlineUserPlus } from "react-icons/hi2";
 
-export default function Create({ auth, message }) {
+export default function Create({
+  auth,
+  message,
+  initialNotifications
+}) {
+
   const { data, setData, post, errors, reset } = useForm({
     name: '',
     email: '',
@@ -20,6 +26,7 @@ export default function Create({ auth, message }) {
     kind: 'user',
     status: 'active',
     password: '',
+    process_order: 0,
     password_confirmation: '',
     created_by: auth.user.id
   })
@@ -33,10 +40,15 @@ export default function Create({ auth, message }) {
     <AuthenticatedLayout
       user={auth.user}
       message={message}
+      notification={initialNotifications}
       header={
         <div className="flex justify-between items-center">
-          <Title>إنشاء مستخدم جديد</Title>
-          <ScrollBar message={message} />
+          <ScrollBar message={message}>
+            <Title className="flex">
+              <HiOutlineUserPlus className="ml-4 -mx-1 rounded-full border-4 size-7 border-teal-100 bg-teal-200 text-teal-800 dark:border-teal-900 dark:bg-teal-800 dark:text-teal-400" />
+              إنشاء مستخدم جديد
+            </Title>
+          </ScrollBar>
         </div>
       }
     >
@@ -45,7 +57,7 @@ export default function Create({ auth, message }) {
         <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
           <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
             <form onSubmit={onSubmit} className="p-3 bg-white dark:bg-gray-800 shadow sm:rounded-lg">
-              <div className="space-y-1 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">                
+              <div className="space-y-1 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
                 <div className="mt-1">
                   <InputLabel
                     htmlFor="email"
@@ -127,14 +139,29 @@ export default function Create({ auth, message }) {
                     htmlFor="mobile"
                     value="رقم الموبايل"
                   />
-                  <TextInput
-                    id="mobile"
-                    type="text"
-                    name="mobile"
-                    value={data.mobile}
-                    className="mt-1 block w-full"
-                    onChange={e => setData('mobile', e.target.value)}
-                  />
+                  <div class=" w-full flex h-11">
+                    <TextInput
+                      id="mobile"
+                      type="text"
+                      name="mobile"
+                      value={data.mobile}
+                      placeholder='9xxxxxxxx'
+                      className="mt-1 block w-full rounded-e-none border-l-0 border border-gray-300 ml-0 text-left"
+                      onChange={e => setData('mobile', e.target.value)}
+                    />
+                    <div
+                      class=" mt-1 h-10 flex-shrink-0 inline-flex items-center py-2.5 px-4 font-medium text-center text-gray-900 bg-gray-100 border border-gray-300 rounded-e-lg focus:ring-4 focus:outline-none focus:ring-gray-100 dark:bg-gray-700 dark:focus:ring-gray-700 dark:text-white dark:border-gray-600"
+                      type="button">
+                      <svg fill="none" aria-hidden="true" class="h-4 w-4 me-2" viewBox="0 0 20 15">
+                        <rect width="19.6" height="5" y="0" fill="#D02F44" />
+                        <rect width="19.6" height="5" y="5" fill="#FFFFFF" />
+                        <rect width="19.6" height="5" y="10" fill="#000000" />
+                        <polygon fill="#008000" points="6,6 6.87,8.15 9.13,8.15 7.13,9.5 7.87,11.65 6,10.5 4.13,11.65 4.87,9.5 2.87,8.15 5.13,8.15" />
+                        <polygon fill="#008000" points="14,6 14.87,8.15 17.13,8.15 15.13,9.5 15.87,11.65 14,10.5 12.13,11.65 12.87,9.5 10.87,8.15 13.13,8.15" />
+                      </svg>
+                      963+
+                    </div>
+                  </div>
                   <InputError message={errors.mobile} className="mt-2" />
                 </div>
                 <div className="mt-4">
@@ -168,7 +195,6 @@ export default function Create({ auth, message }) {
                   />
                   <InputError message={errors.center} className="mt-2" />
                 </div>
-
                 <div>
                   <InputLabel htmlFor="kind" value="نوع المركز" />
                   <SelectInput

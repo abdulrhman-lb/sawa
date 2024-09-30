@@ -4,16 +4,29 @@ import UpdateProfileInformationForm from './Partials/UpdateProfileInformationFor
 import { Head } from '@inertiajs/react';
 import ScrollBar from '@/Components/ScrollBar';
 import Title from '@/Components/Title';
+import { FaBorderNone } from 'react-icons/fa';
 
-export default function Edit({ auth, mustVerifyEmail, success, updated, message }) {
+export default function Edit({ 
+  auth, 
+  mustVerifyEmail, 
+  success, updated, 
+  message, 
+  initialNotifications
+ }) {
+
   return (
     <AuthenticatedLayout
       user={auth.user}
       message={message}
+      notification={initialNotifications}
       header={
         <div className="flex justify-between items-center">
-          <Title>الملف الشخصي</Title>
-          <ScrollBar message={message} />
+          <ScrollBar message={message}>
+            <Title className="flex">
+              <FaBorderNone className="ml-4 -mx-1 rounded-full border-4 size-7 border-teal-100 bg-teal-200 text-teal-800 dark:border-teal-900 dark:bg-teal-800 dark:text-teal-400" />
+              الملف الشخصي
+            </Title>
+          </ScrollBar>
         </div>
       }
     >
@@ -27,14 +40,9 @@ export default function Edit({ auth, mustVerifyEmail, success, updated, message 
               className="max-w-full"
             />
           </div>
-
           <div className="p-4 sm:p-8 bg-white dark:bg-gray-800 shadow sm:rounded-lg">
             <UpdatePasswordForm className="max-w-xl" updated={updated} />
           </div>
-          {/* 
-                    <div className="p-4 sm:p-8 bg-white dark:bg-gray-800 shadow sm:rounded-lg">
-                        <DeleteUserForm className="max-w-xl" />
-                    </div> */}
         </div>
       </div>
     </AuthenticatedLayout>

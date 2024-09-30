@@ -2,16 +2,14 @@ import InputError from '@/Components/InputError';
 import InputLabel from '@/Components/InputLabel';
 import PrimaryButton from '@/Components/Buttons/PrimaryButton';
 import TextInput from '@/Components/TextInput';
-import { Link, useForm, usePage } from '@inertiajs/react';
+import { useForm, usePage } from '@inertiajs/react';
 import { Transition } from '@headlessui/react';
 import SelectInput from '@/Components/SelectInput';
 import { useState } from 'react';
-import SuccessMessage from '@/Components/SuccessMessage';
 
 export default function UpdateProfileInformation({ className = '', success }) {
   const user = usePage().props.auth.user;
   const image = (user.image != null && user.image != '') ? user.image : '/images/profiles/noimage.jpg'
-
   const { data, setData, post, errors, processing, recentlySuccessful } = useForm({
     name: user.name,
     user_name: user.user_name,
@@ -87,7 +85,6 @@ export default function UpdateProfileInformation({ className = '', success }) {
             </div>
           </div>
         </div>
-
         <div className=" mt-2 space-y-6 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-2 gap-4">
           <div className='mt-6'>
             <InputLabel htmlFor="email" value="البريد الالكتروني" />
@@ -102,7 +99,6 @@ export default function UpdateProfileInformation({ className = '', success }) {
             />
             <InputError className="mt-2" message={errors.email} />
           </div>
-
           <div>
             <InputLabel htmlFor="phone" value="رقم الهاتف" />
             <TextInput
@@ -114,7 +110,6 @@ export default function UpdateProfileInformation({ className = '', success }) {
             />
             <InputError className="mt-2" message={errors.phone} />
           </div>
-
           <div>
             <InputLabel htmlFor="mobile" value="رقم الموبايل" />
             <TextInput
@@ -126,7 +121,6 @@ export default function UpdateProfileInformation({ className = '', success }) {
             />
             <InputError className="mt-2" message={errors.mobile} />
           </div>
-
           <div>
             <InputLabel htmlFor="address" value="العنوان" />
             <TextInput
@@ -138,7 +132,6 @@ export default function UpdateProfileInformation({ className = '', success }) {
             />
             <InputError className="mt-2" message={errors.address} />
           </div>
-
           <div>
             <InputLabel htmlFor="center" value="اسم المركز" />
             <TextInput
@@ -150,22 +143,6 @@ export default function UpdateProfileInformation({ className = '', success }) {
             />
             <InputError className="mt-2" message={errors.center} />
           </div>
-
-          {/* <div>
-            <InputLabel htmlFor="kind" value="نوع المركز" />
-            <SelectInput
-              className="mt-1 block w-full"
-              defaultValue={data.kind}
-              onChange={(e) => setData('kind', e.target.value)}
-              disabled
-            >
-              <option value="admin">مدير نظام</option>
-              <option value="super_user">حساب تاجر مميز</option>
-              <option value="user">مركز بيع عادي</option>
-            </SelectInput>
-            <InputError className="mt-2" message={errors.kind} />
-          </div> */}
-
           <div>
             <InputLabel htmlFor="status" value="حالة المركز" />
             <SelectInput
@@ -192,7 +169,6 @@ export default function UpdateProfileInformation({ className = '', success }) {
             </Transition>
           </div>
         </div>
-
       </form>
     </section>
   );

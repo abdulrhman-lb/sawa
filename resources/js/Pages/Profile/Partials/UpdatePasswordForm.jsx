@@ -7,9 +7,9 @@ import { useForm } from '@inertiajs/react';
 import { Transition } from '@headlessui/react';
 
 export default function UpdatePasswordForm({ className = '', updated }) {
+
   const passwordInput = useRef();
   const currentPasswordInput = useRef();
-
   const { data, setData, errors, post, reset, processing, recentlySuccessful } = useForm({
     current_password: '',
     password: '',
@@ -44,12 +44,10 @@ export default function UpdatePasswordForm({ className = '', updated }) {
       </div>)}
       <header>
         <h2 className="text-lg font-medium text-gray-900 dark:text-gray-100">تحديث كلمة المرور</h2>
-
         <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
           تأكد من أن حسابك يستخدم كلمة مرور طويلة وعشوائية ليظل آمنًا..
         </p>
       </header>
-
       <form onSubmit={updatePassword} className="mt-6 space-y-6">
         <div>
           <InputLabel htmlFor="current_password" value="كلمة المرور الحالية" />
@@ -64,7 +62,6 @@ export default function UpdatePasswordForm({ className = '', updated }) {
           />
           <InputError message={errors.current_password} className="mt-2" />
         </div>
-
         <div>
           <InputLabel htmlFor="password" value="كلمة المرور الجديدة" />
           <TextInput
@@ -78,7 +75,6 @@ export default function UpdatePasswordForm({ className = '', updated }) {
           />
           <InputError message={errors.password} className="mt-2" />
         </div>
-
         <div>
           <InputLabel htmlFor="password_confirmation" value="تأكيد كلمة المرور" />
           <TextInput
@@ -91,7 +87,6 @@ export default function UpdatePasswordForm({ className = '', updated }) {
           />
           <InputError message={errors.password_confirmation} className="mt-2" />
         </div>
-
         <div className="flex items-center gap-4">
           <PrimaryButton disabled={processing}>حفظ</PrimaryButton>
           <Transition

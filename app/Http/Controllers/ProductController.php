@@ -17,45 +17,44 @@ class ProductController extends Controller
 {
   public function index()
   {
-    $query = Product::query();
-
-    // Sorting
-    $sortField = request('sort_field', 'created_at');
-    $sortDirection = request('sort_direction', 'asc');
-
-    // Search
+    $query          = Product::query();
+    $sortField      = request('sort_field', 'created_at');
+    $sortDirection  = request('sort_direction', 'asc');
     if (request("name")) {
       $query->where("name", "like", "%" . request("name") . "%");
     }
-
     if (request("status")) {
       $query->where("status", request("status"));
     }
-
     if (request("category_id")) {
       $query->where("category_id", request("category_id"));
     }
-
-    // Apply
-    $products = $query->orderBy($sortField, $sortDirection)->paginate(25)->onEachSide(1);
+    if (request("col")) {
+      $col = request("col");
+    } else {
+      $col = 25;
+    }
+    $products   = $query->orderBy($sortField, $sortDirection)->paginate($col)->onEachSide(1);
     $categories = Category::orderBy('name', 'asc')->get();
-    $message = Message::first();
+    $message    = Message::first();
     return inertia("Admin/Dashboard/Product/Index", [
-      "products"    => ProductResource::collection($products),
-      'categories' => $categories,
-      'queryParams' => request()->query() ?: null,
-      'success'     => session('success'), 
-      'message'     => $message
+      "products"              => ProductResource::collection($products),
+      'categories'            => $categories,
+      'queryParams'           => request()->query() ?: null,
+      'success'               => session('success'), 
+      'message'               => $message,
+      'initialNotifications'  => auth()->user()->unreadNotifications,
     ]);
   }
 
   public function create()
   {
-    $message = Message::first();
+    $message    = Message::first();
     $categories = Category::query()->orderBy('name')->get();
     return inertia("Admin/Dashboard/Product/Create", [
-      'categories'  => CategoryResource::collection($categories),
-      'message'     => $message
+      'categories'            => CategoryResource::collection($categories),
+      'message'               => $message,
+      'initialNotifications'  => auth()->user()->unreadNotifications,
     ]);
   }
 
@@ -77,26 +76,28 @@ class ProductController extends Controller
   {
     $message = Message::first();
     return inertia("Admin/Dashboard/Product/Show", [
-      'product'=> new ProductResource($product),
-      'message'     => $message
+      'product'               => new ProductResource($product),
+      'message'               => $message,
+      'initialNotifications'  => auth()->user()->unreadNotifications,
     ]);
   }
 
   public function edit(Product $product)
   {
-    $message = Message::first();
+    $message    = Message::first();
     $categories = Category::query()->orderBy('name')->get();
     return inertia("Admin/Dashboard/Product/Edit", [
-      'product'     => new ProductResource($product),
-      'categories'  => CategoryResource::collection($categories),
-      'message'     => $message
+      'product'               => new ProductResource($product),
+      'categories'            => CategoryResource::collection($categories),
+      'message'               => $message,
+      'initialNotifications'  => auth()->user()->unreadNotifications,
     ]);
   }
 
   public function update(UpdateProductRequest $request, Product $product)
   {
-    $data = $request->validated();
-    $image = $data['image'] ?? null;
+    $data   = $request->validated();
+    $image  = $data['image'] ?? null;
     if ($image) {
       if ($product->image && file_exists(public_path($product->image))) {
         unlink(public_path($product->image));
@@ -113,31 +114,28 @@ class ProductController extends Controller
 
   public function destroy(Product $product)
   {
-    // التحقق إذا كان هناك مهام مرتبطة بالمنتج
     if ($product->services()->count() > 0) {
       return to_route('product.index')->with('success', "لايمكن حذف المنتج  \"$product->name\" لوجود منتجات مرتبطة به");
     }
-
     $name = $product->name;
     $product->delete();
-
     if ($product->image) {
       Storage::disk('public')->deleteDirectory(dirname($product->image));
     }
-
     return to_route('product.index')->with('success', "تم حذف المنتج  \"$name\" بنجاح");
   }
 
   public function indexToHome(Request $category)
   {
-    $message = Message::first();
-    $query = Product::query();
+    $message    = Message::first();
+    $query      = Product::query();
     $query->where("status", "active");
     $query->where("category_id", $category->id);
-    $products = $query->orderBy('id', 'asc')->get();
+    $products   = $query->orderBy('id', 'asc')->get();
     return inertia("Product/Index", [
-      "products"  => ProductResource::collection($products),
-      'message'     => $message
+      "products"              => ProductResource::collection($products),
+      'message'               => $message,
+      'initialNotifications'  => auth()->user()->unreadNotifications,
     ]); 
   }
 }

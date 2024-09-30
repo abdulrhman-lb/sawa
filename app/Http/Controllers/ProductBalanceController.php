@@ -18,35 +18,37 @@ class ProductBalanceController extends Controller
 {
   public function index(Request $request)
   {
-    $query = ProductBalance::query();
+    $query = ProductBalance::query(); 
     $query->where("product_id", request("product_id"));
-    $query->orderBy("created_at", "desc");
-
-    $product_balance = $query->paginate(25)->onEachSide(1);
-    $balance = DB::table('product_balances')
+    $sortField = request('sort_field', 'created_at');
+    $sortDirection = request('sort_direction', 'desc');
+    $query->orderBy($sortField, $sortDirection)->get();
+    if (request("col")) {
+      $col = request("col");
+    } else {
+      $col = 25;
+    }
+    $product_balance  = $query->paginate($col)->onEachSide(1);
+    $balance          = DB::table('product_balances')
       ->where('product_id', request("product_id"))
       ->select(
         DB::raw('SUM(`add`) as total_add'),
         DB::raw('SUM(`reduce`) as total_reduce'),
         DB::raw('SUM(`profit`) as total_profit')
-      )
-      ->first();
+      )->first();
     $remainingBalance = $balance->total_add - $balance->total_reduce;
-    $message      = Message::first();
+    $message          = Message::first();
     return inertia("Admin/Financial/ProductBalance/Index", [
-      "product_balance"   => ProductBalanceResource::collection($product_balance),
-      'total_add_all'     => number_format($balance->total_add),
-      'total_reduce_all'  => number_format($balance->total_reduce),
-      'total_profit_all'  => number_format($balance->total_profit),
-      'final_balance_all' => number_format($remainingBalance),
-      'success'           => session('success'),
-      'message'           => $message
+      "product_balance"       => ProductBalanceResource::collection($product_balance),
+      'total_add_all'         => number_format($balance->total_add),
+      'total_reduce_all'      => number_format($balance->total_reduce),
+      'total_profit_all'      => number_format($balance->total_profit),
+      'final_balance_all'     => number_format($remainingBalance),
+      'success'               => session('success'),
+      'message'               => $message,
+      'queryParams'           => request()->query() ?: null,
+      'initialNotifications'  => auth()->user()->unreadNotifications,
     ]);
-  }
-
-  public function create()
-  {
-    //
   }
 
   public function store(StoreProductBalanceRequest $request)
@@ -56,21 +58,10 @@ class ProductBalanceController extends Controller
     return to_route('product.balances.home')->with('success', 'تم إضافة الرصيد بنجاح');
   }
 
-  public function show(ProductBalance $productBalance)
-  {
-    //
-  }
-
-  public function edit(ProductBalance $productBalance)
-  {
-    //
-  }
-
   public function update(UpdateProductBalanceRequest $request, ProductBalance $productBalance)
   {
-    $data = $request->validated();
-    $product = $productBalance->product;
-
+    $data     = $request->validated();
+    $product  = $productBalance->product;
     $productBalance->update($data);
     return to_route('product-balance.index',  ['product_id' => $productBalance->product->id])->with('success', "تم تعديل الايداع لصالح \"$product->name\" بنجاح");
   }
@@ -79,44 +70,45 @@ class ProductBalanceController extends Controller
   {
     $product = $productBalance->product;
     $productBalance->delete();
-
     return to_route('product-balance.index',  ['product_id' => $productBalance->product->id])->with('success', "تم حذف الايداع لصالح   \"$product->name\" بنجاح");
   }
 
   public function indexAll(Request $request)
   {
-    $productId  = $request->input('product_id');
-    $categoryId = $request->input('category_id');
-    $query = Product::with(['productBalances', 'category']);
-
-    // Sorting
-    $sortField = request('sort_field', 'category_id');
-    $sortDirection = request('sort_direction', 'asc');
-
+    $productId      = $request->input('product_id');
+    $categoryId     = $request->input('category_id');
+    $query          = Product::with(['productBalances', 'category']);
+    $sortField      = request('sort_field', 'category_id');
+    $sortDirection  = request('sort_direction', 'asc');
+    $query->orderBy($sortField, $sortDirection)->get();
     if ($productId) {
       $query->where('id', $productId);
     }
     if ($categoryId) {
       $query->where('category_id', $categoryId);
     }
-    $products_paginated = $query->orderBy($sortField, $sortDirection)->paginate(25);
-    $product_balances = $products_paginated->getCollection()->map(function ($product) {
-      $balances = $product->productBalances ?? collect(); 
-      $total_add = $balances->sum('add');
-      $total_reduce = $balances->sum('reduce');
-      $total_profilt = $balances->sum('profit');
-      $final_balance = $total_add - $total_reduce;
+    if (request("col")) {
+      $col = request("col");
+    } else {
+      $col = 25;
+    }
+    $products_paginated = $query->orderBy($sortField, $sortDirection)->paginate($col);
+    $product_balances   = $products_paginated->getCollection()->map(function ($product) {
+      $balances       = $product->productBalances ?? collect(); 
+      $total_add      = $balances->sum('add');
+      $total_reduce   = $balances->sum('reduce');
+      $total_profilt  = $balances->sum('profit');
+      $final_balance  = $total_add - $total_reduce;
 
       return [
-        'product' => $product,
-        'total_add' => $total_add,
-        'total_reduce' => $total_reduce,
-        'total_profit' => number_format($total_profilt),
+        'product'       => $product,
+        'total_add'     => $total_add,
+        'total_reduce'  => $total_reduce,
+        'total_profit'  => number_format($total_profilt),
         'final_balance' => number_format($final_balance),
-        'all_balance' => number_format($final_balance + $total_profilt),
+        'all_balance'   => number_format($final_balance + $total_profilt),
       ];
     });
-
     $totals_query = Product::with('productBalances');
     if ($productId) {
       $totals_query->where('id', $productId);
@@ -137,8 +129,8 @@ class ProductBalanceController extends Controller
       return $carry + $balances->sum('profit');
     }, 0);
 
-    $final_balance_all = $total_add_all - $total_reduce_all;
-    $all_balance_all = $final_balance_all + $total_profit_all;
+    $final_balance_all  = $total_add_all - $total_reduce_all;
+    $all_balance_all    = $final_balance_all + $total_profit_all;
     $paginated_product_balances = new \Illuminate\Pagination\LengthAwarePaginator(
       $product_balances,
       $products_paginated->total(),
@@ -147,20 +139,21 @@ class ProductBalanceController extends Controller
       ['path' => $products_paginated->path()]
     );
     $categories = Category::orderBy('name', 'asc')->get();
-    $products = Product::orderBy('name', 'asc')->get();
-    $message      = Message::first();
+    $products   = Product::orderBy('name', 'asc')->get();
+    $message    = Message::first();
     return inertia("Admin/Financial/ProductBalance/IndexAll", [
-      "product_balances" => $paginated_product_balances,
-      "products"         => ProductResource::collection($products),
-      "categories"       => ProductResource::collection($categories),
-      'queryParams'      => request()->query() ?: null,
-      'total_add_all'    => number_format($total_add_all),
-      'total_reduce_all' => number_format($total_reduce_all),
-      'total_profit_all' => number_format($total_profit_all),
-      'final_balance_all' => number_format($final_balance_all),
-      'all_balance_all' => number_format($all_balance_all),
-      'success'          => session('success'),
-      'message'     => $message
+      "product_balances"      => $paginated_product_balances,
+      "products"              => ProductResource::collection($products),
+      "categories"            => ProductResource::collection($categories),
+      'queryParams'           => request()->query() ?: null,
+      'total_add_all'         => number_format($total_add_all),
+      'total_reduce_all'      => number_format($total_reduce_all),
+      'total_profit_all'      => number_format($total_profit_all),
+      'final_balance_all'     => number_format($final_balance_all),
+      'all_balance_all'       => number_format($all_balance_all),
+      'success'               => session('success'),
+      'message'               => $message,
+      'initialNotifications'  => auth()->user()->unreadNotifications,
     ]);
   }
 }

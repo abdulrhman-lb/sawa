@@ -4,11 +4,22 @@ import TableHeading from "@/Components/TableHeading";
 import PrimaryButton from "@/Components/Buttons/PrimaryButton";
 import SuccessMessage from "@/Components/SuccessMessage";
 import Title from "@/Components/Title";
+import { FaCreativeCommonsZero } from "react-icons/fa6";
+import ScrollBar from "@/Components/ScrollBar";
 
-export default function index({ auth, comissionData, queryParams = null, success, message }) {
+export default function index({ 
+  auth, 
+  comissionData, 
+  queryParams = null, 
+  success, 
+  message, 
+  initialNotifications
+ }) {
+
   queryParams = queryParams || {}
 
   const editComission = (user) => {
+    console.log(user)
     router.get(route("comission.service", user))
   }
 
@@ -20,14 +31,19 @@ export default function index({ auth, comissionData, queryParams = null, success
     <AuthenticatedLayout
       user={auth.user}
       message={message}
+      notification={initialNotifications}
       header={
         <div className="flex justify-between items-center">
-          <Title>نسبة العمولة للمركز: {comissionData[0].user_name}
-            <span className="text-red-700 text-2xl mx-2"> | </span>
-            <button onClick={e => goCategory(comissionData[0])} >
-              {comissionData[0].category}
-            </button>
-          </Title>
+          <ScrollBar message={message}>
+            <Title className="flex">
+              <FaCreativeCommonsZero className="ml-4 -mx-1 rounded-full border-4 size-7 border-teal-100 bg-teal-200 text-teal-800 dark:border-teal-900 dark:bg-teal-800 dark:text-teal-400" />
+              نسبة العمولة للمركز: {comissionData[0].user_name}
+              <span className="text-red-700 text-2xl mx-2"> | </span>
+              <button onClick={e => goCategory(comissionData[0])} >
+                {comissionData[0].category}
+              </button>
+            </Title>
+          </ScrollBar>
         </div>
       }
     >
@@ -41,6 +57,11 @@ export default function index({ auth, comissionData, queryParams = null, success
                 <table className="w-full text-md font-semibold rtl:text-right text-gray-800 dark:text-gray-200">
                   <thead className="text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400 border-b-2 border-gray-500">
                     <tr className="text-nowrap">
+                    <TableHeading
+                        sortable={false}
+                      >
+                        #
+                      </TableHeading>
                       <TableHeading
                         sortable={false}
                       >
@@ -58,10 +79,10 @@ export default function index({ auth, comissionData, queryParams = null, success
                       </TableHeading>
                     </tr>
                   </thead>
-
                   <tbody className="text-center">
-                    {comissionData.map((user) => (
+                    {comissionData.map((user, index) => (
                       <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700" key={user.id}>
+                        <td className="px-3 py-2">{index + 1}</td>
                         <td className="px-3 py-2 text-nowrap">{user.product}</td>
                         <td className="px-3 py-2">
                           <div className="px-3 py-2 text-right">

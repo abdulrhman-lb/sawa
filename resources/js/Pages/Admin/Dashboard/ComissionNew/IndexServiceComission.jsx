@@ -1,18 +1,25 @@
-import Pagination from "@/Components/Pagination";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { Head, router } from "@inertiajs/react";
 import TableHeading from "@/Components/TableHeading";
-import SearchableDropdown from "@/Components/SearchableDropdown";
 import PrimaryButton from "@/Components/Buttons/PrimaryButton";
 import ScrollBar from "@/Components/ScrollBar";
 import SuccessMessage from "@/Components/SuccessMessage";
 import Title from "@/Components/Title";
+import { FaCreativeCommonsZero } from "react-icons/fa6";
 
-export default function index({ auth, comissionData, admins, queryParams = null, success, message }) {
+export default function index({ 
+  auth, 
+  comissionData, 
+  admins, 
+  queryParams = null, 
+  success, 
+  message, 
+  initialNotifications
+ }) {
+
   queryParams = queryParams || {}
 
   const editComission = (user) => {
-    console.log(user);
     router.get(route("comission.amountkind", user))
   }
 
@@ -27,20 +34,23 @@ export default function index({ auth, comissionData, admins, queryParams = null,
     <AuthenticatedLayout
       user={auth.user}
       message={message}
+      notification={initialNotifications}
       header={
         <div className="flex justify-between items-center">
-          <Title>
-            نسبة العمولة للمركز: {comissionData[0].user_name} 
-            <span className="text-red-700 text-2xl mx-2">|</span>
-            <button onClick={e => goCategory(comissionData[0])}>
-              {comissionData[0].category}
-            </button>
-            <span className="text-red-700 text-2xl mx-2">|</span>
-            <button onClick={e => goProduct(comissionData[0])}>
-              {comissionData[0].product}
-            </button>
+          <ScrollBar message={message}>
+            <Title className="flex">
+              <FaCreativeCommonsZero className="ml-4 -mx-1 rounded-full border-4 size-7 border-teal-100 bg-teal-200 text-teal-800 dark:border-teal-900 dark:bg-teal-800 dark:text-teal-400" />
+              نسبة العمولة للمركز: {comissionData[0].user_name}
+              <span className="text-red-700 text-2xl mx-2">|</span>
+              <button onClick={e => goCategory(comissionData[0])}>
+                {comissionData[0].category}
+              </button>
+              <span className="text-red-700 text-2xl mx-2">|</span>
+              <button onClick={e => goProduct(comissionData[0])}>
+                {comissionData[0].product}
+              </button>
             </Title>
-          {/* <ScrollBar message={message} /> */}
+          </ScrollBar>
         </div>
       }
     >
@@ -71,13 +81,12 @@ export default function index({ auth, comissionData, admins, queryParams = null,
                       </TableHeading>
                     </tr>
                   </thead>
-
                   <tbody className="text-center">
                     {comissionData.map((user) => (
                       <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700" key={user.id}>
                         <td className="px-3 py-2 text-nowrap">{user.service}</td>
                         <td className="px-3 py-2">
-                        <div className="px-3 py-2 text-right">
+                          <div className="px-3 py-2 text-right">
                             {user.amount_kinds.map((amount_kind) => (
                               <span className="bg-blue-600 rounded-md px-3 py-1 text-center min-w-[140px] inline-block font-normal text-white m-1">
                                 {amount_kind}

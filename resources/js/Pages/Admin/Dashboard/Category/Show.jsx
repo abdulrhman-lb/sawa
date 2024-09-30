@@ -3,19 +3,31 @@ import Title from "@/Components/Title";
 import { STATUS_CLASS_MAP, STATUS_TEXT_MAP } from "@/constants";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { Head, Link } from "@inertiajs/react";
+import { FaBorderNone } from "react-icons/fa";
 
-export default function Show({ auth, category, message }) {
+export default function Show({ 
+  auth, 
+  category, 
+  message, 
+  initialNotifications
+ }) {
+  
   return (
     <AuthenticatedLayout
       user={auth.user}
       message={message}
+      notification={initialNotifications}
       header={
         <div className="flex justify-between items-center">
-          <Title>{`التصنيف: ${category.name}`}</Title>
-          <ScrollBar message={message}/>
-          <Link href={route('category.edit', category.id)} className="bg-emerald-500 py-1 px-3 text-white rounded shadow transition-all hover:bg-emerald-600">
-            تعديل
-          </Link>
+          <ScrollBar message={message}>
+            <Title className="flex">
+              <FaBorderNone className="ml-4 -mx-1 rounded-full border-4 size-7 border-teal-100 bg-teal-200 text-teal-800 dark:border-teal-900 dark:bg-teal-800 dark:text-teal-400" />
+              {`التصنيف: ${category.name}`}
+            </Title>
+            <Link href={route('category.edit', category.id)} className="bg-emerald-500 py-1 px-3 text-white rounded shadow transition-all hover:bg-emerald-600">
+              تعديل
+            </Link>
+          </ScrollBar>
         </div>
       }
     >

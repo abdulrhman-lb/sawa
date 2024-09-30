@@ -12,25 +12,25 @@ class KindController extends Controller
 {
   public function index()
   {
-    $query = Kind::query();
-
-    // Sorting
-    $sortField = request('sort_field', 'created_at');
-    $sortDirection = request('sort_direction', 'desc');
-
-    // Search
+    $query          = Kind::query();
+    $sortField      = request('sort_field', 'created_at');
+    $sortDirection  = request('sort_direction', 'desc');
     if (request("name")) {
       $query->where("name", "like", "%" . request("name") . "%");
     }
-
-    // Apply
-    $kinds = $query->orderBy($sortField, $sortDirection)->paginate(25)->onEachSide(1);
+    if (request("col")) {
+      $col = request("col");
+    } else {
+      $col = 25;
+    }
+    $kinds = $query->orderBy($sortField, $sortDirection)->paginate($col)->onEachSide(1);
     $message = Message::first();
     return inertia("Admin/Dashboard/Kind/Index", [
-      "kinds"    => KindResource::collection($kinds),
-      'queryParams' => request()->query() ?: null,
-      'success'     => session('success'),
-      'message'     => $message
+      "kinds"                 => KindResource::collection($kinds),
+      'queryParams'           => request()->query() ?: null,
+      'success'               => session('success'),
+      'message'               => $message,
+      'initialNotifications'  => auth()->user()->unreadNotifications,
     ]);
   }
 
@@ -38,7 +38,8 @@ class KindController extends Controller
   {
     $message = Message::first();
     return inertia("Admin/Dashboard/Kind/Create",[
-      'message'     => $message
+      'message'               => $message,
+      'initialNotifications'  => auth()->user()->unreadNotifications,
     ]);
   }
 
@@ -49,38 +50,30 @@ class KindController extends Controller
     return to_route('kind.index')->with('success', 'تم إضافة تفاصيل الخدمة بنجاح');
   }
 
-  public function show(Kind $kind)
-  {
-    //
-  }
-
   public function edit(Kind $kind)
   {
     $message = Message::first();
     return inertia("Admin/Dashboard/Kind/Edit", [
-      'kind' => new KindResource($kind),
-      'message'     => $message
+      'kind'                  => new KindResource($kind),
+      'message'               => $message,
+      'initialNotifications'  => auth()->user()->unreadNotifications,
     ]);
   }
 
   public function update(UpdateKindRequest $request, Kind $kind)
   {
     $data = $request->validated();
-
     $kind->update($data);
     return to_route('kind.index')->with('success', "تم تعديل تفاصيل الخدمة \"$kind->name\" بنجاح");
   }
 
   public function destroy(Kind $kind)
   {
-    //التحقق إذا كان هناك سجلات مرتبطة
     if (($kind->amountKinds()->count() > 0)) {
       return to_route('kind.index')->with('success', "لايمكن حذف بيانات تفاصيل الخدمة  \"$kind->name\" لوجود منتجات مرتبطة به");
     }
-
     $name = $kind->name;
     $kind->delete();
-
     return to_route('kind.index')->with('success', "تم حذف تفاصيل الخدمة   \"$name\" بنجاح");
   }
 }

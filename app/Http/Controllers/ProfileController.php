@@ -8,9 +8,7 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
-use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Inertia\Response;
 use Illuminate\Support\Str;
@@ -20,20 +18,22 @@ class ProfileController extends Controller
 {
   public function edit(Request $request): Response
   {
-    $message          = Message::first();
+    $message = Message::first();
     return Inertia::render('Profile/Edit', [
-      'mustVerifyEmail' => $request->user() instanceof MustVerifyEmail,
-      'success' => session('success'),
-      'updated' => session('updated'),
-      'message'           => $message
+      'mustVerifyEmail'       => $request->user() instanceof MustVerifyEmail,
+      'success'               => session('success'),
+      'updated'               => session('updated'),
+      'message'               => $message,
+      'initialNotifications'  => auth()->user()->unreadNotifications,
+
     ]);
   }
 
   public function update(ProfileUpdateRequest $request): RedirectResponse
   {
-    $data = $request->validated();
-    $user = Auth()->user();
-    $image = $data['image'] ?? null;
+    $data   = $request->validated();
+    $user   = Auth()->user();
+    $image  = $data['image'] ?? null;
     if ($image) {
       if ($user->image && file_exists(public_path($user->image))) {
         unlink(public_path($user->image));
@@ -55,7 +55,7 @@ class ProfileController extends Controller
     ]);
     $user = $request->user();
     Auth::logout();
-    $user->delete();
+    $user   ->delete();
     $request->session()->invalidate();
     $request->session()->regenerateToken();
     return Redirect::to('/');

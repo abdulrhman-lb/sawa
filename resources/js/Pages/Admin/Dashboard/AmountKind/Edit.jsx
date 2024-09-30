@@ -9,13 +9,22 @@ import Title from "@/Components/Title";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { Head, Link, useForm } from "@inertiajs/react";
 import { useState, useEffect } from "react";
+import { PiCashRegisterThin } from "react-icons/pi";
 
-export default function Edit({ auth, categories, products, services, kinds, amount_kind, message }) {
+export default function Edit({ 
+  auth, 
+  categories, 
+  products, 
+  services, 
+  kinds, 
+  amount_kind, 
+  message, 
+  initialNotifications }) {
   const { data, setData, put, errors } = useForm({
-    amount: amount_kind.amount || '0',
-    kind: amount_kind.kind || 'const',
+    amount:     amount_kind.amount || '0',
+    kind:       amount_kind.kind || 'const',
     service_id: amount_kind.service_id || '',
-    kind_id: amount_kind.kind_id || '',
+    kind_id:    amount_kind.kind_id || '',
   });
 
   const [category_id, setCategoryId] = useState(amount_kind.service.product.category_id || '');
@@ -58,10 +67,15 @@ export default function Edit({ auth, categories, products, services, kinds, amou
     <AuthenticatedLayout
       user={auth.user}
       message={message}
+      notification={initialNotifications}
       header={
         <div className="flex justify-between items-center">
-          <Title>تعديل سعر المنتج</Title>
-          <ScrollBar message={message} />
+          <ScrollBar message={message}>
+            <Title className="flex">
+              <PiCashRegisterThin className="ml-4 -mx-1 rounded-full border-4 size-7 border-teal-100 bg-teal-200 text-teal-800 dark:border-teal-900 dark:bg-teal-800 dark:text-teal-400" />
+              تعديل سعر المنتج
+            </Title>
+          </ScrollBar>
         </div>
       }
     >
@@ -98,7 +112,7 @@ export default function Edit({ auth, categories, products, services, kinds, amou
                     placeholder="اختر المنتج"
                     labelKey="name"
                     valueKey="id"
-                    disabled={!category_id} // Disable if no category selected
+                    disabled={!category_id} 
                   />
                   <InputError message={errors.product_id} className="mt-2" />
                 </div>
@@ -114,7 +128,7 @@ export default function Edit({ auth, categories, products, services, kinds, amou
                     placeholder="اختر الخدمة"
                     labelKey="name"
                     valueKey="id"
-                    disabled={!product_id} // Disable if no product selected
+                    disabled={!product_id}
                   />
                   <InputError message={errors.service_id} className="mt-2" />
                 </div>

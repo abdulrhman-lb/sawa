@@ -10,6 +10,7 @@ import ScrollBar from "@/Components/ScrollBar";
 import Title from "@/Components/Title";
 import PrimaryButton from "@/Components/Buttons/PrimaryButton";
 import DeleteButton from "@/Components/Buttons/DeleteButton";
+import { GiCash } from "react-icons/gi";
 
 export default function Home({
   auth,
@@ -24,7 +25,9 @@ export default function Home({
   sum1,
   sum2,
   sum3,
+  initialNotifications
 }) {
+
   useEffect(() => {
     AOS.init({ duration: 1000 });
   }, []);
@@ -33,7 +36,7 @@ export default function Home({
     if (!window.confirm('هل تريد بالتأكيد حذف رأس المال ؟')) {
       return;
     }
-    router.post(route('capital.destroy', capital.id),{
+    router.post(route('capital.destroy', capital.id), {
       _method: 'DELETE',
     })
   }
@@ -50,15 +53,19 @@ export default function Home({
     <AuthenticatedLayout
       user={auth.user}
       message={message}
+      notification={initialNotifications}
       header={
         <div className="flex justify-between items-center">
-          <Title>إجمالي البيان المالي</Title>
-          <ScrollBar message={message} />
+          <ScrollBar message={message}>
+            <Title className="flex">
+              <GiCash className="ml-4 -mx-1 rounded-full border-4 size-7 border-teal-100 bg-teal-200 text-teal-800 dark:border-teal-900 dark:bg-teal-800 dark:text-teal-400" />
+              إجمالي البيان المالي
+            </Title>
+          </ScrollBar>
         </div>
       }
     >
       <Head title="إجمالي البيان المالي" />
-
       <div className="py-2 text-center">
         <div className="max-w-7xl mx-auto sm:px-6 lg:px-8 grid grid-cols-2 gap-2">
           <div data-aos="fade-down" data-aos-delay={0} className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg relative h-16">
@@ -198,7 +205,6 @@ export default function Home({
             </div>
           </div>
         </div>
-
         <div data-aos="fade-up" data-aos-delay={500} className="max-w-7xl mx-auto sm:px-6 lg:px-8 mt-4">
           <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
             <div className="p-6 text-gray-900 dark:text-gray-100 justify-between">
