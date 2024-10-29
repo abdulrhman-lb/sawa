@@ -47,7 +47,7 @@ export default function SearchableDropdown({ items, name, queryParams, selectedI
   const handleSelectItem = (item) => {
     setSelectedName(item.name);
     onSelectItem(item);
-    setDropdownOpen(false); // أغلق القائمة بعد اختيار العنصر
+    setDropdownOpen(false); // أغلق القائمة بعد اختيار العنصر 
   };
 
   const dropdownMenu = (

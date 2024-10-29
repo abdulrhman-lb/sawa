@@ -47,7 +47,6 @@ class BoxController extends Controller
       'success'               => session('success'),
       'totalAmount'           => $totalAmount,
       'message'               => $message,
-      'initialNotifications'  => auth()->user()->unreadNotifications,
     ]);
   }
 
@@ -56,7 +55,6 @@ class BoxController extends Controller
     $message = Message::first();
     return inertia("Admin/Financial/Box/Create", [
       'message'               => $message,
-      'initialNotifications'  => auth()->user()->unreadNotifications,
     ]);
   }
 
@@ -73,7 +71,6 @@ class BoxController extends Controller
     return inertia("Admin/Financial/Box/Edit", [
       'box'                   => new BoxResource($box),
       'message'               => $message,
-      'initialNotifications'  => auth()->user()->unreadNotifications,
     ]);
   }
 
@@ -141,7 +138,6 @@ class BoxController extends Controller
       'total_boxN'            => $boxs->total_add,
       'queryParams'           => request()->query() ?: null,
       'message'               => $message,
-      'initialNotifications'  => auth()->user()->unreadNotifications,
     ]);
   }
 }

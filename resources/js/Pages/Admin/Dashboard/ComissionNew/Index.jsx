@@ -3,12 +3,12 @@ import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { Head, router } from "@inertiajs/react";
 import TableHeading from "@/Components/TableHeading";
 import SearchableDropdown from "@/Components/SearchableDropdown";
-import PrimaryButton from "@/Components/Buttons/PrimaryButton";
 import ScrollBar from "@/Components/ScrollBar";
 import SuccessMessage from "@/Components/SuccessMessage";
 import Title from "@/Components/Title";
 import { FaCreativeCommonsZero } from "react-icons/fa6";
 import SelectInput from "@/Components/SelectInput";
+import { RiListView } from "react-icons/ri";
 
 export default function index({
   auth,
@@ -17,7 +17,6 @@ export default function index({
   queryParams = null,
   success,
   message,
-  initialNotifications
 }) {
 
   queryParams = queryParams || {}
@@ -62,14 +61,16 @@ export default function index({
   }
 
   const editComission = (user) => {
-    router.get(route("comission.category", user))
+    router.get(route("comission.category", {
+      user_id: user.id,
+      category_id: user.category_id,
+    }))
   }
 
   return (
     <AuthenticatedLayout
       user={auth.user}
       message={message}
-      notification={initialNotifications}
       header={
         <div className="flex justify-between items-center">
           <ScrollBar message={message}>
@@ -159,7 +160,7 @@ export default function index({
                         <td className="px-3 py-2 text-nowrap">
                           <div className="flex justify-center">
                             {user.comission_new_user.map((comission) => (
-                              <span className="bg-emerald-600 rounded-md px-3 min-w-[120px] text-center inline-block font-normal text-white mx-1">
+                              <span className="min-w-[120px] bg-indigo-800 text-indigo-100 text-lg font-medium me-2 px-2.5 py-0.5 rounded-full dark:bg-indigo-900 dark:text-indigo-300">
                                 {comission.category}
                               </span>
                             ))}
@@ -167,7 +168,13 @@ export default function index({
                         </td>
                         <td className="px-3 py-2 text-nowrap">{user.createdBy}</td>
                         <td className="px-3 py-2 text-nowrap">
-                          <PrimaryButton onClick={e => editComission(user)}>عرض</PrimaryButton>
+                          <button
+                            onClick={e => editComission(user)}
+                            type="button"
+                            className="inline-flex text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 shadow-lg shadow-blue-500/50 dark:shadow-lg dark:shadow-blue-800/80 font-medium rounded-lg text-lg px-2.5 py-1.5 text-center me-2">
+                            عرض
+                            <RiListView style={{ marginRight: '8px', marginTop: '3px' }} size={20} />
+                          </button>
                         </td>
                       </tr>
                     ))}

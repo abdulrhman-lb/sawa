@@ -7,13 +7,14 @@ import SuccessMessage from '@/Components/SuccessMessage';
 import UpdateSupportNumberForm from './Partials/UpdateSupportNumberForm';
 import Title from '@/Components/Title';
 import { IoSettingsOutline } from "react-icons/io5";
+import UpdateTasdedForm from './Partials/UpdateTasdedForm';
+import UpdateAppStatusForm from './Partials/UpdateAppStatusForm';
 
-export default function Edit({ auth, success, message, initialNotifications }) {
+export default function Edit({ auth, success, message }) {
   return (
     <AuthenticatedLayout
       user={auth.user}
       message={message}
-      notification={initialNotifications}
       header={
         <div className="flex justify-between items-center">
           <ScrollBar message={message}>
@@ -29,16 +30,31 @@ export default function Edit({ auth, success, message, initialNotifications }) {
       <div className="py-2">
         <div className="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6 ">
           {success && (<SuccessMessage message={success} />)}
-          <div className='grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3'>
+          <div className='grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 text-center'>
             <div className="p-4 sm:p-8 bg-white dark:bg-gray-800 shadow sm:rounded-lg text-center">
               <UpdateMessageForm
                 message={message}
                 success={success}
+                auth={auth}
                 className="max-w-full"
               />
             </div>
             <div className="p-4 sm:p-8 bg-white dark:bg-gray-800 shadow sm:rounded-lg text-center">
               <UpdateSupportNumberForm
+                message={message}
+                success={success}
+                className="max-w-full"
+              />
+            </div>
+            <div className={`p-4 sm:p-8 ${message.tasded === 1 ? 'bg-green-300' : 'bg-red-300'} shadow sm:rounded-lg text-center`}>
+              <UpdateTasdedForm
+                message={message}
+                success={success}
+                className="max-w-full"
+              />
+            </div>
+            <div className={`p-4 sm:p-8 ${message.app_status === 1 ? 'bg-green-300' : 'bg-red-300'} shadow sm:rounded-lg text-center`}>
+              <UpdateAppStatusForm
                 message={message}
                 success={success}
                 className="max-w-full"
@@ -51,6 +67,7 @@ export default function Edit({ auth, success, message, initialNotifications }) {
                 className="max-w-full"
               />
             </div>
+
           </div>
         </div>
       </div>

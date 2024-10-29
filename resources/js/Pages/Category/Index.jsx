@@ -9,7 +9,6 @@ export default function Index({
   auth, 
   categories, 
   message, 
-  initialNotifications
  }) {
 
   const numberOfCategories = categories.data.length
@@ -18,7 +17,6 @@ export default function Index({
     <AuthenticatedLayout
       user={auth.user}
       message={message}
-      notification={initialNotifications}
       header={
         <div className="flex justify-between items-center w-full">
           <ScrollBar message={message} >
@@ -38,9 +36,9 @@ export default function Index({
               <p className="text-center text-gray-500">لا يوجد تصنيفات متاحة .</p>
             </div>
           ) : (
-            categories.data.map((member) => (
+            categories.data.map((member, index) => (
               <>
-                <Content key={member.id} {...member} />
+                <Content key={index} {...member} />
               </>
             ))
           )}

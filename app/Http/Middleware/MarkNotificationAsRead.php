@@ -21,7 +21,7 @@ class MarkNotificationAsRead
         if ($user) {
           $notification = $user->unreadNotifications()->find($notification_id);
           if ($notification) {
-            $notification->MarkAsRead();
+            $notification->delete();
           }
         }
       }

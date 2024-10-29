@@ -24,8 +24,6 @@ class ProfileController extends Controller
       'success'               => session('success'),
       'updated'               => session('updated'),
       'message'               => $message,
-      'initialNotifications'  => auth()->user()->unreadNotifications,
-
     ]);
   }
 

@@ -43,7 +43,6 @@ class ProductController extends Controller
       'queryParams'           => request()->query() ?: null,
       'success'               => session('success'), 
       'message'               => $message,
-      'initialNotifications'  => auth()->user()->unreadNotifications,
     ]);
   }
 
@@ -54,7 +53,6 @@ class ProductController extends Controller
     return inertia("Admin/Dashboard/Product/Create", [
       'categories'            => CategoryResource::collection($categories),
       'message'               => $message,
-      'initialNotifications'  => auth()->user()->unreadNotifications,
     ]);
   }
 
@@ -78,7 +76,6 @@ class ProductController extends Controller
     return inertia("Admin/Dashboard/Product/Show", [
       'product'               => new ProductResource($product),
       'message'               => $message,
-      'initialNotifications'  => auth()->user()->unreadNotifications,
     ]);
   }
 
@@ -90,7 +87,6 @@ class ProductController extends Controller
       'product'               => new ProductResource($product),
       'categories'            => CategoryResource::collection($categories),
       'message'               => $message,
-      'initialNotifications'  => auth()->user()->unreadNotifications,
     ]);
   }
 
@@ -135,7 +131,7 @@ class ProductController extends Controller
     return inertia("Product/Index", [
       "products"              => ProductResource::collection($products),
       'message'               => $message,
-      'initialNotifications'  => auth()->user()->unreadNotifications,
+      'queryParams'           => request()->query() ?: null,
     ]); 
   }
 }

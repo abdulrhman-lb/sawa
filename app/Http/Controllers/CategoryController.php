@@ -37,7 +37,6 @@ class CategoryController extends Controller
       'queryParams'           => request()->query() ?: null,
       'success'               => session('success'),
       'message'               => $message,
-      'initialNotifications'  => auth()->user()->unreadNotifications,
     ]);
   }
 
@@ -46,7 +45,6 @@ class CategoryController extends Controller
     $message = Message::first();
     return inertia("Admin/Dashboard/Category/Create", [
       'message'               => $message,
-      'initialNotifications'  => auth()->user()->unreadNotifications,
     ]);
   }
 
@@ -70,7 +68,6 @@ class CategoryController extends Controller
     return inertia("Admin/Dashboard/Category/Show", [
       'category'              => new CategoryResource($category),
       'message'               => $message,
-      'initialNotifications'  => auth()->user()->unreadNotifications,
     ]);
   }
 
@@ -80,7 +77,6 @@ class CategoryController extends Controller
     return inertia("Admin/Dashboard/Category/Edit", [
       'category'              => new CategoryResource($category),
       'message'               => $message,
-      'initialNotifications'  => auth()->user()->unreadNotifications,
     ]);
   }
 
@@ -129,7 +125,6 @@ class CategoryController extends Controller
     return inertia("Category/Index", [
       "categories"            => CategoryResource::collection($categories),
       'message'               => $message,
-      'initialNotifications'  => auth()->user()->unreadNotifications,
     ]);
   }
 }

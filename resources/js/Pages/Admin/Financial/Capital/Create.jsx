@@ -1,5 +1,3 @@
-import AcceptButton from "@/Components/Buttons/AcceptButton";
-import RejectButton from "@/Components/Buttons/RejectButton copy";
 import InputError from "@/Components/InputError";
 import InputLabel from "@/Components/InputLabel";
 import ScrollBar from "@/Components/ScrollBar";
@@ -7,17 +5,18 @@ import TextAreaInput from "@/Components/TextAreaInput";
 import TextInput from "@/Components/TextInput";
 import Title from "@/Components/Title";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
-import { Head, Link, router, useForm } from "@inertiajs/react";
+import { Head, Link, useForm } from "@inertiajs/react";
 import { useState } from "react";
+import { FaRegSave } from "react-icons/fa";
 import { IoCashOutline } from "react-icons/io5";
+import { MdOutlineCancel } from "react-icons/md";
 
 export default function Create({
   auth,
   message,
-  initialNotifications
 }) {
 
-  const { data, setData, post, errors, reset } = useForm({
+  const { data, setData, post, errors, processing, reset } = useForm({
     amount: '',
     statment: '',
   })
@@ -45,7 +44,6 @@ export default function Create({
     <AuthenticatedLayout
       user={auth.user}
       message={message}
-      notification={initialNotifications}
       header={
         <div className="flex justify-between items-center">
           <ScrollBar message={message}>
@@ -61,7 +59,7 @@ export default function Create({
       <div className="py-2">
         <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
           <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
-            <form onSubmit={onSubmit} className="p-4 sm:p-8 bg-white dark:bg-gray-800 shadow sm:rounded-lg">
+            <form onSubmit={onSubmit} className="p-2 bg-white dark:bg-gray-800 shadow sm:rounded-lg">
               <div>
                 <InputLabel
                   htmlFor="amount"
@@ -95,10 +93,21 @@ export default function Create({
                 <InputError message={errors.statment} className="mt-2" />
                 <InputError message={statmentError} className="mt-2" />
               </div>
-              <div className="mt-4 text-right ">
-                <AcceptButton className="w-28 justify-center">موافق</AcceptButton>
+              <div className="flex justify-center text-center py-4">
+                <button
+                  disabled={processing}
+                  type="submit"
+                  className="inline-flex text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 shadow-lg shadow-blue-500/50 dark:shadow-lg dark:shadow-blue-800/80 font-medium rounded-lg text-lg px-2.5 py-1.5 text-center me-2">
+                  موافق
+                  <FaRegSave style={{ marginRight: '8px', marginTop: '3px' }} size={20} />
+                </button>
                 <Link href={route('capital.index')} >
-                  <RejectButton className="w-28 justify-center">إلغاء الأمر</RejectButton>
+                  <button
+                    type="button"
+                    className="flex text-white bg-gradient-to-r from-red-400 via-red-500 to-red-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 shadow-lg shadow-red-500/50 dark:shadow-lg dark:shadow-red-800/80 font-medium rounded-lg text-lg px-2.5 py-1.5 text-center me-2">
+                    إلغاء الأمر
+                    <MdOutlineCancel style={{ marginRight: '8px', marginTop: '4px' }} size={20} />
+                  </button>
                 </Link>
               </div>
             </form>

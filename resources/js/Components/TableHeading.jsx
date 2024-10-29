@@ -10,7 +10,7 @@ export default function TableHeading({
 }) {
   return (
     <th onClick={(e) => sortChanged(name)} className="text-center">
-      <div className="text-md px-3 py-3 flex items-center justify-center gap-1 cursor-pointer">
+      <div className="text-md px-2 py-3 flex items-center justify-center gap-1 cursor-pointer">
         {sortable &&
           <div className="flex flex-col items-center">
             <ChevronUpIcon className={

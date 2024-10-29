@@ -5,12 +5,15 @@ import { Head, Link, router } from "@inertiajs/react";
 import TableHeading from "@/Components/TableHeading";
 import SelectInput from "@/Components/SelectInput";
 import { KIND_CLASS_MAP, KIND_TEXT_MAP, STATUS_CLASS_MAP, STATUS_TEXT_MAP } from "@/constants";
-import PrimaryButton from "@/Components/Buttons/PrimaryButton";
-import AddButton from "@/Components/Buttons/AddButton";
 import ScrollBar from "@/Components/ScrollBar";
 import SuccessMessage from "@/Components/SuccessMessage";
 import Title from "@/Components/Title";
 import { HiOutlineUsers } from "react-icons/hi";
+import { FaRegEdit } from "react-icons/fa";
+import { RiDeleteBin6Line } from "react-icons/ri";
+import { FiSliders } from "react-icons/fi";
+import { FaRegPlusSquare } from "react-icons/fa";
+
 
 export default function index({
   auth,
@@ -19,7 +22,6 @@ export default function index({
   queryParams = null,
   success,
   message,
-  initialNotifications
 }) {
 
   queryParams = queryParams || {}
@@ -85,7 +87,6 @@ export default function index({
     <AuthenticatedLayout
       user={auth.user}
       message={message}
-      notification={initialNotifications}
       header={
         <div className="flex justify-between items-center">
           <ScrollBar message={message}>
@@ -93,7 +94,13 @@ export default function index({
               <HiOutlineUsers className="ml-4 -mx-1 rounded-full border-4 size-7 border-teal-100 bg-teal-200 text-teal-800 dark:border-teal-900 dark:bg-teal-800 dark:text-teal-400" />
               المراكز
             </Title>
-            <AddButton onClick={e => addUser()}>إضافة</AddButton>
+            <button
+              onClick={e => addUser()}
+              type="button"
+              className="inline-flex text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 shadow-lg shadow-blue-500/50 dark:shadow-lg dark:shadow-blue-800/80 font-medium rounded-lg text-lg px-2.5 py-1.5 text-center me-2">
+              إضافة
+              <FaRegPlusSquare style={{ marginRight: '8px', marginTop: '2px' }} size={25} />
+            </button>
           </ScrollBar>
         </div>
       }
@@ -178,7 +185,18 @@ export default function index({
                   </thead>
                   <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400 border-b-2 border-gray-500">
                     <tr className="text-nowrap">
-                      <th className="px-3 py-3"></th>
+                      <th className="py-3 text-center">
+                        <SelectInput
+                          className="text-sm font-medium"
+                          defaultValue={queryParams.col}
+                          onChange={e => colChanged('col', e.target.value)}
+                        >
+                          <option value="25">25</option>
+                          <option value="50">50</option>
+                          <option value="75">75</option>
+                          <option value="100">100</option>
+                        </SelectInput>
+                      </th>
                       <th className="px-3 py-3"></th>
                       <th className="px-3 py-3">
                         <TextInput
@@ -242,32 +260,44 @@ export default function index({
                   <tbody className="text-center">
                     {users.data.map((user, index) => (
                       <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700" key={user.id}>
-                        <td className="px-3 py-2">{index + 1}</td>
+                        <td className="px-1 py-2">{index + 1}</td>
                         <td className="px-1 py-2 flex justify-center items-center"><img src={user.image} className="rounded-full w-[50px] h-[50px] ml-2 border-2 border-gray-300" /></td>
-                        <td className="px-3 py-2 text-nowrap">{user.name}</td>
-                        <td className="px-3 py-2">{user.email}</td>
-                        <td className="px-3 py-2 text-center">
-                          <span className={" px-2 py-0 cursor-pointer rounded text-white text-nowrap " +
-                            KIND_CLASS_MAP[user.kind]} >
+                        <td className="px-1 py-2">{user.name}</td>
+                        <td className="px-1 py-2">{user.email}</td>
+                        <td className="px-1 py-2 text-center">
+                          <span className={KIND_CLASS_MAP[user.kind]} >
                             {KIND_TEXT_MAP[user.kind]}
                           </span>
                         </td>
-                        <td className="px-3 py-2 text-center">
-                          <span className={"px-2 py-0 cursor-pointer rounded text-white text-nowrap " +
-                            STATUS_CLASS_MAP[user.status]} >
+                        <td className="px-1 py-2 text-center">
+                          <span className={STATUS_CLASS_MAP[user.status]} >
                             {STATUS_TEXT_MAP[user.status]}
                           </span>
                         </td>
-                        <td className="px-3 py-2 text-nowrap">
-                          {user.category_permissions.map((permission) =>
-                            <h2 className="text-md font-normal text-nowrap">{permission.category_name}</h2>
+                        <td className="px-1 py-2 text-nowrap">
+                          {user.category_permissions.map((permission, index) =>
+                            <h2 key={index} className="text-md font-normal text-nowrap">{permission.category_name}</h2>
                           )}
                         </td>
-                        <td className="px-3 py-2 text-nowrap">{user.createdBy}</td>
-                        <td className="px-3 py-2 text-nowrap">{user.created_at}</td>
-                        <td className="px-3 py-2 text-nowrap">
-                          <PrimaryButton onClick={e => editUser(user)}>تعديل</PrimaryButton>
-                          <PrimaryButton onClick={e => editPermission(user)}>الصلاحيات</PrimaryButton>
+                        <td className="px-1 py-2 text-nowrap">{user.createdBy}</td>
+                        <td className="px-1 py-2 text-nowrap">{user.created_at}</td>
+                        <td className="px-1 py-2 items-center">
+                          <div className="flex justify-center">
+                            <button
+                              onClick={e => editUser(user)}
+                              type="button"
+                              className="inline-flex text-white bg-gradient-to-r from-green-600 via-green-700 to-green-800 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-green-300 dark:focus:ring-green-800 shadow-lg shadow-green-500/50 dark:shadow-lg dark:shadow-green-800/80 font-medium rounded-lg text-lg px-2.5 py-1.5 text-center me-2">
+                              تعديل
+                              <FaRegEdit style={{ marginRight: '8px', marginTop: '3px' }} size={20} />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={e => editPermission(user)}
+                              className="inline-flex text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 shadow-lg shadow-blue-500/50 dark:shadow-lg dark:shadow-blue-800/80 font-medium rounded-lg text-lg px-2.5 py-1.5 text-center me-2">
+                              الصلاحيات
+                              <FiSliders style={{ marginRight: '8px', marginTop: '4px' }} size={20} />
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     ))}

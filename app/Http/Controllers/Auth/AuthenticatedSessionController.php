@@ -43,7 +43,7 @@ class AuthenticatedSessionController extends Controller
 
     $request->session()->regenerate();
     if ($user->kind === 'admin') {
-      return to_route('order.index');
+      return to_route('order.in.progress');
     } else {
       return redirect()->intended(route('category.home', absolute: false));
     }

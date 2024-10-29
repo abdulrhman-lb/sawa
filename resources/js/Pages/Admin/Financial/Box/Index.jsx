@@ -2,9 +2,6 @@ import Pagination from "@/Components/Pagination";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { Head, router } from "@inertiajs/react";
 import TableHeading from "@/Components/TableHeading";
-import PrimaryButton from "@/Components/Buttons/PrimaryButton";
-import DeleteButton from "@/Components/Buttons/DeleteButton";
-import AddButton from "@/Components/Buttons/AddButton";
 import CustomDatePicker from "@/Components/CustomDatePicker";
 import SecondaryButton from "@/Components/Buttons/SecondaryButton";
 import { useState } from "react";
@@ -13,6 +10,8 @@ import ScrollBar from "@/Components/ScrollBar";
 import SuccessMessage from "@/Components/SuccessMessage";
 import Title from "@/Components/Title";
 import { GiExpense } from "react-icons/gi";
+import { FaRegEdit, FaRegPlusSquare } from "react-icons/fa";
+import { RiDeleteBin6Line } from "react-icons/ri";
 
 export default function index({
   auth,
@@ -21,7 +20,6 @@ export default function index({
   totalAmount = null,
   success,
   message,
-  initialNotifications
 }) {
 
   queryParams = queryParams || {}
@@ -35,7 +33,6 @@ export default function index({
   );
 
   const searchFieldChanged = (name, value) => {
-    console.log(selectedStartDate);
     queryParams['start_date'] = (selectedStartDate && format(selectedStartDate, "dd/MM/yyyy"));
     queryParams['end_date'] = (selectedEndDate && format(selectedEndDate, "dd/MM/yyyy"));
     router.get(route('box.index'), queryParams)
@@ -76,7 +73,6 @@ export default function index({
     <AuthenticatedLayout
       user={auth.user}
       message={message}
-      notification={initialNotifications}
       header={
         <div className="flex justify-between items-center">
           <ScrollBar message={message}>
@@ -84,7 +80,13 @@ export default function index({
               <GiExpense className="ml-4 -mx-1 rounded-full border-4 size-7 border-teal-100 bg-teal-200 text-teal-800 dark:border-teal-900 dark:bg-teal-800 dark:text-teal-400" />
               النفقات والمصاريف
             </Title>
-            <AddButton onClick={e => addBox()}>إضافة</AddButton>
+            <button
+              onClick={e => addBox()}
+              type="button"
+              className="inline-flex text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 shadow-lg shadow-blue-500/50 dark:shadow-lg dark:shadow-blue-800/80 font-medium rounded-lg text-lg px-2.5 py-1.5 text-center me-2">
+              إضافة
+              <FaRegPlusSquare style={{ marginRight: '8px', marginTop: '2px'  }} size={25} />
+            </button>
           </ScrollBar>
         </div>
       }
@@ -179,9 +181,23 @@ export default function index({
                         <td className="px-3 py-2">{box.created_at}</td>
                         <td className="px-3 py-2">{box.amount}</td>
                         <td className="px-3 py-2">{box.statment}</td>
-                        <td className="px-3 py-2 text-nowrap">
-                          <PrimaryButton onClick={e => editBox(box)}>تعديل</PrimaryButton>
-                          <DeleteButton onClick={e => deleteBox(box)}>حذف</DeleteButton>
+                        <td className="px-3 py-2 items-center">
+                          <div className="flex justify-center">
+                            <button
+                              onClick={e => editBox(box)}
+                              type="button"
+                              className="inline-flex text-white bg-gradient-to-r from-green-600 via-green-700 to-green-800 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-green-300 dark:focus:ring-green-800 shadow-lg shadow-green-500/50 dark:shadow-lg dark:shadow-green-800/80 font-medium rounded-lg text-lg px-2.5 py-1.5 text-center me-2">
+                              تعديل
+                              <FaRegEdit style={{ marginRight: '8px', marginTop: '3px' }} size={20} />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={e => deleteBox(box)}
+                              className="flex text-white bg-gradient-to-r from-red-400 via-red-500 to-red-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 shadow-lg shadow-red-500/50 dark:shadow-lg dark:shadow-red-800/80 font-medium rounded-lg text-lg px-2.5 py-1.5 text-center me-2">
+                              حذف
+                              <RiDeleteBin6Line style={{ marginRight: '8px', marginTop: '4px' }} size={20} />
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     ))}

@@ -75,10 +75,11 @@ const DropdownLink = ({ className = '', isActive = false, children, ...props }) 
       <Link
           {...props}
           className={
-              'block my-1 mx-1 px-4 py-2 text-start lg:text-base rounded-md leading-5 transition duration-150 ease-in-out ' +
+              'block my-1 mx-1 px-2 py-2 text-start lg:text-base rounded-md leading-5 transition duration-150 ease-in-out ' +
               (isActive
-                  ? 'bg-red-600/80 text-white'
-                  : 'bg-blue-700/80 text-white hover:bg-blue-800') + 
+                ? 'text-white bg-gradient-to-br from-pink-500 to-orange-400 hover:bg-gradient-to-bl focus:outline-none  '
+                : 'text-white bg-gradient-to-r from-cyan-500 to-blue-500 hover:bg-gradient-to-bl focus:outline-none  ') +
+             + 
               className
           }
       >

@@ -2,12 +2,9 @@ import Pagination from "@/Components/Pagination";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { Head, router } from "@inertiajs/react";
 import TableHeading from "@/Components/TableHeading";
-import { useState } from "react";
 import SearchableDropdown from "@/Components/SearchableDropdown";
 import ScrollBar from "@/Components/ScrollBar";
 import SuccessMessage from "@/Components/SuccessMessage";
-import DeleteButton from "@/Components/Buttons/DeleteButton";
-import AddButton from "@/Components/Buttons/AddButton";
 import Title from "@/Components/Title";
 import { SiAuthelia } from "react-icons/si";
 
@@ -18,7 +15,6 @@ export default function index({
   category_permissions, 
   queryParams = null, 
   success, 
-  initialNotifications
  }) {
 
   queryParams = queryParams || {}
@@ -75,7 +71,6 @@ export default function index({
     <AuthenticatedLayout
       user={auth.user}
       message={message}
-      notification={initialNotifications}
       header={
         <div className="flex justify-between items-center">
           <ScrollBar message={message}>
@@ -83,7 +78,7 @@ export default function index({
               <SiAuthelia className="ml-4 -mx-1 rounded-full border-4 size-7 border-teal-100 bg-teal-200 text-teal-800 dark:border-teal-900 dark:bg-teal-800 dark:text-teal-400" />
               صلاحيات التصنيفات
             </Title>
-            <AddButton onClick={e => addCategoryPermission()}>إضافة</AddButton>
+            {/* <AddButton onClick={e => addCategoryPermission()}>إضافة</AddButton> */}
           </ScrollBar>
         </div>
       }
@@ -140,7 +135,7 @@ export default function index({
                         <td className="px-3 py-2">{category_permission.user.name}</td>
                         <td className="px-3 py-2">{category_permission.category.name}</td>
                         <td className="px-3 py-2 text-nowrap">
-                          <DeleteButton onClick={e => deleteCategoryPermission(category_permission)}>حذف</DeleteButton>
+                          {/* <DeleteButton onClick={e => deleteCategoryPermission(category_permission)}>حذف</DeleteButton> */}
                         </td>
                       </tr>
                     ))}

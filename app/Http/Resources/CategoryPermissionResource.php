@@ -22,7 +22,7 @@ class CategoryPermissionResource extends JsonResource
       'category_id'     => $this->category_id,
       'category'        => new CategoryResource($this->category),
       'user_id'         => $this->user_id,
-      'user'            => new UserCrudResource($this->user),
+      'user'            => new UserPermissionResource($this->user),
     ];
   }
 }

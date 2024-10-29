@@ -30,7 +30,6 @@ class DataKindController extends Controller
       'queryParams'           => request()->query() ?: null,
       'success'               => session('success'),
       'message'               => $message,
-      'initialNotifications'  => auth()->user()->unreadNotifications,
     ]);
   }
 
@@ -39,7 +38,6 @@ class DataKindController extends Controller
     $message = Message::first();
     return inertia("Admin/Dashboard/DataKind/Create", [
       'message'               => $message,
-      'initialNotifications'  => auth()->user()->unreadNotifications,
     ]);
   }
 
@@ -56,7 +54,6 @@ class DataKindController extends Controller
     return inertia("Admin/Dashboard/DataKind/Edit", [
       'dataKind'              => new DataKindResource($datakind),
       'message'               => $message,
-      'initialNotifications'  => auth()->user()->unreadNotifications,
     ]);
   }
 

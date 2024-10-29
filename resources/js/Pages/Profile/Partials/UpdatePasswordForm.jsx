@@ -1,10 +1,10 @@
 import { useRef } from 'react';
 import InputError from '@/Components/InputError';
 import InputLabel from '@/Components/InputLabel';
-import PrimaryButton from '@/Components/Buttons/PrimaryButton';
 import TextInput from '@/Components/TextInput';
 import { useForm } from '@inertiajs/react';
 import { Transition } from '@headlessui/react';
+import { FaRegSave } from 'react-icons/fa';
 
 export default function UpdatePasswordForm({ className = '', updated }) {
 
@@ -88,7 +88,13 @@ export default function UpdatePasswordForm({ className = '', updated }) {
           <InputError message={errors.password_confirmation} className="mt-2" />
         </div>
         <div className="flex items-center gap-4">
-          <PrimaryButton disabled={processing}>حفظ</PrimaryButton>
+          <button
+            disabled={processing}
+            type="submit"
+            className="inline-flex text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 shadow-lg shadow-blue-500/50 dark:shadow-lg dark:shadow-blue-800/80 font-medium rounded-lg text-lg px-2.5 py-1.5 text-center me-2">
+            حفظ التعديلات
+            <FaRegSave style={{ marginRight: '8px', marginTop: '3px' }} size={20} />
+          </button>
           <Transition
             show={recentlySuccessful}
             enter="transition ease-in-out"

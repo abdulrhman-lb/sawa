@@ -9,14 +9,12 @@ export default function Show({
   auth, 
   category, 
   message, 
-  initialNotifications
  }) {
   
   return (
     <AuthenticatedLayout
       user={auth.user}
       message={message}
-      notification={initialNotifications}
       header={
         <div className="flex justify-between items-center">
           <ScrollBar message={message}>

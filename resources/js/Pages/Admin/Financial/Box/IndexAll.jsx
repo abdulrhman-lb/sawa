@@ -7,8 +7,6 @@ import SecondaryButton from "@/Components/Buttons/SecondaryButton";
 import { format, parse } from "date-fns";
 import ScrollBar from "@/Components/ScrollBar";
 import Title from "@/Components/Title";
-import { FaBorderNone } from "react-icons/fa";
-import { LuCalendarDays } from "react-icons/lu";
 import { HiMiniCalendarDays } from "react-icons/hi2";
 
 export default function index({
@@ -24,7 +22,6 @@ export default function index({
   total_boxN,
   queryParams = null,
   message,
-  initialNotifications
 }) {
 
   queryParams = queryParams || {}
@@ -43,7 +40,6 @@ export default function index({
     <AuthenticatedLayout
       user={auth.user}
       message={message}
-      notification={initialNotifications}
       header={
         <div className="flex justify-between items-center">
           <ScrollBar message={message}>
@@ -64,7 +60,7 @@ export default function index({
                 disabled={!selectedDate}
               >
                 تصفية
-              </SecondaryButton>
+              </SecondaryButton> 
             </div>
           </ScrollBar>
         </div>
@@ -77,7 +73,7 @@ export default function index({
             <div className="p-1 text-gray-900 dark:text-gray-100">
               <div className="flex space-x-4 overflow-x-auto justify-between">
                 <div className="w-1/3 min-w-[300px] overflow-auto mx-2 items-center">
-                  <h3 className="text-lg font-semibold mb-1 text-center justify-center">ايرادات المراكز</h3>
+                  <h3 className="text-lg font-semibold mb-1 text-center justify-center">المقبوضات من المراكز : {total_center}</h3>
                   <div className="overflow-auto h-[300px]">
                     <table className="w-full text-md font-semibold rtl:text-right text-gray-800 dark:text-gray-200 ">
                       <thead className="text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400 border-b-2 border-gray-500">
@@ -94,16 +90,11 @@ export default function index({
                           </tr>
                         ))}
                       </tbody>
-                      <tfoot className="text-center">
-                        <tr>
-                          <th className="px-3 py-3">{total_center}</th>
-                        </tr>
-                      </tfoot>
                     </table>
                   </div>
                 </div>
                 <div className="w-1/3 min-w-[300px] overflow-auto">
-                  <h3 className="text-lg font-semibold mb-1 text-center justify-center">مدفوعات المنتجات</h3>
+                  <h3 className="text-lg font-semibold mb-1 text-center justify-center">المدفوعات للمزودات : {total_product.toLocaleString('en-US')}</h3>
                   <div className="overflow-auto h-[300px]">
                     <table className="w-full text-md font-semibold rtl:text-right text-gray-800 dark:text-gray-200 ">
                       <thead className="text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400 border-b-2 border-gray-500">
@@ -120,16 +111,11 @@ export default function index({
                           </tr>
                         ))}
                       </tbody>
-                      <tfoot className="text-center">
-                        <tr>
-                          <th className="px-3 py-3">{total_product.toLocaleString('en-US')}</th>
-                        </tr>
-                      </tfoot>
                     </table>
                   </div>
                 </div>
                 <div className="w-1/3 min-w-[300px] overflow-auto">
-                  <h3 className="text-lg font-semibold mb-1 text-center justify-center">النفقات والمصاريف</h3>
+                  <h3 className="text-lg font-semibold mb-1 text-center justify-center">مدفوعات نفقات ومصاريف : {total_box}</h3>
                   <div className="overflow-auto h-[300px]">
                     <table className="w-full text-md font-semibold mb-1 rtl:text-right text-gray-800 dark:text-gray-200 ">
                       <thead className="text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400 border-b-2 border-gray-500">
@@ -146,17 +132,12 @@ export default function index({
                           </tr>
                         ))}
                       </tbody>
-                      <tfoot className="text-center">
-                        <tr>
-                          <th className="px-3 py-3">{total_box}</th>
-                        </tr>
-                      </tfoot>
                     </table>
                   </div>
                 </div>
               </div>
               <div className={`mt-6 text-center ${(total > 0) ? 'bg-emerald-200' : 'bg-red-200'} rounded-md py-2 text-black`}>
-                <h4 className="text-xl font-semibold">إجمالي الصندوق</h4>
+                <h4 className="text-xl font-semibold">إجمالي الصندوق = المقبوضات من المراكز - المدفوعات للمزودات - مدفوعات نفقات ومصاريف</h4>
                 <p className="text-lg font-bold">
                   {`${(total).toLocaleString('en-US')}`}
                 </p>

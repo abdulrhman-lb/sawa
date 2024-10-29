@@ -11,14 +11,12 @@ export default function Edit({
   mustVerifyEmail, 
   success, updated, 
   message, 
-  initialNotifications
  }) {
 
   return (
     <AuthenticatedLayout
       user={auth.user}
       message={message}
-      notification={initialNotifications}
       header={
         <div className="flex justify-between items-center">
           <ScrollBar message={message}>

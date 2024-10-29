@@ -8,7 +8,7 @@ import ScrollBar from "@/Components/ScrollBar";
 import Title from "@/Components/Title";
 import { FaBorderNone } from "react-icons/fa";
 
-export default function Home({ auth, total_product, total_center, total_box, message, initialNotifications }) {
+export default function Home({ auth, total_product, total_center, total_box, message }) {
   useEffect(() => {
     AOS.init({ duration: 1000 });
   }, []);
@@ -17,7 +17,6 @@ export default function Home({ auth, total_product, total_center, total_box, mes
     <AuthenticatedLayout
       user={auth.user}
       message={message}
-      notification={initialNotifications}
       header={
         <div className="flex justify-between items-center">
           <ScrollBar message={message}>

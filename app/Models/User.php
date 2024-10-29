@@ -93,6 +93,11 @@ class User extends Authenticatable implements MustVerifyEmail
     return $this->hasMany(Order::class, 'user_id');
   }
 
+  public function tasdeds()
+  {
+    return $this->hasMany(Tasded::class, 'user_id');
+  }
+
   public function category_permissions()
   {
     return $this->hasMany(CategoryPermission::class, 'user_id');

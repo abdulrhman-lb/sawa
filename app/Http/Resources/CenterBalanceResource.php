@@ -24,6 +24,7 @@ class CenterBalanceResource extends JsonResource
       'profit'      => $this->profit,
       'statment'    => $this->statment,
       'user_id'     => $this->user_id,
+      'product_id'  => $this->product_id,
       'user'        => new UserResource($this->user),
       'order_id'    => $this->order_id,
       'order'       => new OrderResource($this->order),

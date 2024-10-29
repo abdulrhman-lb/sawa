@@ -4,13 +4,16 @@ import CountUp from "react-countup";
 import { useEffect } from "react";
 import AOS from "aos";
 import "aos/dist/aos.css";
-import AddButton from "@/Components/Buttons/AddButton";
 import TableHeading from "@/Components/TableHeading";
 import ScrollBar from "@/Components/ScrollBar";
 import Title from "@/Components/Title";
-import PrimaryButton from "@/Components/Buttons/PrimaryButton";
-import DeleteButton from "@/Components/Buttons/DeleteButton";
-import { GiCash } from "react-icons/gi";
+import { GiCash, GiExpense, GiPayMoney, GiProfit, GiTakeMyMoney } from "react-icons/gi";
+import { RiDeleteBin6Line } from "react-icons/ri";
+import { FaRegEdit, FaRegPlusSquare } from "react-icons/fa";
+import { MdAccountTree, MdOutlineAccountTree } from "react-icons/md";
+import { HiMiniCalendarDays } from "react-icons/hi2";
+import { PiListNumbersFill } from "react-icons/pi";
+import { IoCashOutline } from "react-icons/io5";
 
 export default function Home({
   auth,
@@ -24,8 +27,9 @@ export default function Home({
   message,
   sum1,
   sum2,
-  sum3,
-  initialNotifications
+  center_count,
+  product_count,
+  balance
 }) {
 
   useEffect(() => {
@@ -53,155 +57,114 @@ export default function Home({
     <AuthenticatedLayout
       user={auth.user}
       message={message}
-      notification={initialNotifications}
       header={
         <div className="flex justify-between items-center">
           <ScrollBar message={message}>
             <Title className="flex">
               <GiCash className="ml-4 -mx-1 rounded-full border-4 size-7 border-teal-100 bg-teal-200 text-teal-800 dark:border-teal-900 dark:bg-teal-800 dark:text-teal-400" />
-              إجمالي البيان المالي
+              الصندوق الختامي
             </Title>
           </ScrollBar>
         </div>
       }
     >
-      <Head title="إجمالي البيان المالي" />
+      <Head title="الصندوق الختامي" />
       <div className="py-2 text-center">
-        <div className="max-w-7xl mx-auto sm:px-6 lg:px-8 grid grid-cols-2 gap-2">
-          <div data-aos="fade-down" data-aos-delay={0} className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg relative h-16">
-            <div className="flex px-6 py-4 text-gray-900 dark:text-gray-100 justify-between">
-              <h3 className="text-blue-500 text-2xl font-semibold">
-                إجمالي أرصدة المراكز
-              </h3>
-              <div className="text-right w-36">
-                <p className="text-2xl">
-                  <span className="mx-2 font-semibold">
-                    <CountUp start={0} end={total_center} duration={2} delay={0} />
-                  </span>
+        <div className="max-w-7xl mx-auto sm:px-6 lg:px-8 ">
+          <div className="h-full w-full bg-gray-100 pt-8 p-4 rounded-md">
+            <div className="grid gap-14 md:grid-cols-4 md:gap-5">
+              <div data-aos="fade-down" data-aos-delay="50" className="rounded-xl bg-white py-6 text-center shadow-xl mb-4">
+                <div
+                  className="mx-auto flex h-16 w-16 -translate-y-12 transform items-center justify-center rounded-full bg-teal-400 shadow-lg shadow-teal-500/40">
+                  <MdOutlineAccountTree className="size-8 text-white" />
+                </div>
+                <h1 className="text-darken mb-3 text-xl font-medium lg:px-14">إجمالي أرصدة المراكز</h1>
+                <p className="px-4 text-gray-800 text-xl font-semibold">
+                  <CountUp start={0} end={total_center} duration={2} delay={0} />
                 </p>
               </div>
-            </div>
-          </div>
-          <div data-aos="fade-down" data-aos-delay={0} className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg relative h-16">
-            <div className="flex px-6 py-4 text-gray-900 dark:text-gray-100 justify-between">
-              <h3 className="text-amber-500 text-2xl font-semibold">
-                إجمالي أرصدة المنتجات
-              </h3>
-              <div className="text-right w-36">
-                <p className="text-2xl">
-                  <span className="mx-2 font-semibold">
-                    <CountUp start={0} end={total_product} duration={2} delay={0} />
-                  </span>
+              <div data-aos="fade-down" data-aos-delay="200" className="rounded-xl bg-white py-6 text-center shadow-xl mb-4">
+                <div
+                  className="mx-auto flex h-16 w-16 -translate-y-12 transform items-center justify-center rounded-full shadow-lg bg-sky-500 shadow-sky-500/40">
+                  <MdAccountTree className="size-8 text-white" />
+                </div>
+                <h1 className="text-darken mb-3 text-xl font-medium lg:px-14 ">إجمالي أرصدة المنتجات</h1>
+                <p className="px-4 text-gray-800 text-xl font-semibold">
+                  <CountUp start={0} end={total_product} duration={2} delay={0} />
                 </p>
               </div>
-            </div>
-          </div>
-        </div>
-        <div className="max-w-7xl mx-auto sm:px-6 lg:px-8 grid grid-cols-2 gap-2 relative mt-1">
-          <div data-aos="fade-down" data-aos-delay={500} className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg relative h-16">
-            <div className="flex px-6 py-4 text-gray-900 dark:text-gray-100 justify-between">
-              <h3 className="text-blue-500 text-2xl font-semibold">
-                إجمالي رأس المال
-              </h3>
-              <div className="text-right w-36">
-                <p className="text-2xl">
-                  <span className="mx-2 font-semibold">
-                    <CountUp start={0} end={totalAmountN} duration={2} delay={0} />
-                  </span>
+              <div data-aos="fade-down" data-aos-delay="400" className="rounded-xl bg-white py-6 text-center shadow-xl mb-4">
+                <div
+                  className="mx-auto flex h-16 w-16 -translate-y-12 transform items-center justify-center rounded-full shadow-lg bg-teal-400 shadow-teal-500/40">
+                  <IoCashOutline className="size-8 text-white" />
+                </div>
+                <h1 className="text-darken mb-3 text-xl font-medium lg:px-14 ">رأس المال</h1>
+                <p className="px-4 text-gray-800 text-xl font-semibold">
+                  <CountUp start={0} end={totalAmountN} duration={2} delay={0} />
                 </p>
               </div>
-            </div>
-          </div>
-          <div data-aos="fade-down" data-aos-delay={500} className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg relative h-16">
-            <div className="flex px-6 py-4 text-gray-900 dark:text-gray-100 justify-between">
-              <h3 className="text-amber-500 text-2xl font-semibold">
-                إجمالي النفقات والمصاريف
-              </h3>
-              <div className="text-right w-36">
-                <p className="text-2xl">
-                  <span className="mx-2 font-semibold">
-                    <CountUp start={0} end={total_box} duration={2} delay={0} />
-                  </span>
+              <div data-aos="fade-down" data-aos-delay="600" className="rounded-xl bg-white py-6 text-center shadow-xl mb-4">
+                <div
+                  className="mx-auto flex h-16 w-16 -translate-y-12 transform items-center justify-center rounded-full shadow-lg bg-orange-500 shadow-orange-500/40">
+                  <GiPayMoney className="size-8 text-white" />
+                </div>
+                <h1 className="text-darken mb-3 text-xl font-medium lg:px-14 ">دين المراكز</h1>
+                <p className="px-4 text-gray-800 text-xl font-semibold">
+                  <CountUp start={0} end={balance} duration={2} delay={0} />
                 </p>
               </div>
-            </div>
-          </div>
-        </div>
-        <div className="max-w-7xl mx-auto sm:px-6 lg:px-8 grid lg:grid-cols-2 gap-2 relative mt-1">
-          <div data-aos="fade-left" data-aos-delay={1000} className="bg-emerald-500/20 overflow-hidden shadow-sm sm:rounded-lg relative">
-            <div className="flex px-6 py-4 text-gray-900 dark:text-gray-100 justify-between">
-              <h3 className="text-blue-500 text-2xl font-semibold">
-                المجموع
-              </h3>
-              <div className="text-right w-36 ">
-                <p className="text-2xl">
-                  <span className="mx-2 font-semibold">
-                    <CountUp start={0} end={sum1} duration={2} delay={0} />
-                  </span>
+              <div data-aos="fade-down" data-aos-delay="800" className="rounded-xl bg-white py-6 text-center shadow-xl mb-4">
+                <div
+                  className="mx-auto flex h-16 w-16 -translate-y-12 transform items-center justify-center rounded-full shadow-lg bg-sky-500 shadow-sky-500/40">
+                  <GiProfit className="size-8 text-white" />
+                </div>
+                <h1 className="text-darken mb-3 text-xl font-medium lg:px-14 ">إجمالي الأرباح</h1>
+                <p className="px-4 text-gray-800 text-xl font-semibold">
+                  <CountUp start={0} end={total_profit} duration={2} delay={0} />
                 </p>
               </div>
-            </div>
-          </div>
-          <div data-aos="fade-right" data-aos-delay={1000} className="bg-red-500/20 overflow-hidden shadow-sm sm:rounded-lg relative">
-            <div className="flex px-6 py-4 text-gray-900 dark:text-gray-100 justify-between">
-              <h3 className="text-amber-500 text-2xl font-semibold">
-                المجموع
-              </h3>
-              <div className="text-right w-36">
-                <p className="text-2xl">
-                  <span className="mx-2 font-semibold">
-                    <CountUp start={0} end={sum2} duration={2} delay={0} />
-                  </span>
+              <div data-aos="fade-down" data-aos-delay="1000" className="rounded-xl bg-white py-6 text-center shadow-xl mb-4">
+                <div
+                  className="mx-auto flex h-16 w-16 -translate-y-12 transform items-center justify-center rounded-full shadow-lg bg-rose-500 shadow-rose-500/40">
+                  <GiExpense className="size-8 text-white" />
+                </div>
+                <h1 className="text-darken mb-3 text-xl font-medium lg:px-14 ">النفقات والمصاريف</h1>
+                <p className="px-4 text-gray-800 text-xl font-semibold">
+                  <CountUp start={0} end={total_box} duration={2} delay={0} />
                 </p>
               </div>
-            </div>
-          </div>
-        </div>
-        <div className="max-w-7xl mx-auto sm:px-6 lg:px-8 grid lg:grid-cols-1 gap-2 relative mt-1">
-          <div data-aos="fade-up" data-aos-delay={1500} className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg relative">
-            <div className="flex py-4 text-gray-900 dark:text-gray-100 justify-between px-56">
-              <h3 className="text-green-500 text-2xl font-semibold">
-                الصندوق بدون الأرباح
-              </h3>
-              <div className="text-right w-36 ">
-                <p className="text-2xl">
-                  <span className="mx-2 font-semibold">
-                    <CountUp start={0} end={sum1 - sum2} duration={2} delay={0} />
-                  </span>
+              <div data-aos="fade-down" data-aos-delay="1200" className="rounded-xl bg-white py-6 text-center shadow-xl mb-4">
+                <div
+                  className="mx-auto flex h-16 w-16 -translate-y-12 transform items-center justify-center rounded-full shadow-lg bg-orange-500 shadow-orange-500/40">
+                  <GiCash className="size-8 text-white" />
+                </div>
+                <div className="inline-flex grid-cols-2 justify-between gap-8">
+                  <div className="justify-center">
+                    <h1 className="text-center mb-3 text-xl font-medium">صافي الأرباح</h1>
+                    <p className="px-4 text-gray-800 text-xl font-semibold">
+                      {/* <CountUp start={0} end={center_count} duration={2} delay={0} /> */}
+                      <CountUp start={0} end={total_profit - total_box} duration={2} delay={0} />
+                    </p>
+                  </div>
+                  {/* <div className=" text-center">
+                    <h1 className="text-darken mb-3 text-xl font-medium ">عدد المنتجات</h1>
+                    <p className="px-4 text-gray-800 text-xl font-semibold">
+                      <CountUp start={0} end={product_count} duration={2} delay={0} />
+                    </p>
+                  </div> */}
+                </div>
+              </div>
+              <div data-aos="fade-down" data-aos-delay="1400" className="rounded-xl bg-white py-6 text-center shadow-xl mb-4">
+                <div
+                  className="mx-auto flex h-16 w-16 -translate-y-12 transform items-center justify-center rounded-full shadow-lg bg-green-500 shadow-green-500/40">
+                  <GiTakeMyMoney className="size-8 text-white" />
+                </div>
+                <h1 className="text-darken mb-3 text-xl font-medium lg:px-14 ">الصافي النقدي</h1>
+                <p className="px-4 text-gray-800 text-xl font-semibold">
+                  <CountUp start={0} end={sum1 - sum2} duration={2} delay={0} />
                 </p>
               </div>
-            </div>
-          </div>
-        </div>
-        <div className="max-w-7xl mx-auto sm:px-6 lg:px-8 grid lg:grid-cols-1 gap-2 relative mt-1">
-          <div data-aos="fade-up" data-aos-delay={2000} className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg relative h-16">
-            <div className="flex py-4 text-gray-900 dark:text-gray-100 justify-between px-56">
-              <h3 className="text-green-500 text-2xl font-semibold">
-                إجمالي الأرباح
-              </h3>
-              <div className="text-right w-36">
-                <p className="text-2xl">
-                  <span className="mx-2 font-semibold justify-end">
-                    <CountUp start={0} end={total_profit} duration={2} delay={0} />
-                  </span>
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div className="max-w-7xl mx-auto sm:px-6 lg:px-8 grid lg:grid-cols-1 gap-2 relative mt-1">
-          <div data-aos="fade-up" data-aos-delay={2500} className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg relative h-16">
-            <div className="flex py-4 text-gray-900 dark:text-gray-100 justify-between px-56">
-              <h3 className="text-green-500 text-2xl font-semibold">
-                الصندوق مع الأرباح
-              </h3>
-              <div className="text-right w-36">
-                <p className="text-2xl">
-                  <span className="mx-2 font-semibold justify-end">
-                    <CountUp start={0} end={sum3} duration={2} delay={0} />
-                  </span>
-                </p>
-              </div>
+
             </div>
           </div>
         </div>
@@ -212,7 +175,13 @@ export default function Home({
                 <h3 className="dark:text-gray-200 text-xl font-semibold">
                   رأس المال
                 </h3>
-                <AddButton onClick={e => addCapital()}>إضافة</AddButton>
+                <button
+                  onClick={e => addCapital()}
+                  type="button"
+                  className="inline-flex text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 shadow-lg shadow-blue-500/50 dark:shadow-lg dark:shadow-blue-800/80 font-medium rounded-lg text-lg px-2.5 py-1.5 text-center me-2">
+                  إضافة
+                  <FaRegPlusSquare style={{ marginRight: '8px', marginTop: '2px' }} size={25} />
+                </button>
               </div>
               <table className="w-full text-md font-semibold rtl:text-right text-gray-800 dark:text-gray-200">
                 <thead className="text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400 border-b-2 border-gray-500">
@@ -229,9 +198,23 @@ export default function Home({
                       <td className="px-3 py-2">{capital.created_at}</td>
                       <td className="px-3 py-2">{capital.amount.toLocaleString('en-US')}</td>
                       <td className="px-3 py-2">{capital.statment}</td>
-                      <td className="px-3 py-2 text-nowrap">
-                        <PrimaryButton onClick={e => editCapital(capital)}>تعديل</PrimaryButton>
-                        <DeleteButton onClick={e => deleteCapital(capital)}>حذف</DeleteButton>
+                      <td className="px-3 py-2 items-center">
+                        <div className="flex justify-center">
+                          <button
+                            onClick={e => editCapital(capital)}
+                            type="button"
+                            className="inline-flex text-white bg-gradient-to-r from-green-600 via-green-700 to-green-800 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-green-300 dark:focus:ring-green-800 shadow-lg shadow-green-500/50 dark:shadow-lg dark:shadow-green-800/80 font-medium rounded-lg text-lg px-2.5 py-1.5 text-center me-2">
+                            تعديل
+                            <FaRegEdit style={{ marginRight: '8px', marginTop: '3px' }} size={20} />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={e => deleteCapital(capital)}
+                            className="flex text-white bg-gradient-to-r from-red-400 via-red-500 to-red-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 shadow-lg shadow-red-500/50 dark:shadow-lg dark:shadow-red-800/80 font-medium rounded-lg text-lg px-2.5 py-1.5 text-center me-2">
+                            حذف
+                            <RiDeleteBin6Line style={{ marginRight: '8px', marginTop: '4px' }} size={20} />
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -248,6 +231,6 @@ export default function Home({
           </div>
         </div>
       </div>
-    </AuthenticatedLayout>
+    </AuthenticatedLayout >
   );
 }

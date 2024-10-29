@@ -45,7 +45,6 @@ class AmountKindController extends Controller
       'queryParams'           => request()->query() ?: null,
       'success'               => session('success'),
       'message'               => $message,
-      'initialNotifications'  => auth()->user()->unreadNotifications,
     ]);
   }
 
@@ -62,7 +61,6 @@ class AmountKindController extends Controller
       'categories'            => CategoryResource::collection($categories),
       'products'              => ProductResource::collection($products),
       'message'               => $message,
-      'initialNotifications'  => auth()->user()->unreadNotifications,
     ]);
   }
 
@@ -97,7 +95,6 @@ class AmountKindController extends Controller
       'products'              => ProductResource::collection($products),
       'categories'            => CategoryResource::collection($categories),
       'message'               => $message,
-      'initialNotifications'  => auth()->user()->unreadNotifications,
     ]);
   }
 

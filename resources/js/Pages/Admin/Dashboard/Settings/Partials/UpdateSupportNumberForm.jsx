@@ -1,21 +1,21 @@
-import PrimaryButton from '@/Components/Buttons/PrimaryButton';
 import TextInput from '@/Components/TextInput';
-import { useForm, usePage } from '@inertiajs/react';
+import { useForm } from '@inertiajs/react';
 import { Transition } from '@headlessui/react';
+import { FaRegSave } from 'react-icons/fa';
 
 export default function UpdateSupportNumberForm({ 
   className = '' , 
   message
 }) {
 
-  const { data, setData, put, errors, processing, recentlySuccessful } = useForm({
+  const { data, setData, post, errors, processing, recentlySuccessful } = useForm({
     support_number: message.support_number,
     _method: 'PUT'
   });
 
   const submit = (e) => {
     e.preventDefault();
-    put(route('settings.update.support', message.id));
+    post(route('settings.update.support', message.id));
   };
 
   return (
@@ -34,7 +34,13 @@ export default function UpdateSupportNumberForm({
           />
         </div>
         <div className="flex items-center gap-4 justify-center">
-          <PrimaryButton disabled={processing} >حفظ</PrimaryButton>
+        <button
+            disabled={processing}
+            type="submit"
+            className="inline-flex text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 shadow-lg shadow-blue-500/50 dark:shadow-lg dark:shadow-blue-800/80 font-medium rounded-lg text-lg px-2.5 py-1.5 text-center me-2">
+            حفظ
+            <FaRegSave style={{ marginRight: '8px', marginTop: '2px' }} size={25} />
+          </button>
           <Transition
             show={recentlySuccessful}
             enter="transition ease-in-out"

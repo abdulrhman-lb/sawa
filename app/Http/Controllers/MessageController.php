@@ -17,7 +17,6 @@ class MessageController extends Controller
       'success'               => session('success'),
       'updated'               => session('updated'),
       'message'               => $message,
-      'initialNotifications'  => auth()->user()->unreadNotifications,
     ]);
   }
   public function updateMessage()
@@ -50,11 +49,29 @@ class MessageController extends Controller
   {
     $message = Message::first();
     if (request('support_number')) {
-      $message->messages = request('messages');
+      $message->support_number = request('support_number');
       $message->save();
       return to_route('settings.edit')->with('success', 'تم تحديث رقم الدعم الفني بنجاح');
     } else {
       return to_route('settings.edit')->with('success', 'فشل التعديل لا يمكن أن يكون رقم الدعم الفني فارغ');
     }
+  }
+
+  public function updateTasded()
+  {
+    $message = Message::first();
+
+    $message->tasded = request('tasded');
+    $message->save();
+    return to_route('settings.edit')->with('success', 'تم تحديث صلاحية استعلام تسديد بنجاح');
+  }
+  
+  public function updateAppStatus()
+  {
+    $message = Message::first();
+
+    $message->app_status = request('app_status');
+    $message->save();
+    return to_route('settings.edit')->with('success', 'تم تحديث حالة التطبيق بنجاح');
   }
 }

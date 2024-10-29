@@ -1,22 +1,21 @@
 import Pagination from "@/Components/Pagination";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
-import { Head, Link, router } from "@inertiajs/react";
+import { Head, router } from "@inertiajs/react";
 import TableHeading from "@/Components/TableHeading";
 import { useState } from "react";
 import SearchableDropdown from "@/Components/SearchableDropdown";
 import Modal from "@/Components/Modal";
 import TextInput from "@/Components/TextInput";
-import AddButton from "@/Components/Buttons/AddButton";
-import DetailsButton from "@/Components/Buttons/DetailsButton";
-import AcceptButton from "@/Components/Buttons/AcceptButton";
-import RejectButton from "@/Components/Buttons/RejectButton copy";
 import InputError from "@/Components/InputError";
 import ScrollBar from "@/Components/ScrollBar";
 import SuccessMessage from "@/Components/SuccessMessage";
 import Title from "@/Components/Title";
 import { FaBorderNone } from "react-icons/fa";
-import { MdAccountTree } from "react-icons/md";
+import { MdAccountTree, MdOutlineCancel } from "react-icons/md";
 import SelectInput from "@/Components/SelectInput";
+import { GiMoneyStack } from "react-icons/gi";
+import { TbListDetails } from "react-icons/tb";
+import { LuCheckCircle } from "react-icons/lu";
 
 export default function index({
   auth,
@@ -30,8 +29,7 @@ export default function index({
   queryParams = null,
   message,
   success,
-  initialNotifications
- }) {
+}) {
   queryParams = queryParams || {}
 
   const [showAddModal, setShowAddModal] = useState(false);
@@ -109,7 +107,6 @@ export default function index({
     <AuthenticatedLayout
       user={auth.user}
       message={message}
-      notification={initialNotifications}
       header={
         <div className="flex justify-between items-center">
           <ScrollBar message={message}>
@@ -146,8 +143,20 @@ export default function index({
             />
           </div>
           <div className="mt-6 flex justify-end">
-            <AcceptButton onClick={handleAdd}>موافق</AcceptButton>
-            <RejectButton onClick={() => (setShowAddModal(false), setAdd(0), setStatment(''))}>إلغاء</RejectButton>
+            <button
+              onClick={handleAdd}
+              type="button"
+              className="inline-flex text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 shadow-lg shadow-blue-500/50 dark:shadow-lg dark:shadow-blue-800/80 font-medium rounded-lg text-lg px-2.5 py-1.5 text-center me-2">
+              موافق
+              <LuCheckCircle style={{ marginRight: '8px', marginTop: '3px' }} size={20} />
+            </button>
+            <button
+              onClick={() => (setShowAddModal(false), setAdd(0), setStatment(''))}
+              type="button"
+              className="flex text-white bg-gradient-to-r from-red-400 via-red-500 to-red-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 shadow-lg shadow-red-500/50 dark:shadow-lg dark:shadow-red-800/80 font-medium rounded-lg text-lg px-2.5 py-1.5 text-center me-2">
+              إلغاء
+              <MdOutlineCancel style={{ marginRight: '8px', marginTop: '4px' }} size={20} />
+            </button>
           </div>
         </div>
       </Modal>
@@ -160,7 +169,7 @@ export default function index({
                 <table className="w-full text-md font-semibold rtl:text-right text-gray-800 dark:text-gray-200">
                   <thead className="text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400 border-b-2 border-gray-500">
                     <tr className="text-nowrap">
-                    <TableHeading
+                      <TableHeading
                         sortable={false}
                       >
                         #
@@ -210,7 +219,18 @@ export default function index({
                   </thead>
                   <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400 border-b-2 border-gray-500">
                     <tr className="text-nowrap">
-                    <th className="px-3 py-3"></th>
+                      <th className="py-3 text-center">
+                        <SelectInput
+                          className="text-sm font-medium"
+                          defaultValue={queryParams.col}
+                          onChange={e => colChanged('col', e.target.value)}
+                        >
+                          <option value="25">25</option>
+                          <option value="50">50</option>
+                          <option value="75">75</option>
+                          <option value="100">100</option>
+                        </SelectInput>
+                      </th>
                       <th className="px-3 py-3 relative">
                         <SearchableDropdown
                           items={categories.data}
@@ -246,17 +266,41 @@ export default function index({
                         <td className="px-3 py-2">{product_balance.product.name}</td>
                         <td className="px-3 py-2">{product_balance.total_add.toLocaleString('en-US')}</td>
                         <td className="px-3 py-2">{product_balance.total_reduce.toLocaleString('en-US')}</td>
-                        <td className="px-3 py-2">{product_balance.final_balance}</td>
+                        <td className="px-3 py-2">
+                          <span className="min-w-[80px] inline-block bg-green-800 text-green-100 text-md font-medium me-2 px-2.5 py-0.5 rounded-full dark:bg-green-900 dark:text-green-300">
+                            {product_balance.final_balance}
+                          </span>
+                        </td>
                         <td className="px-3 py-2">{product_balance.total_profit}</td>
-                        <td className="px-3 py-2 text-nowrap">
-                          {(product_balance.total_add === 0 && product_balance.total_reduce === 0) ?
-                            (
-                              <DetailsButton disabled={true} onClick={() => openDetails(product_balance)}>عرض التفاصيل</DetailsButton>
-                            )
-                            : (
-                              <DetailsButton onClick={() => openDetails(product_balance)}>عرض التفاصيل</DetailsButton>
-                            )}
-                          <AddButton onClick={() => openAddModal(product_balance)}>إضافة رصيد</AddButton>
+                        <td className="py-2 text-nowrap flex justify-center">
+                          <>
+                            {(product_balance.total_add === 0 && product_balance.total_reduce === 0) ?
+                              (
+                                <button
+                                  disabled={true}
+                                  type="button"
+                                  className="inline-flex text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 shadow-lg shadow-blue-500/50 dark:shadow-lg dark:shadow-blue-800/80 font-medium rounded-lg text-lg px-2.5 py-1.5 text-center me-2">
+                                  عرض التفاصيل
+                                  <TbListDetails style={{ marginRight: '8px' }} size={25} />
+                                </button>
+                              )
+                              : (
+                                <button
+                                  onClick={() => openDetails(product_balance)}
+                                  type="button"
+                                  className="inline-flex text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 shadow-lg shadow-blue-500/50 dark:shadow-lg dark:shadow-blue-800/80 font-medium rounded-lg text-lg px-2.5 py-1.5 text-center me-2">
+                                  عرض التفاصيل
+                                  <TbListDetails style={{ marginRight: '8px' }} size={25} />
+                                </button>
+                              )}
+                            <button
+                              onClick={() => openAddModal(product_balance)}
+                              type="button"
+                              className="inline-flex text-white bg-gradient-to-r from-green-600 via-green-700 to-green-800 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-green-300 dark:focus:ring-green-800 shadow-lg shadow-green-500/50 dark:shadow-lg dark:shadow-green-800/80 font-medium rounded-lg text-lg px-2.5 py-1.5 text-center me-2">
+                              إضافة رصيد
+                              <GiMoneyStack style={{ marginRight: '8px' }} size={25} />
+                            </button>
+                          </>
                         </td>
                       </tr>
                     ))}
@@ -268,7 +312,11 @@ export default function index({
                       <th className="px-3 py-3">المجموع</th>
                       <th className="px-3 py-3">{total_add_all}</th>
                       <th className="px-3 py-3">{total_reduce_all}</th>
-                      <th className="px-3 py-3">{final_balance_all}</th>
+                      <th className="px-3 py-3">
+                        <span className="min-w-[100px] inline-block bg-green-800 text-green-100 text-md font-medium me-2 px-2.5 py-0.5 rounded-full dark:bg-green-900 dark:text-green-300">
+                          {final_balance_all}
+                        </span>
+                      </th>
                       <th className="px-3 py-3">{total_profit_all}</th>
                     </tr>
                   </tfoot>

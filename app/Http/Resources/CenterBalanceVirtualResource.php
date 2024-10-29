@@ -17,6 +17,8 @@ class CenterBalanceVirtualResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+      $timeCreated = new Carbon($this->created_at);
+      $amPmCreated = $timeCreated->format('A') === 'AM' ? 'ص' : 'م';
       return [
         'id'          => $this->id,
         'add'         => $this->add,
@@ -28,6 +30,7 @@ class CenterBalanceVirtualResource extends JsonResource
         'order_id'    => $this->order_id,
         'order'       => new OrderResource($this->order),
         'created_at'  => (new Carbon($this->created_at))->format('Y/m/d'),
+        'time'        => $timeCreated->format('h:i') . " " . $amPmCreated,
       ];
     }
 }

@@ -1,4 +1,3 @@
-import { Link } from "@inertiajs/react";
 
 const Footer = () => {
   return (

@@ -1,25 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import Dropdown from '@/Components/Dropdown';
 import NavLink from '@/Pages/Navbar/NavLink';
-import { Link, router, usePage } from '@inertiajs/react';
+import { router, usePage } from '@inertiajs/react';
 import DarkMode from '@/Pages/Navbar/DarkMode';
 import { HiMenuAlt1, HiMenuAlt3 } from "react-icons/hi";
-import ResponsiveMenu from '@/Pages/Navbar/ResponsiveMenu';
 import Footer from '@/Components/Footer';
 import AOS from "aos";
 import "aos/dist/aos.css";
-import { FaWhatsapp } from "react-icons/fa";
+import { FaRegSave, FaWhatsapp } from "react-icons/fa";
 import { IoMdAddCircle } from "react-icons/io";
 import Modal from '@/Components/Modal';
 import TextInput from '@/Components/TextInput';
 import InputError from '@/Components/InputError';
-import AcceptButton from '@/Components/Buttons/AcceptButton';
-import RejectButton from '@/Components/Buttons/RejectButton copy';
-import { Bars3Icon, BellIcon, XMarkIcon } from '@heroicons/react/24/outline'
-import { Menu } from '@headlessui/react';
 import Notifications from '@/Components/Notifications';
+import InstallButton from '@/Components/InstallButton';
+import { MdOutlineCancel } from 'react-icons/md';
+import { LuCheckCircle } from 'react-icons/lu';
+// import NotificationsNew from '@/Components/NotificationsNew';
 
-export default function AuthenticatedLayout({ user, header, children, message, notification }) {
+export default function AuthenticatedLayout({ user, header, children, message }) {
   const { props } = usePage();
   const userBalance = props.user_balance;
   const [showMenu, setShowMenu] = useState(false);
@@ -27,13 +26,19 @@ export default function AuthenticatedLayout({ user, header, children, message, n
   const [addBalanceError, setAddBalanceError] = useState('');
   const [showAddBalanceModal, setShowAddBalanceModal] = useState(false);
   const [addBalance, setAddBalance] = useState(0);
+  const [tasded, setTasded] = useState(message.tasded === 1 ? ['user', 'super_user'] : []);
 
+  
   const links = [
     { id: 1, name: 'الرئيسية', link: 'category.home', kind: 1, dropdown: false, down: [] },
     {
-      id: 6, name: 'طلبات المراكز', link: 'order.index', kind: 2, dropdown: true, down: [
-        { id: 61, name: 'معالجة الطلبات', link: 'order.index', requiredRole: ['admin', 'super_user'] },
+      id: 6, name: 'طلبات المراكز', link: 'order.in.progress', kind: 0, dropdown: true, down: [
+        { id: 61, name: 'معالجة الطلبات', link: 'order.in.progress', requiredRole: ['admin', 'super_user'] },
         { id: 62, name: 'إجمالي الطلبات', link: 'order.home', requiredRole: ['admin', 'super_user'] },
+        { id: 63, name: 'طلباتي', link: 'order.home.user', requiredRole: ['user', 'super_user'] },
+        { id: 64, name: 'الطلبات الحذوفة', link: 'order.deleted', requiredRole: ['admin'] },
+        { id: 65, name: 'استعلام تسديد', link: 'tasded.index', requiredRole: tasded },
+        { id: 66, name: 'طلبات تسديد', link: 'tasded.home', requiredRole: ['admin', 'super_user'] },
       ]
     },
     {
@@ -41,9 +46,10 @@ export default function AuthenticatedLayout({ user, header, children, message, n
         { id: 22, name: 'حسابي', link: `center.balance.index.user`, requiredRole: ['super_user', 'user'] },
         { id: 22, name: 'إضافة رصيد المنتجات', link: 'product.balances.home', requiredRole: ['admin'] },
         { id: 23, name: 'حسابات المراكز', link: 'center.balances.home', requiredRole: ['admin', 'super_user'] },
+        { id: 24, name: 'أرباح المراكز', link: 'center.balances.profit', requiredRole: ['admin', 'super_user'] },
         { id: 25, name: 'نفقات ومصاريف', link: 'box.index', requiredRole: ['admin'] },
         { id: 26, name: 'حركة الصندوق اليومية', link: 'box.home', requiredRole: ['admin'] },
-        { id: 27, name: 'إجمالي البيان المالي', link: 'capital.index', requiredRole: ['admin'] },
+        { id: 27, name: 'الصندوف الختامي', link: 'capital.index', requiredRole: ['admin'] },
         { id: 28, name: 'أسعار تفاصيل الخدمات', link: 'amountkind.index', requiredRole: ['admin'] },
       ]
     },
@@ -120,9 +126,10 @@ export default function AuthenticatedLayout({ user, header, children, message, n
           <Dropdown.Trigger>
             <li className="cursor-pointer">
               <button className={
-                'inline-flex items-center justify-center w-[50%] lg:w-[130px] px-2 pt-3 pb-3 text-lg font-medium leading-5 transition duration-150 ease-in-out focus:outline-none  ' +
-                (isDropdownActive ? 'bg-red-600/80 text-white' : 'bg-blue-700/80 text-white hover:bg-blue-800 focus:border-gray-300') +
-                ' border-transparent rounded-md'
+                'inline-flex items-center justify-center w-[50%] lg:w-[118px] leading-5 transition duration-150 ease-in-out focus:outline-none  ' +
+                (isDropdownActive ?
+                  'text-white bg-gradient-to-br from-pink-500 to-orange-400 hover:bg-gradient-to-bl font-medium rounded-lg text-lg px-2 py-2.5 text-center me-2' :
+                  'text-white bg-gradient-to-r from-cyan-500 to-blue-500 hover:bg-gradient-to-bl focus:outline-none dark:focus:ring-cyan-800 font-medium rounded-lg text-lg px-2 py-2.5 text-center me-2')
               }>
                 {link.name}
                 <svg className="w-2.5 h-2.5 ms-2.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
@@ -135,14 +142,14 @@ export default function AuthenticatedLayout({ user, header, children, message, n
             {link.down
               .filter(downLink => hasAccess(downLink.requiredRole)) // تحقق من صلاحيات الوصول قبل عرض الرابط
               .map(downLink => (
-                <Dropdown.Link 
-                key={downLink.id}
-                href={
-                  downLink.link === 'center-balance.index' 
-                    ? route(downLink.link, { center_id: user.id })  // تمرير معرف المستخدم في الرابط
-                    : route(downLink.link)
-                }
-                 isActive={route().current(downLink.link)}>
+                <Dropdown.Link
+                  key={downLink.id}
+                  href={
+                    downLink.link === 'center-balance.index'
+                      ? route(downLink.link, { center_id: user.id })  // تمرير معرف المستخدم في الرابط
+                      : route(downLink.link)
+                  }
+                  isActive={route().current(downLink.link)}>
                   {downLink.name}
                 </Dropdown.Link>
               ))}
@@ -170,17 +177,29 @@ export default function AuthenticatedLayout({ user, header, children, message, n
           </div>
           <InputError message={addBalanceError} className="mt-2" />
           <div className="mt-6 flex justify-end">
-            <AcceptButton onClick={handleAddBalance}>موافق</AcceptButton>
-            <RejectButton onClick={() => (setShowAddBalanceModal(false), setAddBalance(0), setAddBalanceError(''))}>إلغاء</RejectButton>
+            <button
+              onClick={handleAddBalance}
+              type="button"
+              className="inline-flex text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 shadow-lg shadow-blue-500/50 dark:shadow-lg dark:shadow-blue-800/80 font-medium rounded-lg text-lg px-2.5 py-1.5 text-center me-2">
+              موافق
+              <LuCheckCircle style={{ marginRight: '8px', marginTop: '3px' }} size={20} />
+            </button>
+            <button
+              onClick={() => (setShowAddBalanceModal(false), setAddBalance(0), setAddBalanceError(''))}
+              type="button"
+              className="flex text-white bg-gradient-to-r from-red-400 via-red-500 to-red-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 shadow-lg shadow-red-500/50 dark:shadow-lg dark:shadow-red-800/80 font-medium rounded-lg text-lg px-2.5 py-1.5 text-center me-2">
+              إلغاء الأمر
+              <MdOutlineCancel style={{ marginRight: '8px', marginTop: '4px' }} size={20} />
+            </button>
           </div>
         </div>
-      </Modal>
+      </Modal >
       <div className="min-h-screen dark:bg-gray-900">
         <div className="mx-auto max-w-7xl px-6 sm:px-4 lg:px-1">
           <div className="flex h-14 items-center justify-between gap-1">
             <div className="flex items-center">
               <div className="flex-shrink-0">
-                <div className="text-center mx-4 block fill-current">
+                <div className="text-center ml-4 mr-0 lg:mr-5 block fill-current">
                   <img src={message.image} className='rounded-full mx-auto w-[50px] h-[50px] lg:w-[50px] lg:h-[50px]' alt="" />
                 </div>
               </div>
@@ -193,24 +212,24 @@ export default function AuthenticatedLayout({ user, header, children, message, n
               </div>
             </div>
             <div className="hidden md:block">
-              <div className="ml-4 flex items-center md:ml-6">
+              <div className="ml-4 flex items-center md:ml-2">
                 <div className="flex items-center space-x-1 gap-3">
                   <a
-                    className="flex px-2 pb-3 pt-3 text-xs bg-emerald-600 hover:bg-emerald-700 rounded-md text-white font"
+                    className="inline-flex text-white bg-gradient-to-r from-green-400 via-green-500 to-green-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-green-300 dark:focus:ring-green-800 shadow-lg shadow-green-500/50 dark:shadow-lg dark:shadow-green-800/80 font-medium rounded-lg text-md px-2.5 py-2 text-center me-2"
                     href={`https://api.whatsapp.com/send/?phone=963${message.support_number}&text&type=phone_number&app_absent=0`}
                     target="_blank"
                     rel="noopener noreferrer"
                   >
                     الدعم الفني
-                    <FaWhatsapp className='my-auto mr-1' />
+                    <FaWhatsapp className='my-auto mr-0.5' />
                   </a>
                   {(user.kind != 'admin') ? (
-                    <div className={`flex h-11 text-lg font-semibold rounded-md border-2 px-1  ${user.user_balance > 0 ? ' text-blue-600 border-blue-600' : (userBalance > 0 ? 'text-emerald-600 border-emerald-600' : 'text-red-600 border-red-600')}`}>
+                    <div className={`flex h-11 text-md font-semibold rounded-md border-2 px-1  ${(userBalance > 0 ? 'text-emerald-600 border-emerald-600' : 'text-blue-600 border-blue-600')}`}>
                       <div className='text-center my-auto'>
                         الرصيد:
                       </div>
-                      <div className='text-center px-2 my-auto'>
-                        {userBalance.toLocaleString('en-US')}
+                      <div className='text-center px-1 my-auto'>
+                        {(user.user_balance + userBalance).toLocaleString('en-US')}
                       </div>
                       {(user.add_balance > 0) ? (
                         null
@@ -226,7 +245,9 @@ export default function AuthenticatedLayout({ user, header, children, message, n
                   )}
                 </div>
 
-                <Notifications initialNotifications={notification} userId={user.id} />
+                <Notifications />
+                {/* {user.created_by} */}
+                {/* <NotificationsNew user={user.created_by} /> */}
 
                 {/* Profile dropdown */}
                 <div className="hidden sm:flex sm:items-center">
@@ -234,8 +255,8 @@ export default function AuthenticatedLayout({ user, header, children, message, n
                     <Dropdown.Trigger>
                       <button className="inline-flex items-center py-1 text-sm font-medium rounded-md text-gray-900 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none transition ease-in-out duration-150">
                         <img src={image} className='rounded-full w-[40px] h-[40px] border-2 border-gray-300' alt="" />
-                        <p className='text-nowrap mx-1'>
-                        {user.name}
+                        <p className=' mx-1'>
+                          {user.name}
                         </p>
                       </button>
                     </Dropdown.Trigger>
@@ -265,12 +286,12 @@ export default function AuthenticatedLayout({ user, header, children, message, n
                     <FaWhatsapp className='m-1 text-emerald-600 text-3xl font-semibold' />
                   </a>
                   {(user.kind != 'admin') ? (
-                    <div className={`flex h-12 text-sm font-semibold rounded-md border-2 px-1  ${user.user_balance > 0 ? ' text-blue-600 border-blue-600' : (userBalance > 0 ? 'text-emerald-600 border-emerald-600' : 'text-red-600 border-red-600')}`}>
+                    <div className={`flex h-12 text-xs font-semibold rounded-md border-2 px-1 ${(userBalance > 0 ? 'text-emerald-600 border-emerald-600' : 'text-blue-600 border-blue-600')}`}>
                       <div className='text-center my-auto'>
                         الرصيد:
                       </div>
                       <div className='text-center px-2 my-auto'>
-                        {userBalance.toLocaleString('en-US')}
+                        {(user.user_balance + userBalance).toLocaleString('en-US')}
                       </div>
                       {(user.add_balance > 0) ? (
                         null
@@ -285,14 +306,7 @@ export default function AuthenticatedLayout({ user, header, children, message, n
                     null
                   )}
                 </div>
-                <button
-                  type="button"
-                  className="relative rounded-full mx-2 text-gray-800 p-1 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800"
-                >
-                  <span className="absolute -inset-1.5" />
-                  <span className="sr-only">View notifications</span>
-                  <BellIcon aria-hidden="true" className="h-7 w-7" />
-                </button>
+                <Notifications />
                 {showMenu ? <HiMenuAlt3 onClick={toggleMenu} className="text-2xl cursor-pointer text-gray-800 dark:text-gray-300" /> : <HiMenuAlt1 onClick={toggleMenu} className="text-2xl cursor-pointer text-gray-800 dark:text-gray-300" />}
               </div>
             </div>
@@ -323,6 +337,7 @@ export default function AuthenticatedLayout({ user, header, children, message, n
                       </span>
                     </Dropdown.Link>
                     <Dropdown.Link href={route('logout')} method="post">تسجيل خروج</Dropdown.Link>
+                    <InstallButton />
                   </Dropdown.Content>
                 </Dropdown>
               </div>

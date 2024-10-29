@@ -1,5 +1,3 @@
-import AcceptButton from "@/Components/Buttons/AcceptButton";
-import RejectButton from "@/Components/Buttons/RejectButton copy";
 import InputError from "@/Components/InputError";
 import InputLabel from "@/Components/InputLabel";
 import ScrollBar from "@/Components/ScrollBar";
@@ -8,15 +6,16 @@ import TextInput from "@/Components/TextInput";
 import Title from "@/Components/Title";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { Head, Link, useForm } from "@inertiajs/react";
+import { FaRegSave } from "react-icons/fa";
 import { HiOutlineUserPlus } from "react-icons/hi2";
+import { MdOutlineCancel } from "react-icons/md";
 
 export default function Create({
   auth,
   message,
-  initialNotifications
 }) {
 
-  const { data, setData, post, errors, reset } = useForm({
+  const { data, setData, post, errors, processing, reset } = useForm({
     name: '',
     email: '',
     phone: '',
@@ -31,16 +30,14 @@ export default function Create({
     created_by: auth.user.id
   })
 
-  const onSubmit = (e) => {
-    e.preventDefault();
-    post(route("user.store"))
-  }
-
+const onSubmit = (e) => {
+  e.preventDefault();
+  post(route('user.store'));
+}
   return (
     <AuthenticatedLayout
       user={auth.user}
       message={message}
-      notification={initialNotifications}
       header={
         <div className="flex justify-between items-center">
           <ScrollBar message={message}>
@@ -139,7 +136,7 @@ export default function Create({
                     htmlFor="mobile"
                     value="رقم الموبايل"
                   />
-                  <div class=" w-full flex h-11">
+                  <div className=" w-full flex h-11">
                     <TextInput
                       id="mobile"
                       type="text"
@@ -150,9 +147,9 @@ export default function Create({
                       onChange={e => setData('mobile', e.target.value)}
                     />
                     <div
-                      class=" mt-1 h-10 flex-shrink-0 inline-flex items-center py-2.5 px-4 font-medium text-center text-gray-900 bg-gray-100 border border-gray-300 rounded-e-lg focus:ring-4 focus:outline-none focus:ring-gray-100 dark:bg-gray-700 dark:focus:ring-gray-700 dark:text-white dark:border-gray-600"
+                      className=" mt-1 h-10 flex-shrink-0 inline-flex items-center py-1.5 px-4 font-medium text-center text-gray-900 bg-gray-100 border border-gray-300 rounded-e-lg focus:ring-4 focus:outline-none focus:ring-gray-100 dark:bg-gray-700 dark:focus:ring-gray-700 dark:text-white dark:border-gray-600"
                       type="button">
-                      <svg fill="none" aria-hidden="true" class="h-4 w-4 me-2" viewBox="0 0 20 15">
+                      <svg fill="none" aria-hidden="true" className="h-4 w-4 me-2" viewBox="0 0 20 15">
                         <rect width="19.6" height="5" y="0" fill="#D02F44" />
                         <rect width="19.6" height="5" y="5" fill="#FFFFFF" />
                         <rect width="19.6" height="5" y="10" fill="#000000" />
@@ -208,7 +205,6 @@ export default function Create({
                   </SelectInput>
                   <InputError className="mt-2" message={errors.kind} />
                 </div>
-
                 <div>
                   <InputLabel htmlFor="status" value="حالة المركز" />
                   <SelectInput
@@ -221,10 +217,21 @@ export default function Create({
                   </SelectInput>
                   <InputError className="mt-2" message={errors.status} />
                 </div>
-                <div className="text-center pt-8">
-                  <AcceptButton className="w-28 justify-center">موافق</AcceptButton>
+                <div className="flex justify-center text-center py-4">
+                  <button
+                    disabled={processing}
+                    type="submit"
+                    className="inline-flex text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 shadow-lg shadow-blue-500/50 dark:shadow-lg dark:shadow-blue-800/80 font-medium rounded-lg text-lg px-2.5 py-1.5 text-center me-2">
+                    موافق
+                    <FaRegSave style={{ marginRight: '8px', marginTop: '3px' }} size={20} />
+                  </button>
                   <Link href={route('user.index')} >
-                    <RejectButton className="w-28 justify-center">إلغاء الأمر</RejectButton>
+                    <button
+                      type="button"
+                      className="flex text-white bg-gradient-to-r from-red-400 via-red-500 to-red-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 shadow-lg shadow-red-500/50 dark:shadow-lg dark:shadow-red-800/80 font-medium rounded-lg text-lg px-2.5 py-1.5 text-center me-2">
+                      إلغاء الأمر
+                      <MdOutlineCancel style={{ marginRight: '8px', marginTop: '4px' }} size={20} />
+                    </button>
                   </Link>
                 </div>
               </div>

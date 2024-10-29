@@ -1,5 +1,3 @@
-import AcceptButton from "@/Components/Buttons/AcceptButton";
-import RejectButton from "@/Components/Buttons/RejectButton copy";
 import InputError from "@/Components/InputError";
 import InputLabel from "@/Components/InputLabel";
 import ScrollBar from "@/Components/ScrollBar";
@@ -16,7 +14,6 @@ export default function Create({
   users, 
   message, 
   success, 
-  initialNotifications
  }) {
 
   const { data, setData, post, errors, reset } = useForm({
@@ -33,7 +30,6 @@ export default function Create({
     <AuthenticatedLayout
       user={auth.user}
       message={message}
-      notification={initialNotifications}
       header={
         <div className="flex justify-between items-center">
           <ScrollBar message={message} >
@@ -82,12 +78,12 @@ export default function Create({
                   />
                   <InputError message={errors.user_id} className="mt-2" />
                 </div>
-                <div className="mt-7 px-3 text-center">
+                {/* <div className="mt-7 px-3 text-center">
                   <AcceptButton className="w-28 justify-center">موافق</AcceptButton>
                   <Link href={route('category-permission.index')} >
                     <RejectButton className="w-28 justify-center">إلغاء الأمر</RejectButton>
                   </Link>
-                </div>
+                </div> */}
               </div>
             </form>
           </div>

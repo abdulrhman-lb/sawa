@@ -28,6 +28,7 @@ class UpdateCenterBalanceRequest extends FormRequest
       'statment'    => ['required', 'string'],
       'user_id'     => ['required', 'exists:users,id'],
       'order_id'    => ['nullable', 'exists:orders,id'],
+      'product_id'  => ['nullable'],
     ];
   }
 }

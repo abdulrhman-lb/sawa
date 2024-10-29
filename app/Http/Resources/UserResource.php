@@ -15,6 +15,8 @@ class UserResource extends JsonResource
    *
    * @return array<string, mixed>
    */
+  public static $wrap = false;
+
   public function toArray(Request $request): array
   {
     return [
@@ -26,12 +28,14 @@ class UserResource extends JsonResource
       'mobile'      => $this->mobile,
       'center'      => $this->center,
       'kind'        => $this->kind,
+      'user_balance' => $this->user_balance,
+      'add_balance' => $this->add_balance,
       'status'      => $this->status,
       'created_by'  => $this->created_by,
-      'user_balance'=> $this->user_balance,
-      'add_balance' => $this->add_balance,
+      'process_order' => $this->process_order,
+      'created_at'  => (new Carbon($this->created_at))->format('Y/m/d'),
+      'createdBy'   => $this->createdBy ? $this->createdBy->name : null,
       'image'       => $this->image ? url($this->image) : url('images/profiles/noimage.jpg'),
-      // 'createdBy'   => $this->createdBy,
     ];
   }
 }

@@ -48,9 +48,10 @@ class OrderCreatedNotification extends Notification
     return [
       'kind'    => 'orderCreated',
       'title'   => 'طلب تسديد جديد',
+      'order_id'=> $this->order->id,
       'details' => "طلب  {$this->order->user->name} التسديد في {$this->order->service->product->name}",
       'image'   => $this->order->user->image,
-      'url'     => url('/order')
+      'url'     => url('/order-in-progress')
     ];
   }
 
@@ -60,7 +61,7 @@ class OrderCreatedNotification extends Notification
     return new BroadcastMessage([
       'body' => 'تم إنشاء طلب جديد',
       'icon' => 'fas fa-file',
-      'url' => url('/order')
+      'url' => url('/order-in-progress')
     ]);
   }
 

@@ -6,7 +6,8 @@ use App\Events\BalanceRequest;
 use App\Models\User;
 use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UpdateUserRequest;
-use App\Http\Resources\UserCrudResource;
+use App\Http\Resources\UserPermissionResource;
+use App\Http\Resources\UserResource;
 use App\Models\Category;
 use App\Models\CategoryPermission;
 use App\Models\Message;
@@ -60,12 +61,11 @@ class UserController extends Controller
     $users    = $query->orderBy($sortField, $sortDirection)->paginate($col)->onEachSide(1);
     $message  = Message::first();
     return inertia("User/Index", [
-      "users"                 => UserCrudResource::collection($users),
+      "users"                 => UserPermissionResource::collection($users),
       "admins"                => $admins,
       'queryParams'           => request()->query() ?: null,
       'success'               => session('success'),
       'message'               => $message,
-      'initialNotifications'  => auth()->user()->unreadNotifications,
     ]);
   }
 
@@ -74,7 +74,6 @@ class UserController extends Controller
     $message = Message::first();
     return inertia("User/Create", [
       'message'               => $message,
-      'initialNotifications'  => auth()->user()->unreadNotifications,
     ]);
   }
 
@@ -103,16 +102,14 @@ class UserController extends Controller
     $message      = Message::first();
     if (auth()->user()->kind === "admin") {
       return inertia("User/Edit", [
-        'user'                  => new UserCrudResource($user),
+        'user'                  => new UserResource($user),
         'message'               => $message,
-        'initialNotifications'  => auth()->user()->unreadNotifications,
       ]);
     } else {
       if (auth()->id() === $user->created_by) {
         return inertia("User/Edit", [
-          'user'                  => new UserCrudResource($user),
+          'user'                  => new UserResource($user),
           'message'               => $message,
-          'initialNotifications'  => auth()->user()->unreadNotifications,
         ]);
       } else {
         return to_route('user.index')->with('success', 'ليس لديك صلاحيات لعرض الصفحة');
@@ -167,7 +164,7 @@ class UserController extends Controller
   public function requestBalance(Request $request)
   {
     $user = User::where('id', $request->user_id)->first();
-    $user->user_balance = $user->add_balance;
+    $user->user_balance = $user->user_balance + $user->add_balance;
     $user->add_balance = 0;
     $user->save();
     return to_route('center.balances.home')->with('success', 'تم الاستجابة لطلب الرصيد بنجاح');

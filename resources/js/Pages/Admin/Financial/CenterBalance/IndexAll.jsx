@@ -2,22 +2,20 @@ import Pagination from "@/Components/Pagination";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { Head, router } from "@inertiajs/react";
 import TableHeading from "@/Components/TableHeading";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import SearchableDropdown from "@/Components/SearchableDropdown";
 import Modal from "@/Components/Modal";
 import TextInput from "@/Components/TextInput";
 import InputError from "@/Components/InputError";
-import DetailsButton from "@/Components/Buttons/DetailsButton";
-import AddButton from "@/Components/Buttons/AddButton";
-import AcceptButton from "@/Components/Buttons/AcceptButton";
-import RejectButton from "@/Components/Buttons/RejectButton copy";
 import ScrollBar from "@/Components/ScrollBar";
 import SuccessMessage from "@/Components/SuccessMessage";
 import Title from "@/Components/Title";
-import AddBalance from "@/Components/Buttons/AddBalance";
-import { MdOutlineAccountTree, MdOutlineAddCircleOutline } from "react-icons/md";
+import { MdOutlineAccountTree, MdOutlineAddCircleOutline, MdOutlineCancel } from "react-icons/md";
 import SelectInput from "@/Components/SelectInput";
 import { FiMinusCircle } from "react-icons/fi";
+import { TbListDetails, TbProgress } from "react-icons/tb";
+import { GiMoneyStack } from "react-icons/gi";
+import { LuCheckCircle } from "react-icons/lu";
 
 export default function index({
   auth,
@@ -27,10 +25,10 @@ export default function index({
   total_reduce_all,
   total_profit_all,
   final_balance_all,
+  total_user_balance_all,
   queryParams = null,
   message,
   success,
-  initialNotifications
 }) {
   queryParams = queryParams || {}
 
@@ -47,6 +45,26 @@ export default function index({
   const [addBalanceError, setAddBalanceError] = useState('');
   const [minusBalanceError, setMinusBalanceError] = useState('');
   const usersMenu = users.data.filter((center) => center.kind != "admin");
+  const [buttonColor, setButtonColor] = useState('inline-flex');
+
+  useEffect(() => {
+    // دالة لتبديل اللون
+    const toggleColor = () => {
+      setButtonColor(prevColor =>
+        prevColor === 'inline-flex text-white bg-gradient-to-r from-pink-400 via-pink-500 to-pink-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-pink-300 dark:focus:ring-pink-800 shadow-lg shadow-pink-500/50 dark:shadow-lg dark:shadow-pink-800/80 font-medium rounded-lg text-lg px-2 py-1.5 text-center me-2 mb-2'
+          ?
+          'inline-flex text-white bg-gradient-to-r from-blue-400 via-blue-500 to-blue-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 shadow-lg shadow-blue-500/50 dark:shadow-lg dark:shadow-blue-800/80 font-medium rounded-lg text-lg px-2 py-1.5 text-center me-2 mb-2'
+          :
+          'inline-flex text-white bg-gradient-to-r from-pink-400 via-pink-500 to-pink-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-pink-300 dark:focus:ring-pink-800 shadow-lg shadow-pink-500/50 dark:shadow-lg dark:shadow-pink-800/80 font-medium rounded-lg text-lg px-2 py-1.5 text-center me-2 mb-2'
+      );
+    };
+
+    // إنشاء مؤقت لتبديل اللون كل ثانية
+    const interval = setInterval(toggleColor, 500);
+
+    // تنظيف المؤقت عند إلغاء التثبيت
+    return () => clearInterval(interval);
+  }, []);
 
   const openAddModal = (center_balance) => {
     setSelectedCenter(center_balance);
@@ -176,7 +194,6 @@ export default function index({
     <AuthenticatedLayout
       user={auth.user}
       message={message}
-      notification={initialNotifications}
       header={
         <div className="flex justify-between items-center">
           <ScrollBar message={message}>
@@ -198,6 +215,7 @@ export default function index({
               type="number"
               className="mt-4"
               placeholder="المبلغ"
+              min={0}
               value={add}
               onChange={(e) => setAdd(e.target.value)}
               lang="en"
@@ -213,8 +231,20 @@ export default function index({
             />
           </div>
           <div className="mt-6 flex justify-end">
-            <AcceptButton onClick={handleAdd}>موافق</AcceptButton>
-            <RejectButton onClick={() => (setShowAddModal(false), setAdd(0), setStatment(''), setAddError(''))}>إلغاء</RejectButton>
+            <button
+              onClick={handleAdd}
+              type="button"
+              className="inline-flex text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 shadow-lg shadow-blue-500/50 dark:shadow-lg dark:shadow-blue-800/80 font-medium rounded-lg text-lg px-2.5 py-1.5 text-center me-2">
+              موافق
+              <LuCheckCircle style={{ marginRight: '8px', marginTop: '3px' }} size={20} />
+            </button>
+            <button
+              onClick={() => (setShowAddModal(false), setAdd(0), setStatment(''), setAddError(''))}
+              type="button"
+              className="flex text-white bg-gradient-to-r from-red-400 via-red-500 to-red-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 shadow-lg shadow-red-500/50 dark:shadow-lg dark:shadow-red-800/80 font-medium rounded-lg text-lg px-2.5 py-1.5 text-center me-2">
+              إلغاء الأمر
+              <MdOutlineCancel style={{ marginRight: '8px', marginTop: '4px' }} size={20} />
+            </button>
           </div>
         </div>
       </Modal>
@@ -227,6 +257,7 @@ export default function index({
               type="number"
               className="mt-4"
               placeholder="الرصيد"
+              min={0}
               value={addBalance}
               onChange={(e) => setAddBalance(e.target.value)}
               lang="en"
@@ -234,8 +265,20 @@ export default function index({
           </div>
           <InputError message={addBalanceError} className="mt-2" />
           <div className="mt-6 flex justify-end">
-            <AcceptButton onClick={handleAddBalance}>موافق</AcceptButton>
-            <RejectButton onClick={() => (setShowAddBalanceModal(false), setAddBalance(0), setAddBalanceError(''))}>إلغاء</RejectButton>
+            <button
+              onClick={handleAddBalance}
+              type="button"
+              className="inline-flex text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 shadow-lg shadow-blue-500/50 dark:shadow-lg dark:shadow-blue-800/80 font-medium rounded-lg text-lg px-2.5 py-1.5 text-center me-2">
+              موافق
+              <LuCheckCircle style={{ marginRight: '8px', marginTop: '3px' }} size={20} />
+            </button>
+            <button
+              onClick={() => (setShowAddBalanceModal(false), setAddBalance(0), setAddBalanceError(''))}
+              type="button"
+              className="flex text-white bg-gradient-to-r from-red-400 via-red-500 to-red-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 shadow-lg shadow-red-500/50 dark:shadow-lg dark:shadow-red-800/80 font-medium rounded-lg text-lg px-2.5 py-1.5 text-center me-2">
+              إلغاء الأمر
+              <MdOutlineCancel style={{ marginRight: '8px', marginTop: '4px' }} size={20} />
+            </button>
           </div>
         </div>
       </Modal>
@@ -249,14 +292,27 @@ export default function index({
               className="mt-4"
               placeholder="الرصيد"
               value={minusBalance}
+              min={0}
               onChange={(e) => setMinusBalance(e.target.value)}
               lang="en"
             />
           </div>
           <InputError message={minusBalanceError} className="mt-2" />
           <div className="mt-6 flex justify-end">
-            <AcceptButton onClick={handleMinusBalance}>موافق</AcceptButton>
-            <RejectButton onClick={() => (setShowMinusBalanceModal(false), setMinusBalance(0), setMinusBalanceError(''))}>إلغاء</RejectButton>
+            <button
+              onClick={handleMinusBalance}
+              type="button"
+              className="inline-flex text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 shadow-lg shadow-blue-500/50 dark:shadow-lg dark:shadow-blue-800/80 font-medium rounded-lg text-lg px-2.5 py-1.5 text-center me-2">
+              موافق
+              <LuCheckCircle style={{ marginRight: '8px', marginTop: '3px' }} size={20} />
+            </button>
+            <button
+              onClick={() => (setShowMinusBalanceModal(false), setMinusBalance(0), setMinusBalanceError(''))}
+              type="button"
+              className="flex text-white bg-gradient-to-r from-red-400 via-red-500 to-red-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 shadow-lg shadow-red-500/50 dark:shadow-lg dark:shadow-red-800/80 font-medium rounded-lg text-lg px-2.5 py-1.5 text-center me-2">
+              إلغاء الأمر
+              <MdOutlineCancel style={{ marginRight: '8px', marginTop: '4px' }} size={20} />
+            </button>
           </div>
         </div>
       </Modal>
@@ -266,8 +322,20 @@ export default function index({
           <p className="mt-4">طلب المركز تغذية رصيد بقيمة : {(selectedCenter && selectedCenter.center.add_balance)}</p>
           <p className="mt-4">يرجى معالجة الطلب بالقبول أو الرفض</p>
           <div className="mt-6 flex justify-end">
-            <AcceptButton onClick={handleAddBalanceFromUser}>قبول</AcceptButton>
-            <RejectButton onClick={handleCancleBalanceFromUser}>رفض</RejectButton>
+            <button
+              onClick={handleAddBalanceFromUser}
+              type="button"
+              className="inline-flex text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 shadow-lg shadow-blue-500/50 dark:shadow-lg dark:shadow-blue-800/80 font-medium rounded-lg text-lg px-2.5 py-1.5 text-center me-2">
+              قبول
+              <LuCheckCircle style={{ marginRight: '8px', marginTop: '3px' }} size={20} />
+            </button>
+            <button
+              onClick={handleCancleBalanceFromUser}
+              type="button"
+              className="flex text-white bg-gradient-to-r from-red-400 via-red-500 to-red-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 shadow-lg shadow-red-500/50 dark:shadow-lg dark:shadow-red-800/80 font-medium rounded-lg text-lg px-2.5 py-1.5 text-center me-2">
+              رفض
+              <MdOutlineCancel style={{ marginRight: '8px', marginTop: '4px' }} size={20} />
+            </button>
           </div>
         </div>
       </Modal>
@@ -280,7 +348,7 @@ export default function index({
                 <table className="w-full text-md font-semibold rtl:text-right text-gray-800 dark:text-gray-200">
                   <thead className="text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400 border-b-2 border-gray-500">
                     <tr className="text-nowrap">
-                    <TableHeading
+                      <TableHeading
                         sortable={false}
                       >
                         #
@@ -311,12 +379,12 @@ export default function index({
                       <TableHeading
                         sortable={false}
                       >
-                        صافي الربح
+                        الربح
                       </TableHeading>
                       <TableHeading
                         sortable={false}
                       >
-                        تغذية الرصيد
+                        الصلاحية
                       </TableHeading>
                       <TableHeading
                         sortable={false}
@@ -331,13 +399,29 @@ export default function index({
                       <TableHeading
                         sortable={false}
                       >
-                        التحكم
+                        التفاصيل والتسديد النقدي
+                      </TableHeading>
+                      <TableHeading
+                        sortable={false}
+                      >
+                        الصلاحية
                       </TableHeading>
                     </tr>
                   </thead>
                   <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400 border-b-2 border-gray-500">
                     <tr className="text-nowrap">
-                    <th className="px-3 py-3"></th>
+                      <th className="py-3 text-center">
+                        <SelectInput
+                          className="text-sm font-medium"
+                          defaultValue={queryParams.col}
+                          onChange={e => colChanged('col', e.target.value)}
+                        >
+                          <option value="25">25</option>
+                          <option value="50">50</option>
+                          <option value="75">75</option>
+                          <option value="100">100</option>
+                        </SelectInput>
+                      </th>
                       <th className="px-3 py-3 relative">
                         <SearchableDropdown
                           items={usersMenu}
@@ -356,53 +440,101 @@ export default function index({
                       <th className="px-3 py-3"></th>
                       <th className="px-3 py-3"></th>
                       <th className="px-3 py-3"></th>
+                      <th className="px-3 py-3"></th>
                     </tr>
                   </thead>
                   <tbody className="text-center">
                     {center_balances.data.map((center_balance, index) => (
                       <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700" key={center_balance.center.id}>
-                        <td className="px- py-2">{index + 1}</td>
-                        <td className="px- py-2">{center_balance.center.name}</td>
-                        <td className="px- py-2">{center_balance.total_add.toLocaleString('en-US')}</td>
-                        <td className="px- py-2">{center_balance.total_reduce.toLocaleString('en-US')}</td>
-                        <td className={`px- py-2 text-white`}>
-                          <span className={`${center_balance.final_balance_number < 0 ? "bg-red-600" : 'bg-emerald-600'} rounded-md px-3 min-w-[100px] text-center inline-block font-normal`}>{center_balance.final_balance.toLocaleString('en-US')}</span>
+                        <td className="py-2">{index + 1}</td>
+                        <td className="py-2">{center_balance.center.name}</td>
+                        <td className="py-2">{center_balance.total_add.toLocaleString('en-US')}</td>
+                        <td className="py-2">{center_balance.total_reduce.toLocaleString('en-US')}</td>
+                        <td className={`py-2 text-white`}>
+                          <span className={`${center_balance.final_balance_number < 0 ?
+                            "min-w-[80px] inline-block bg-red-800 text-red-100 text-md font-medium me-2 px-2.5 py-0.5 rounded-full dark:bg-red-900 dark:text-red-300"
+                            :
+                            'min-w-[80px] inline-block bg-green-800 text-green-100 text-md font-medium me-2 px-2.5 py-0.5 rounded-full dark:bg-green-900 dark:text-green-300'
+                            }`
+                          }
+                          >
+                            {center_balance.final_balance.toLocaleString('en-US')}
+                          </span>
                         </td>
-                        <td className="px- py-2">{center_balance.total_profit}</td>
-                        <td className="px- py-2">{center_balance.center.user_balance.toLocaleString('en-US')}</td>
-                        <td className="px- py-2">{(center_balance.center.user_balance+center_balance.final_balance).toLocaleString('en-US')}</td>
-                        <td className="px- py-2">{center_balance.center.created_by.name}</td>
-                        <td className="px- py-2 text-nowrap flex">
-                          {auth.user.id === center_balance.center.created_by.id ? (
-                            <>
-                              {(center_balance.total_add === 0 && center_balance.total_reduce === 0) ?
-                                (
-                                  <DetailsButton disabled={true} onClick={() => openDetails(center_balance)}>عرض التفاصيل</DetailsButton>
-                                )
-                                : (
-                                  <DetailsButton onClick={() => openDetails(center_balance)}>عرض التفاصيل</DetailsButton>
-                                )}
-                              <AddButton onClick={() => openAddModal(center_balance)}>تسديد دفعة</AddButton>
-                              {(center_balance.center.add_balance > 0) ? (
-                                <AddBalance onClick={() => openAddBalanceFromUserModal(center_balance)}>معالجة طلب</AddBalance>
-                              ) : (
-                                <>
-                                  <div>
-                                    <button className="inline-flex items-center p-3 mx-2 bg-emerald-600 border border-transparent rounded-md font-semibold text-lg text-white uppercase tracking-widest hover:bg-emerald-800 active:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition ease-in-out duration-150 disabled && 'opacity-25"
-                                      onClick={() => openAddBalanceModal(center_balance)}>
-                                      <MdOutlineAddCircleOutline size={18} />
-                                    </button>
-                                    <button className="inline-flex items-center p-3 bg-red-600 border border-transparent rounded-md font-semibold text-lg text-white uppercase tracking-widest hover:bg-red-800 active:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition ease-in-out duration-150 disabled && 'opacity-25"
-                                      onClick={() => openMinusBalanceModal(center_balance)}>
-                                      <FiMinusCircle size={18} />
-                                    </button>
-                                  </div>
-                                </>
+                        <td className="py-2">{center_balance.total_profit}</td>
+                        <td className="py-2">
+                          <span className="min-w-[80px] inline-block bg-red-800 text-red-100 text-md font-medium me-2 px-2.5 py-0.5 rounded-full dark:bg-red-900 dark:text-red-300">
+                            {center_balance.center.user_balance.toLocaleString('en-US')}
+                          </span>
+                        </td>
+                        <td className="py-2">
+                          <span className={`rounded-md px-3 min-w-[80px] text-center inline-block font-semibold border-2 border-blue-600`}>
+                            {(center_balance.center.user_balance + center_balance.final_balance).toLocaleString('en-US')}
+                          </span>
+                        </td>
+                        <td className="py-2 px-1 ">{center_balance.center.created_by.name}</td>
+                        <td className="py-2 text-nowrap flex">
+                          {/* {auth.user.id === center_balance.center.created_by.id ? ( */}
+                          <>
+                            {(center_balance.total_add === 0 && center_balance.total_reduce === 0) ?
+                              (
+                                <button
+                                  disabled={true}
+                                  onClick={() => openDetails(center_balance)}
+                                  type="button"
+                                  className="inline-flex text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 shadow-lg shadow-blue-500/50 dark:shadow-lg dark:shadow-blue-800/80 font-medium rounded-lg text-lg px-2.5 py-1.5 text-center me-2">
+                                  التفاصيل
+                                  <TbListDetails style={{ marginRight: '8px' }} size={25} />
+                                </button>
+                              )
+                              : (
+                                <button
+                                  onClick={() => openDetails(center_balance)}
+                                  type="button"
+                                  className="inline-flex text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 shadow-lg shadow-blue-500/50 dark:shadow-lg dark:shadow-blue-800/80 font-medium rounded-lg text-lg px-2.5 py-1.5 text-center me-2">
+                                  التفاصيل
+                                  <TbListDetails style={{ marginRight: '8px' }} size={25} />
+                                </button>
                               )}
-                            </>
+                            <button
+                              onClick={() => openAddModal(center_balance)}
+                              type="button"
+                              className="inline-flex text-white bg-gradient-to-r from-green-600 via-green-700 to-green-800 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-green-300 dark:focus:ring-green-800 shadow-lg shadow-green-500/50 dark:shadow-lg dark:shadow-green-800/80 font-medium rounded-lg text-lg px-2.5 py-1.5 text-center me-2">
+                              تسديد نقدي
+                              <GiMoneyStack style={{ marginRight: '8px' }} size={25} />
+                            </button>
+                          </>
+                        </td>
+                        <td className="px-1 py-2 text-nowrap">
+                          {(center_balance.center.add_balance > 0) ? (
+                            <button
+                              onClick={() => openAddBalanceFromUserModal(center_balance)}
+                              type="button"
+                              className={buttonColor}>
+                              معالجة الطلب
+                              <TbProgress style={{ marginRight: '8px' }} size={25} />
+                            </button>
                           ) : (
-                            <span className="font-medium text-gray-600 dark:text-gray-500 mx-1">ليس لديك صلاحيات</span>
+                            <>
+                              <div>
+                                <button
+                                  type="button"
+                                  onClick={() => openAddBalanceModal(center_balance)}
+                                  className="text-white bg-gradient-to-r from-teal-400 via-teal-500 to-teal-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-teal-300 dark:focus:ring-teal-800 shadow-lg shadow-teal-500/50 dark:shadow-lg dark:shadow-teal-800/80 font-medium rounded-lg text-lg px-5 py-1.5 text-center me-2">
+                                  فتح
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => openMinusBalanceModal(center_balance)}
+                                  className="text-white bg-gradient-to-r from-red-400 via-red-500 to-red-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 shadow-lg shadow-red-500/50 dark:shadow-lg dark:shadow-red-800/80 font-medium rounded-lg text-lg px-2.5 py-1.5 text-center me-2">
+                                  سحب
+                                </button>
+                              </div>
+                            </>
                           )}
+                          {/* ) : (
+                          <span className="font-medium text-gray-600 dark:text-gray-500 mx-1">ليس لديك صلاحيات</span>
+                          )} */}
                         </td>
                       </tr>
                     ))}
@@ -415,6 +547,7 @@ export default function index({
                       <th className="px-3 py-3">{total_reduce_all}</th>
                       <th className="px-3 py-3">{final_balance_all}</th>
                       <th className="px-3 py-3">{total_profit_all}</th>
+                      <th className="px-3 py-3">{total_user_balance_all}</th>
                     </tr>
                   </tfoot>
                 </table>

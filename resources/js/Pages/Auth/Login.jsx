@@ -2,17 +2,17 @@ import { useEffect } from 'react';
 import GuestLayout from '@/Layouts/GuestLayout';
 import InputError from '@/Components/InputError';
 import InputLabel from '@/Components/InputLabel';
-import PrimaryButton from '@/Components/Buttons/PrimaryButton';
 import TextInput from '@/Components/TextInput';
 import { Head, Link, useForm } from '@inertiajs/react';
+import { HiOutlineLogin } from 'react-icons/hi';
+import SuccessMessage from '@/Components/SuccessMessage';
 
-export default function Login({ status, canResetPassword, message }) {
+export default function Login({ status, canResetPassword, message, success }) {
   const { data, setData, post, processing, errors, reset } = useForm({
     email: '',
     password: '',
     remember: false,
   });
-
   useEffect(() => {
     return () => {
       reset('password');
@@ -25,7 +25,9 @@ export default function Login({ status, canResetPassword, message }) {
   };
 
   return (
-    <GuestLayout>
+    <GuestLayout
+    message={message}
+    >
       <Head title="تسجيل دخول" />
 
       {status && <div className="mb-4 font-medium text-sm text-green-600">{status}</div>}
@@ -62,9 +64,13 @@ export default function Login({ status, canResetPassword, message }) {
         </div>
 
         <div className="flex items-center justify-center mt-4 lg:mt-12">
-          <PrimaryButton className="ms-4" disabled={processing}>
+          <button
+            disabled={processing}
+            type="submit"
+            className="inline-flex text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 shadow-lg shadow-blue-500/50 dark:shadow-lg dark:shadow-blue-800/80 font-medium rounded-lg text-lg px-2.5 py-1.5 text-center me-2">
             تسجيل دخول
-          </PrimaryButton>
+            <HiOutlineLogin style={{ marginRight: '8px', marginTop: '2px' }} size={25} />
+          </button>
         </div>
       </form>
     </GuestLayout>

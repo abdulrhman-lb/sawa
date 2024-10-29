@@ -30,7 +30,6 @@ class KindController extends Controller
       'queryParams'           => request()->query() ?: null,
       'success'               => session('success'),
       'message'               => $message,
-      'initialNotifications'  => auth()->user()->unreadNotifications,
     ]);
   }
 
@@ -39,7 +38,6 @@ class KindController extends Controller
     $message = Message::first();
     return inertia("Admin/Dashboard/Kind/Create",[
       'message'               => $message,
-      'initialNotifications'  => auth()->user()->unreadNotifications,
     ]);
   }
 
@@ -56,7 +54,6 @@ class KindController extends Controller
     return inertia("Admin/Dashboard/Kind/Edit", [
       'kind'                  => new KindResource($kind),
       'message'               => $message,
-      'initialNotifications'  => auth()->user()->unreadNotifications,
     ]);
   }
 

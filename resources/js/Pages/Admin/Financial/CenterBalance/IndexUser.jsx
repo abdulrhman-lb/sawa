@@ -2,14 +2,6 @@ import Pagination from "@/Components/Pagination";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { Head, router } from "@inertiajs/react";
 import TableHeading from "@/Components/TableHeading";
-import { useState } from "react";
-import Modal from "@/Components/Modal";
-import TextInput from "@/Components/TextInput";
-import PrimaryButton from "@/Components/Buttons/PrimaryButton";
-import DeleteButton from "@/Components/Buttons/DeleteButton";
-import AcceptButton from "@/Components/Buttons/AcceptButton";
-import RejectButton from "@/Components/Buttons/RejectButton copy";
-import InputError from "@/Components/InputError";
 import ScrollBar from "@/Components/ScrollBar";
 import SuccessMessage from "@/Components/SuccessMessage";
 import Title from "@/Components/Title";
@@ -23,10 +15,13 @@ export default function index({
   total_reduce_all,
   final_balance_all,
   final_balance_all_test,
+  center_balance_vir,
+  total_add_all_vir,
+  total_reduce_all_vir,
+  final_balance_all_vir,
   queryParams = null,
   message,
   success,
-  initialNotifications
 }) {
 
   queryParams = queryParams || {}
@@ -54,7 +49,6 @@ export default function index({
     <AuthenticatedLayout
       user={auth.user}
       message={message}
-      notification={initialNotifications}
       header={
         <div className="flex justify-between items-center">
           <ScrollBar message={message}>
@@ -111,6 +105,27 @@ export default function index({
                       </TableHeading>
                     </tr>
                   </thead>
+                  <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400 border-b-2 border-gray-500">
+                    <tr className="text-nowrap">
+                      <th className="py-3 text-center">
+                        <SelectInput
+                          className="text-sm font-medium"
+                          defaultValue={queryParams.col}
+                          onChange={e => colChanged('col', e.target.value)}
+                        >
+                          <option value="25">25</option>
+                          <option value="50">50</option>
+                          <option value="75">75</option>
+                          <option value="100">100</option>
+                        </SelectInput>
+                      </th>
+                      <th className="px-3 py-3"></th>
+                      <th className="px-3 py-3"></th>
+                      <th className="px-3 py-3"></th>
+                      <th className="px-3 py-3"></th>
+                      <th className="px-3 py-3"></th>
+                    </tr>
+                  </thead>
                   <tbody className="text-center">
                     {center_balance.data.map((center_balanc, index) => (
                       <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700" key={center_balanc.id}>
@@ -129,7 +144,7 @@ export default function index({
                       <th className="px-3 py-3">المجموع</th>
                       <th className="px-3 py-3">{total_add_all}</th>
                       <th className="px-3 py-3">{total_reduce_all}</th>
-                      <th className={`px-3 py-2 ${final_balance_all_test < 0 ? "text-red-500" : 'text-green-500'}`}>الرصيد الفعلي النهائي للمركز : {final_balance_all}</th>
+                      <th colspan="2" className={`px-3 py-2 pr-2 text-right ${final_balance_all_test < 0 ? "text-red-500" : 'text-green-500'}`}>الرصيد : {final_balance_all}</th>
                     </tr>
                   </tfoot>
                 </table>
@@ -150,6 +165,112 @@ export default function index({
                 </div>
                 <div className="mt-4">
                   <h3>إجمالي السجلات : {center_balance.data.length}</h3>
+                </div>
+              </div>
+            </div>
+                        {/* جدول الارصدة */}
+                        <div className="p-2 text-gray-900 dark:text-gray-100">
+              <h1 className="py-4 font-semibold text-center bg-emerald-700 rounded-md text-white text-xl my-4">جدول حركة الارصدة</h1>
+              <div className="overflow-auto">
+                <table className="w-full text-md font-semibold rtl:text-right text-gray-800 dark:text-gray-200">
+                  <thead className="text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400 border-b-2 border-gray-500">
+                    <tr className="text-nowrap">
+                    <TableHeading
+                        sortable={false}
+                      >
+                        #
+                      </TableHeading>
+                      <TableHeading
+                        name='created_at'
+                        sort_field={queryParams.sort_field}
+                        sort_direction={queryParams.sort_direction}
+                        sortChanged={sortChanged}
+                      >
+                        التاريخ
+                      </TableHeading>
+                      <TableHeading
+                        sortable={false}
+                      >
+                        الوقت
+                      </TableHeading>
+                      <TableHeading
+                        sortable={false}
+                      >
+                        إضافة إلى الرصيد
+                      </TableHeading>
+                      <TableHeading
+                        sortable={false}
+                      >
+                        سحب من الرصيد
+                      </TableHeading>
+                      <TableHeading
+                        sortable={false}
+                      >
+                        البيان
+                      </TableHeading>
+                    </tr>
+                  </thead>
+                  <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400 border-b-2 border-gray-500">
+                    <tr className="text-nowrap">
+                      <th className="py-3 text-center">
+                        <SelectInput
+                          className="text-sm font-medium"
+                          defaultValue={queryParams.col}
+                          onChange={e => colChanged('col', e.target.value)}
+                        >
+                          <option value="25">25</option>
+                          <option value="50">50</option>
+                          <option value="75">75</option>
+                          <option value="100">100</option>
+                        </SelectInput>
+                      </th>
+                      <th className="px-3 py-3"></th>
+                      <th className="px-3 py-3"></th>
+                      <th className="px-3 py-3"></th>
+                      <th className="px-3 py-3"></th>
+                      <th className="px-3 py-3"></th>
+                    </tr>
+                  </thead>
+                  <tbody className="text-center">
+                    {center_balance_vir.data.map((center_balanc, index) => (
+                      <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700" key={center_balanc.id}>
+                        <td className="px-3 py-2">{index + 1}</td>
+                        <td className="px-3 py-2">{center_balanc.created_at}</td>
+                        <td className="px-3 py-2">{center_balanc.time}</td>
+                        <td className="px-3 py-2">{center_balanc.add.toLocaleString('en-US')}</td>
+                        <td className="px-3 py-2">{center_balanc.reduce.toLocaleString('en-US')}</td>
+                        <td className="px-3 py-2">{center_balanc.statment}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                  <tfoot className="text-center">
+                    <tr>
+                      <th className="px-3 py-3"></th>
+                      <th className="px-3 py-3"></th>
+                      <th className="px-3 py-3">المجموع</th>
+                      <th className="px-3 py-3">{total_add_all_vir}</th>
+                      <th className="px-3 py-3">{total_reduce_all_vir}</th>
+                      <th colspan="2" className={`px-3 py-2 pr-2 text-right `}>الرصيد : {final_balance_all_vir}</th>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+              <div className="flex px-4">
+                <SelectInput
+                  className="text-sm font-medium mt-4"
+                  defaultValue={queryParams.colBalance}
+                  onChange={e => colChanged('colBalance', e.target.value)}
+                >
+                  <option value="25">25</option>
+                  <option value="50">50</option>
+                  <option value="75">75</option>
+                  <option value="100">100</option>
+                </SelectInput>
+                <div className="flex mx-auto">
+                  <Pagination links={center_balance_vir.meta.links} queryParams={queryParams} />
+                </div>
+                <div className="mt-4">
+                  <h3>إجمالي السجلات : {center_balance_vir.data.length}</h3>
                 </div>
               </div>
             </div>

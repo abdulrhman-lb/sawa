@@ -8,14 +8,16 @@ import { ORDER_CLASS_MAP, ORDER_TEXT_MAP } from "@/constants";
 import { useState } from "react";
 import SearchableDropdown from "@/Components/SearchableDropdown";
 import Modal from "@/Components/Modal";
-import RejectButton from "@/Components/Buttons/RejectButton copy";
-import AcceptButton from "@/Components/Buttons/AcceptButton";
 import InputError from "@/Components/InputError";
 import ScrollBar from "@/Components/ScrollBar";
 import SuccessMessage from "@/Components/SuccessMessage";
 import WarningMessage from "@/Components/WarningMessage";
 import Title from "@/Components/Title";
 import { FaBorderNone } from "react-icons/fa6";
+import { FaRegEdit } from "react-icons/fa";
+import { RiDeleteBin6Line } from "react-icons/ri";
+import { LuCheckCircle } from "react-icons/lu";
+import { MdOutlineCancel } from "react-icons/md";
 
 export default function index({
   auth,
@@ -24,18 +26,18 @@ export default function index({
   orders,
   queryParams = null,
   success = ['0', ''],
-  initialNotifications
 }) {
 
   queryParams = queryParams || {}
 
   const [showApproveModal, setShowApproveModal] = useState(false);
-  const [showRejectModal, setShowRejectModal] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState(null);
+  const [showRejectModal, setShowRejectModal] = useState(false);
   const [rejectReason, setRejectReason] = useState("");
   const [rejectReasonError, setRejectReasonError] = useState("");
-
-  const openApproveModal = (order) => {
+  const [isLoading, setIsLoading] = useState(false); // تعريف الحالة
+  console.log(isLoading);
+  const openApproveModal = (order) => { 
     setSelectedOrder(order);
     setShowApproveModal(true);
   }
@@ -45,13 +47,35 @@ export default function index({
     setShowRejectModal(true);
   }
 
+  // const handleApprove = () => {
+  //   setIsLoading(true); // بدء التحميل
+  //   router.post(route('order.update', selectedOrder.id), {
+  //     status: 'completed',
+  //     _method: 'PUT'
+  //   });
+  //   setShowApproveModal(false);
+  //   setIsLoading(false); // إنهاء التحميل بغض النظر عن النجاح أو الفشل
+  // }
+
   const handleApprove = () => {
+    setIsLoading(true); // بدء التحميل
+  
     router.post(route('order.update', selectedOrder.id), {
       status: 'completed',
       _method: 'PUT'
+    }, {
+      onSuccess: () => {
+        setShowApproveModal(false); // إخفاء الـ Modal بعد نجاح العملية
+      },
+      onError: (errors) => {
+        console.error('حدث خطأ:', errors); // عرض الخطأ في حالة الفشل
+      },
+      onFinish: () => {
+        setIsLoading(false); // إنهاء التحميل بعد انتهاء العملية
+      }
     });
-    setShowApproveModal(false);
-  }
+  };
+  
 
   const handleReject = () => {
     if (rejectReason === '') {
@@ -68,7 +92,6 @@ export default function index({
       setShowRejectModal(false);
       setRejectReasonError('');
       setRejectReason('');
-      console.log('+963' + selectedOrder.user.mobile);
       window.open('https://web.whatsapp.com/send?phone='
         + '+963' + selectedOrder.user.mobile
         + '&text=مرحبا '
@@ -98,7 +121,7 @@ export default function index({
       delete queryParams[name]
     }
     queryParams.page = 1;
-    router.get(route('order.index'), queryParams)
+    router.get(route('order.in.progress'), queryParams)
   }
 
   const sortChanged = (name) => {
@@ -113,20 +136,19 @@ export default function index({
       queryParams.sort_direction = 'asc';
     }
     queryParams.page = 1;
-    router.get(route('order.index'), queryParams)
+    router.get(route('order.in.progress'), queryParams)
   }
 
   const colChanged = (name, value) => {
     queryParams[name] = value;
     queryParams.page = 1;
-    router.get(route('order.index'), queryParams)
+    router.get(route('order.in.progress'), queryParams)
   }
 
   return (
     <AuthenticatedLayout
       user={auth.user}
       message={message}
-      notification={initialNotifications}
       header={
         <div className="flex justify-between items-center">
           <ScrollBar message={message}>
@@ -144,8 +166,22 @@ export default function index({
           <h2 className="text-lg font-medium">تأكيد الموافقة</h2>
           <p className="mt-4">هل أنت متأكد أنك تريد الموافقة على هذا الطلب؟</p>
           <div className="mt-6 flex justify-end">
-            <AcceptButton onClick={handleApprove}>موافق</AcceptButton>
-            <RejectButton onClick={() => setShowApproveModal(false)}>إلغاء</RejectButton>
+            <button
+              onClick={handleApprove}
+              type="button"
+              disabled={isLoading}
+              className="inline-flex text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 shadow-lg shadow-blue-500/50 dark:shadow-lg dark:shadow-blue-800/80 font-medium rounded-lg text-lg px-2.5 py-1.5 text-center me-2">
+              موافق
+              <LuCheckCircle style={{ marginRight: '8px', marginTop: '3px' }} size={20} />
+            </button>
+            <button
+              onClick={() => setShowApproveModal(false)}
+              type="button"
+              disabled={isLoading}
+              className="flex text-white bg-gradient-to-r from-red-400 via-red-500 to-red-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 shadow-lg shadow-red-500/50 dark:shadow-lg dark:shadow-red-800/80 font-medium rounded-lg text-lg px-2.5 py-1.5 text-center me-2">
+              إلغاء
+              <MdOutlineCancel style={{ marginRight: '8px', marginTop: '4px' }} size={20} />
+            </button>
           </div>
         </div>
       </Modal>
@@ -161,8 +197,22 @@ export default function index({
           />
           <InputError message={rejectReasonError} className="mt-2" />
           <div className="mt-6 flex justify-end">
-            <AcceptButton onClick={handleReject}>موافق</AcceptButton>
-            <RejectButton onClick={() => setShowRejectModal(false)}>إلغاء</RejectButton>
+            <button
+              onClick={handleReject}
+              type="button"
+              disabled={isLoading}
+              className="inline-flex text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 shadow-lg shadow-blue-500/50 dark:shadow-lg dark:shadow-blue-800/80 font-medium rounded-lg text-lg px-2.5 py-1.5 text-center me-2">
+              موافق
+              <LuCheckCircle style={{ marginRight: '8px', marginTop: '3px' }} size={20} />
+            </button>
+            <button
+              onClick={() => setShowRejectModal(false)}
+              type="button"
+              disabled={isLoading}
+              className="flex text-white bg-gradient-to-r from-red-400 via-red-500 to-red-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 shadow-lg shadow-red-500/50 dark:shadow-lg dark:shadow-red-800/80 font-medium rounded-lg text-lg px-2.5 py-1.5 text-center me-2">
+              إلغاء
+              <MdOutlineCancel style={{ marginRight: '8px', marginTop: '4px' }} size={20} />
+            </button>
           </div>
         </div>
       </Modal>
@@ -192,6 +242,11 @@ export default function index({
                         sortChanged={sortChanged}
                       >
                         التاريخ
+                      </TableHeading>
+                      <TableHeading
+                        sortable={false}
+                      >
+                        التوقيت
                       </TableHeading>
                       <TableHeading
                         name='user_id'
@@ -224,6 +279,11 @@ export default function index({
                       <TableHeading
                         sortable={false}
                       >
+                        ملاحظات
+                      </TableHeading>
+                      <TableHeading
+                        sortable={false}
+                      >
                         الحالة
                       </TableHeading>
                       <TableHeading
@@ -235,6 +295,18 @@ export default function index({
                   </thead>
                   <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400 border-b-2 border-gray-500">
                     <tr className="text-nowrap">
+                      <th className="py-3 text-center">
+                        <SelectInput
+                          className="text-sm font-medium"
+                          defaultValue={queryParams.col}
+                          onChange={e => colChanged('col', e.target.value)}
+                        >
+                          <option value="25">25</option>
+                          <option value="50">50</option>
+                          <option value="75">75</option>
+                          <option value="100">100</option>
+                        </SelectInput>
+                      </th>
                       <th className="px-3 py-3"></th>
                       <th className="px-3 py-3"></th>
                       <th className="px-3 py-3 relative">
@@ -262,33 +334,57 @@ export default function index({
                       <th className="px-3 py-3"></th>
                       <th className="px-3 py-3"></th>
                       <th className="px-3 py-3"></th>
+                      <th className="px-3 py-3"></th>
                     </tr>
                   </thead>
                   <tbody className="text-center">
                     {orders.data.map((order, index) => (
                       <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700" key={order.id}>
-                        <td className="px-3 py-2">{index + 1}</td>
-                        <td className="px-3 py-2 text-nowrap">{order.created_at}</td>
-                        <td className="px-3 py-2">{order.user.name}</td>
-                        <td className="px-3 py-2 text-nowrap">{order.service.product.category.name} /
-                          {order.service.product.name} /
-                          {order.service.name} /
-                          {order.amount_kind.kindName.name} <br />
-                          {order.service.data_1.name} : {order.data_kind_1}
-                          {order.data_kind_2 && (`-  ${order.service.data_2.name}  :  ${order.data_kind_2}`)}
+                        <td className="px-1 py-2">{index + 1}</td>
+                        <td className="px-2 py-2 text-nowrap">{order.created_at}</td>
+                        <td className="px-2 py-2 text-nowrap">{order.time_created}</td>
+                        <td className="px-2 py-2">{order.user.name}</td>
+                        <td className="px-1 py-2 text-nowrap">{order.service.product.category.name}
+                          <span className="text-red-500 px-2">|</span>
+                          {order.service.product.name}
+                          <span className="text-red-500 px-2">|</span>
+                          {order.service.name}<br />
+                          {order.amount_kind.kindName.name} 
+                          <span className="text-red-500 px-2">|</span>
+                          {order.service.data_1.name}
+                          <span className="text-red-500 px-2">|</span>
+                          <span className="bg-red-400 text-white rounded-md px-3 min-w-[100px] text-center inline-block font-normal">{order.data_kind_1}</span>
+                          {order.data_kind_2 && (`-  ${order.service.data_2.name}  |  ${order.data_kind_2}`)}
                         </td>
-                        <td className="px-3 py-2">{order.amount}</td>
-                        <td className="px-3 py-2">{order.comission_admin + order.comission_super} %</td>
-                        <td className="px-3 py-2">{order.net}</td>
-                        <td className="px-3 py-2 text-center">
+                        <td className="px-2 py-2">{order.amount}</td>
+                        <td className="px-2 py-2">{order.comission_admin + order.comission_super} %</td>
+                        <td className="px-2 py-2">{order.net}</td>
+                        <td className="px-2 py-2">{order.notes}</td>
+                        <td className="px-2 py-2 text-center">
                           <span className={"px-2 py-0 cursor-pointer rounded text-white text-nowrap " +
                             ORDER_CLASS_MAP[order.status]} >
                             {ORDER_TEXT_MAP[order.status]}
                           </span>
                         </td>
                         <td className="px-3 py-2 text-nowrap">
-                          <AcceptButton onClick={() => openApproveModal(order)}>موافق</AcceptButton>
-                          <RejectButton onClick={() => openRejectModal(order)}>رفض</RejectButton>
+                          <div className="flex justify-center">
+                            <button
+                              onClick={() => openApproveModal(order)}
+                              type="button"
+                              disabled={isLoading}
+                              className="inline-flex text-white bg-gradient-to-r from-green-600 via-green-700 to-green-800 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-green-300 dark:focus:ring-green-800 shadow-lg shadow-green-500/50 dark:shadow-lg dark:shadow-green-800/80 font-medium rounded-lg text-lg px-2.5 py-1.5 text-center me-2">
+                              قبول
+                              <LuCheckCircle style={{ marginRight: '8px', marginTop: '3px' }} size={20} />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => openRejectModal(order)}
+                              disabled={isLoading}
+                              className="flex text-white bg-gradient-to-r from-red-400 via-red-500 to-red-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 shadow-lg shadow-red-500/50 dark:shadow-lg dark:shadow-red-800/80 font-medium rounded-lg text-lg px-2.5 py-1.5 text-center me-2">
+                              رفض
+                              <RiDeleteBin6Line style={{ marginRight: '8px', marginTop: '4px' }} size={20} />
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     ))}

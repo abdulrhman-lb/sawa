@@ -2,6 +2,7 @@
 
 namespace App\Events;
 
+use App\Models\Order;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PresenceChannel;
@@ -14,6 +15,9 @@ class OrderCreated
 {
   use Dispatchable, InteractsWithSockets, SerializesModels;
 
+  /**
+   * Create a new event instance.
+   */
   /**
    * Create a new event instance.
    */

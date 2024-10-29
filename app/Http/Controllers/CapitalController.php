@@ -7,6 +7,8 @@ use App\Http\Requests\StoreCapitalRequest;
 use App\Http\Requests\UpdateCapitalRequest;
 use App\Http\Resources\CapitalResource;
 use App\Models\Message;
+use App\Models\Product;
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
@@ -30,7 +32,7 @@ class CapitalController extends Controller
         DB::raw('SUM(`profit`) as total_profit'),
       )
       ->first();
-    $total_center = $center_balance->total_add - ($center_balance->total_reduce - $center_balance->total_profit);
+    $total_center = $center_balance->total_add - ($center_balance->total_reduce);
     $box = DB::table('boxes')
       ->select(
         DB::raw('SUM(`amount`) as total_amount'),
@@ -46,8 +48,10 @@ class CapitalController extends Controller
     $capitals = Capital::orderBy('created_at', 'desc')->paginate($col)->onEachSide(1);
     $sum1     = $total_center+$totalAmount;
     $sum2     = $total_product+$total_box;
-    $sum3     = $totalAmount+$center_balance->total_profit;
     $message  = Message::first();
+    $center_count = User::count();
+    $product_count = Product::count();
+    $balance = User::where('created_by', auth()->user()->id)->sum('user_balance');
     return inertia("Admin/Financial/Capital/Index", [
       "capitals"              => CapitalResource::collection($capitals),
       'success'               => session('success'),
@@ -59,9 +63,10 @@ class CapitalController extends Controller
       'total_profit'          => $center_balance->total_profit,
       'sum1'                  => $sum1,
       'sum2'                  => $sum2,
-      'sum3'                  => $sum3,
+      'center_count'          => $center_count,
+      'product_count'         => $product_count,
+      'balance'               => $balance,
       'message'               => $message,
-      'initialNotifications'  => auth()->user()->unreadNotifications,
     ]);
   }
 
@@ -70,7 +75,6 @@ class CapitalController extends Controller
     $message = Message::first();
     return inertia("Admin/Financial/Capital/Create",[
       'message'               => $message,
-      'initialNotifications'  => auth()->user()->unreadNotifications,
     ]);
   }
 
@@ -87,7 +91,6 @@ class CapitalController extends Controller
     return inertia("Admin/Financial/Capital/Edit", [
       'capital'               => new CapitalResource($capital),
       'message'               => $message,
-      'initialNotifications'  => auth()->user()->unreadNotifications,
     ]);
   }
 

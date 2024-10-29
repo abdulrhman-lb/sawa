@@ -47,7 +47,6 @@ class ProductBalanceController extends Controller
       'success'               => session('success'),
       'message'               => $message,
       'queryParams'           => request()->query() ?: null,
-      'initialNotifications'  => auth()->user()->unreadNotifications,
     ]);
   }
 
@@ -153,7 +152,6 @@ class ProductBalanceController extends Controller
       'all_balance_all'       => number_format($all_balance_all),
       'success'               => session('success'),
       'message'               => $message,
-      'initialNotifications'  => auth()->user()->unreadNotifications,
     ]);
   }
 }

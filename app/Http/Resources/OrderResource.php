@@ -16,6 +16,10 @@ class OrderResource extends JsonResource
    */
   public function toArray(Request $request): array
   {
+    $timeCreated = new Carbon($this->created_at);
+    $amPmCreated = $timeCreated->format('A') === 'AM' ? 'ص' : 'م';
+    $timeUpdated = new Carbon($this->updated_at);
+    $amPmUpdated = $timeUpdated->format('A') === 'AM' ? 'ص' : 'م';
     return [
       'id'              => $this->id,
       'amount'          => $this->amount,
@@ -36,6 +40,8 @@ class OrderResource extends JsonResource
       'amount_kind_id'  => $this->amount_kind_id,
       'amount_kind'     => new AmountKindResource($this->amount_kind),
       'created_at'      => (new Carbon($this->created_at))->format('Y/m/d'),
+      'time_created'    => $timeCreated->format('h:i') . " " . $amPmCreated,
+      'time_updated'    => $timeUpdated->format('h:i') . " " . $amPmUpdated,
     ];
   }
 }

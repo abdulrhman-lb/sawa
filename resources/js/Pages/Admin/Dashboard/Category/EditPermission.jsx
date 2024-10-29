@@ -3,16 +3,16 @@ import SuccessMessage from "@/Components/SuccessMessage";
 import Title from "@/Components/Title";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { Head, useForm } from "@inertiajs/react";
+import { FaRegSave } from "react-icons/fa";
 import { SiAuthelia } from "react-icons/si";
 
-export default function EditPermission({ 
-  auth, 
-  category_permissions, 
-  message, 
-  success, 
-  initialNotifications
- }) {
-  const { data, setData, post, errors, reset } = useForm({
+export default function EditPermission({
+  auth,
+  category_permissions,
+  message,
+  success,
+}) {
+  const { data, setData, post, errors, processing, reset } = useForm({
     permissions: category_permissions.data.map((permission) => ({
       category_id: permission.category_id,
       status: permission.status,
@@ -35,7 +35,6 @@ export default function EditPermission({
     <AuthenticatedLayout
       user={auth.user}
       message={message}
-      notification={initialNotifications}
       header={
         <div className="flex justify-between items-center">
           <ScrollBar message={message} >
@@ -72,10 +71,11 @@ export default function EditPermission({
                   </div>
                 ))}
                 <button
+                  disabled={processing}
                   type="submit"
-                  className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
-                >
+                  className="inline-flex text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 shadow-lg shadow-blue-500/50 dark:shadow-lg dark:shadow-blue-800/80 font-medium rounded-lg text-lg px-2.5 py-1.5 text-center me-2">
                   حفظ التعديلات
+                  <FaRegSave style={{ marginRight: '8px', marginTop: '3px' }} size={20} />
                 </button>
               </form>
             </div>

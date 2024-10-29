@@ -6,7 +6,7 @@ use App\Models\CategoryPermission;
 use App\Http\Requests\StoreCategoryPermissionRequest;
 use App\Http\Resources\CategoryPermissionResource;
 use App\Http\Resources\CategoryResource;
-use App\Http\Resources\UserCrudResource;
+use App\Http\Resources\UserPermissionResource;
 use App\Http\Resources\UserResource;
 use App\Models\Category;
 use App\Models\Message;
@@ -47,7 +47,6 @@ class CategoryPermissionController extends Controller
         'queryParams'           => request()->query() ?: null,
         'success'               => session('success'),
         'message'               => $message,
-        'initialNotifications'  => auth()->user()->unreadNotifications,
       ]);
     } else {
       return to_route('category.home')->with('success', 'ليس لديك صلاحيات لعرض الصفحة');
@@ -75,9 +74,8 @@ class CategoryPermissionController extends Controller
     return inertia("Admin/Dashboard/Category/CreatePermission", [
       'message'               => $message,
       "categories"            => CategoryResource::collection($categories),
-      'users'                 => UserCrudResource::collection($users),
+      'users'                 => UserPermissionResource::collection($users),
       'success'               => session('success'),
-      'initialNotifications'  => auth()->user()->unreadNotifications,
     ]);
   }
 
@@ -100,7 +98,6 @@ class CategoryPermissionController extends Controller
     return inertia("Admin/Dashboard/Category/EditPermission", [
       'category_permissions'  => CategoryPermissionResource::collection($category_permissions),
       'message'               => $message,
-      'initialNotifications'  => auth()->user()->unreadNotifications,
     ]);
   }
 

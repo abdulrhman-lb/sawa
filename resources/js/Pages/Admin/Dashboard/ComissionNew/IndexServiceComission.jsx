@@ -1,40 +1,47 @@
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { Head, router } from "@inertiajs/react";
 import TableHeading from "@/Components/TableHeading";
-import PrimaryButton from "@/Components/Buttons/PrimaryButton";
 import ScrollBar from "@/Components/ScrollBar";
 import SuccessMessage from "@/Components/SuccessMessage";
 import Title from "@/Components/Title";
 import { FaCreativeCommonsZero } from "react-icons/fa6";
+import { RiEditLine, RiListView } from "react-icons/ri";
 
-export default function index({ 
-  auth, 
-  comissionData, 
-  admins, 
-  queryParams = null, 
-  success, 
-  message, 
-  initialNotifications
- }) {
+export default function index({
+  auth,
+  comissionData,
+  admins,
+  queryParams = null,
+  success,
+  message,
+}) {
 
   queryParams = queryParams || {}
 
   const editComission = (user) => {
-    router.get(route("comission.amountkind", user))
+    router.get(route("comission.amountkind", {
+      'user_id': user.user_id,
+      'service_id': user.service_id
+    }))
   }
 
   const goCategory = (user) => {
-    router.get(route("comission.category", user))
+    router.get(route("comission.category", {
+      'user_id': user.user_id,
+      'category_id': user.category_id
+    }))
   }
 
   const goProduct = (user) => {
-    router.get(route("comission.product", user))
+    router.get(route("comission.product", {
+      'user_id': user.user_id,
+      'category_id': user.category_id
+    }))
   }
   return (
     <AuthenticatedLayout
       user={auth.user}
       message={message}
-      notification={initialNotifications}
       header={
         <div className="flex justify-between items-center">
           <ScrollBar message={message}>
@@ -82,20 +89,26 @@ export default function index({
                     </tr>
                   </thead>
                   <tbody className="text-center">
-                    {comissionData.map((user) => (
-                      <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700" key={user.id}>
+                    {comissionData.map((user, index) => (
+                      <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700" key={index}>
                         <td className="px-3 py-2 text-nowrap">{user.service}</td>
                         <td className="px-3 py-2">
                           <div className="px-3 py-2 text-right">
-                            {user.amount_kinds.map((amount_kind) => (
-                              <span className="bg-blue-600 rounded-md px-3 py-1 text-center min-w-[140px] inline-block font-normal text-white m-1">
+                            {user.amount_kinds.map((amount_kind, index) => (
+                              <span key={index} className="min-w-[90px] inline-block text-center bg-indigo-800 text-indigo-100 text-lg font-medium me-2 px-2.5 py-0.5 rounded-full dark:bg-indigo-900 dark:text-indigo-300 my-1">
                                 {amount_kind}
                               </span>
                             ))}
                           </div>
                         </td>
                         <td className="px-3 py-2 text-nowrap ">
-                          <PrimaryButton onClick={e => editComission(user)}>تعديل نسبة العمولة</PrimaryButton>
+                          <button
+                            onClick={e => editComission(user)}
+                            type="button"
+                            className="inline-flex text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 shadow-lg shadow-blue-500/50 dark:shadow-lg dark:shadow-blue-800/80 font-medium rounded-lg text-lg px-2.5 py-1.5 text-center me-2">
+                            تعديل نسبة العمولة
+                            <RiEditLine style={{ marginRight: '8px', marginTop: '3px' }} size={20} />
+                          </button>
                         </td>
                       </tr>
                     ))}
